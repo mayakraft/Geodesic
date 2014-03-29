@@ -2,8 +2,10 @@
 //
 //  Geodesic Geometry Generator
 //
-//  for equilateral triangle geometry
+//  Created by Robby on 3/26/14.
+//  Copyright (c) 2013 Robby Kraft. All rights reserved.
 //
+//  for equilateral triangle geometry
 //
 //  Tetrahedron, Octahedron, Icosahedron data
 //  triangle face subdivide
@@ -16,8 +18,6 @@
 //    OBJ file format
 //   points and faces (and lines, not in OBJ file)
 //
-//  Created by Robby on 3/26/14.
-//  Copyright (c) 2013 Robby Kraft. All rights reserved.
 
 // move to instruction builder:
 //   lineClass_ mirror array of lines_, values are 1, 2, 3 (which group each belongs to)

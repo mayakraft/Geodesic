@@ -7,6 +7,104 @@
 #define Y 1
 #define Z 2
 
+void Geodesic::loadTetrahedron(){
+    
+    double side = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+    
+    numPoints = 4;
+    numLines = 6;
+    numFaces = 4;
+    
+    delete points;
+    points = (double*)malloc(sizeof(double)*numPoints*3);
+    
+    points[X+3*0] = 0.0;    points[Y+3*0] = side;    points[Z+3*0] = side;
+    points[X+3*1] = 0.0;    points[Y+3*1] = side;    points[Z+3*1] = -side;
+    points[X+3*2] = side;   points[Y+3*2] = -side;   points[Z+3*2] = 0.0;
+    points[X+3*3] = -side;  points[Y+3*3] = -side;   points[Z+3*3] = 0.0;
+    
+    delete lines;
+    lines = (int*)malloc(sizeof(int)*numLines*2);
+    
+    lines[0+2*0] = 0;  lines[1+2*0] = 1;
+    lines[0+2*1] = 0;  lines[1+2*1] = 2;
+    lines[0+2*2] = 0;  lines[1+2*2] = 3;
+    lines[0+2*3] = 1;  lines[1+2*3] = 2;
+    lines[0+2*4] = 1;  lines[1+2*4] = 3;
+    lines[0+2*5] = 2;  lines[1+2*5] = 3;
+    
+    delete faces;
+    faces = (int*)malloc(sizeof(int)*numFaces*3);
+    
+    faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 2;
+    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
+    faces[0+3*2] = 2;  faces[1+3*2] = 3;  faces[2+3*2] = 0;
+    faces[0+3*3] = 2;  faces[1+3*3] = 3;  faces[2+3*3] = 1;
+    
+    //    alignTetrahedron();
+}
+
+void Geodesic::alignTetrahedron(){
+    double offset =  -M_PI/4.0f;
+    double distance, angle;
+    //rotate around the z until one point is at the zenith, along the (Y or X?) axis
+    for(int i = 0; i < numPoints; i++){
+        angle = atan2(points[i*3+X], points[i*3+Y]);
+        distance = sqrt( pow(points[i*3+X], 2) + pow(points[i*3+Y], 2) );
+        points[i*3+X] = distance*sin(angle+offset);
+        points[i*3+Y] = distance*cos(angle+offset);
+        //points[i*3+Z] stays the same
+    }
+}
+
+void Geodesic::loadOctahedron(){
+    
+    double radius = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+    
+    numPoints = 6;
+    numLines = 12;
+    numFaces = 8;
+    
+    delete points;
+    points = (double*)malloc(sizeof(double)*numPoints*3);
+    
+    points[X+3*0] = 0.0;      points[Y+3*0] = radius;   points[Z+3*0] = 0.0;
+    points[X+3*1] = radius;   points[Y+3*1] = 0.0;      points[Z+3*1] = 0.0;
+    points[X+3*2] = 0.0;      points[Y+3*2] = 0.0;      points[Z+3*2] = -radius;
+    
+    points[X+3*3] = -radius;  points[Y+3*3] = 0.0;      points[Z+3*3] = 0.0;
+    points[X+3*4] = 0.0;      points[Y+3*4] = 0.0;      points[Z+3*4] = radius;
+    points[X+3*5] = 0.0;      points[Y+3*5] = -radius;  points[Z+3*5] = 0.0;
+    
+    delete lines;
+    lines = (int*)malloc(sizeof(int)*numLines*2);
+    
+    lines[0+2*0] = 0;  lines[1+2*0] = 1;
+    lines[0+2*1] = 0;  lines[1+2*1] = 4;
+    lines[0+2*2] = 0;  lines[1+2*2] = 2;
+    lines[0+2*3] = 0;  lines[1+2*3] = 3;
+    lines[0+2*4] = 3;  lines[1+2*4] = 4;
+    lines[0+2*5] = 4;  lines[1+2*5] = 1;
+    lines[0+2*6] = 1;  lines[1+2*6] = 2;
+    lines[0+2*7] = 2;  lines[1+2*7] = 3;
+    lines[0+2*8] = 5;  lines[1+2*8] = 4;
+    lines[0+2*9] = 5;  lines[1+2*9] = 3;
+    lines[0+2*10] = 5;  lines[1+2*10] = 2;
+    lines[0+2*11] = 5;  lines[1+2*11] = 1;
+    
+    delete faces;
+    faces = (int*)malloc(sizeof(int)*numFaces*3);
+    
+    faces[0+3*0] = 0;  faces[1+3*0] = 4;  faces[2+3*0] = 1;
+    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 2;
+    faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 3;
+    faces[0+3*3] = 0;  faces[1+3*3] = 3;  faces[2+3*3] = 4;
+    faces[0+3*4] = 5;  faces[1+3*4] = 1;  faces[2+3*4] = 4;
+    faces[0+3*5] = 5;  faces[1+3*5] = 4;  faces[2+3*5] = 3;
+    faces[0+3*6] = 5;  faces[1+3*6] = 3;  faces[2+3*6] = 2;
+    faces[0+3*7] = 5;  faces[1+3*7] = 2;  faces[2+3*7] = 1;
+}
+
 void Geodesic::loadIcosahedron(){
     
     numPoints = 12;
@@ -93,104 +191,6 @@ void Geodesic::loadIcosahedron(){
 
 void Geodesic::alignIcosahedron(){
     double offset =  (M_PI/2) - atan( (1 + sqrt(5)) / 2 );
-    double distance, angle;
-    //rotate around the z until one point is at the zenith, along the (Y or X?) axis
-    for(int i = 0; i < numPoints; i++){
-        angle = atan2(points[i*3+X], points[i*3+Y]);
-        distance = sqrt( pow(points[i*3+X], 2) + pow(points[i*3+Y], 2) );
-        points[i*3+X] = distance*sin(angle+offset);
-        points[i*3+Y] = distance*cos(angle+offset);
-        //points[i*3+Z] stays the same
-    }
-}
-
-void Geodesic::loadOctahedron(){
-    
-    double radius = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
-    
-    numPoints = 6;
-    numLines = 12;
-    numFaces = 8;
-    
-    delete points;
-    points = (double*)malloc(sizeof(double)*numPoints*3);
-    
-    points[X+3*0] = 0.0;      points[Y+3*0] = radius;   points[Z+3*0] = 0.0;
-    points[X+3*1] = radius;   points[Y+3*1] = 0.0;      points[Z+3*1] = 0.0;
-    points[X+3*2] = 0.0;      points[Y+3*2] = 0.0;      points[Z+3*2] = -radius;
-    
-    points[X+3*3] = -radius;  points[Y+3*3] = 0.0;      points[Z+3*3] = 0.0;
-    points[X+3*4] = 0.0;      points[Y+3*4] = 0.0;      points[Z+3*4] = radius;
-    points[X+3*5] = 0.0;      points[Y+3*5] = -radius;  points[Z+3*5] = 0.0;
-    
-    delete lines;
-    lines = (int*)malloc(sizeof(int)*numLines*2);
-    
-    lines[0+2*0] = 0;  lines[1+2*0] = 1;
-    lines[0+2*1] = 0;  lines[1+2*1] = 4;
-    lines[0+2*2] = 0;  lines[1+2*2] = 2;
-    lines[0+2*3] = 0;  lines[1+2*3] = 3;
-    lines[0+2*4] = 3;  lines[1+2*4] = 4;
-    lines[0+2*5] = 4;  lines[1+2*5] = 1;
-    lines[0+2*6] = 1;  lines[1+2*6] = 2;
-    lines[0+2*7] = 2;  lines[1+2*7] = 3;
-    lines[0+2*8] = 5;  lines[1+2*8] = 4;
-    lines[0+2*9] = 5;  lines[1+2*9] = 3;
-    lines[0+2*10] = 5;  lines[1+2*10] = 2;
-    lines[0+2*11] = 5;  lines[1+2*11] = 1;
-    
-    delete faces;
-    faces = (int*)malloc(sizeof(int)*numFaces*3);
-    
-    faces[0+3*0] = 0;  faces[1+3*0] = 4;  faces[2+3*0] = 1;
-    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 2;
-    faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 3;
-    faces[0+3*3] = 0;  faces[1+3*3] = 3;  faces[2+3*3] = 4;
-    faces[0+3*4] = 5;  faces[1+3*4] = 1;  faces[2+3*4] = 4;
-    faces[0+3*5] = 5;  faces[1+3*5] = 4;  faces[2+3*5] = 3;
-    faces[0+3*6] = 5;  faces[1+3*6] = 3;  faces[2+3*6] = 2;
-    faces[0+3*7] = 5;  faces[1+3*7] = 2;  faces[2+3*7] = 1;
-}
-
-void Geodesic::loadTetrahedron(){
-    
-    double side = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
-    
-    numPoints = 4;
-    numLines = 6;
-    numFaces = 4;
-    
-    delete points;
-    points = (double*)malloc(sizeof(double)*numPoints*3);
-    
-    points[X+3*0] = 0.0;    points[Y+3*0] = side;    points[Z+3*0] = side;
-    points[X+3*1] = 0.0;    points[Y+3*1] = side;    points[Z+3*1] = -side;
-    points[X+3*2] = side;   points[Y+3*2] = -side;   points[Z+3*2] = 0.0;
-    points[X+3*3] = -side;  points[Y+3*3] = -side;   points[Z+3*3] = 0.0;
-    
-    delete lines;
-    lines = (int*)malloc(sizeof(int)*numLines*2);
-    
-    lines[0+2*0] = 0;  lines[1+2*0] = 1;
-    lines[0+2*1] = 0;  lines[1+2*1] = 2;
-    lines[0+2*2] = 0;  lines[1+2*2] = 3;
-    lines[0+2*3] = 1;  lines[1+2*3] = 2;
-    lines[0+2*4] = 1;  lines[1+2*4] = 3;
-    lines[0+2*5] = 2;  lines[1+2*5] = 3;
-    
-    delete faces;
-    faces = (int*)malloc(sizeof(int)*numFaces*3);
-    
-    faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 2;
-    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
-    faces[0+3*2] = 2;  faces[1+3*2] = 3;  faces[2+3*2] = 0;
-    faces[0+3*3] = 2;  faces[1+3*3] = 3;  faces[2+3*3] = 1;
-    
-    //    alignTetrahedron();
-}
-
-void Geodesic::alignTetrahedron(){
-    double offset =  -M_PI/4.0f;
     double distance, angle;
     //rotate around the z until one point is at the zenith, along the (Y or X?) axis
     for(int i = 0; i < numPoints; i++){
@@ -776,5 +776,5 @@ void Geodesic::connectTheDots()
     }
     for(i=0; i < faces.count; i+=3) NSLog(@"%@ -- %@ -- %@", faces[i], faces[i+1], faces[i+2]);
         faces_ = [[NSArray alloc] initWithArray:faces];
-}
+        }
 */

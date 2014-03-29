@@ -46,9 +46,13 @@ public:
     int *lines = NULL;      // each an int[2]- [0]:index in points [1]:index in points
     int *faces = NULL;      // each an int[3]- [0]:index in points [1]:index in points [2]:index in points
     
+    double *normals = NULL;
+    
 private:
     
     void initShape();
+    
+    void generateNormals();
     
     bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
     bool *visibleLines = NULL;   // size of numLines, not size of *lines array
@@ -71,7 +75,7 @@ private:
     void spherize();
     void connectTheDots();
     
-    //    void removeDuplicatePoints();
+//    void removeDuplicatePoints();
     
 };
 

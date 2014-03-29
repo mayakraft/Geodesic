@@ -202,6 +202,19 @@ void Geodesic::alignIcosahedron(){
     }
 }
 
+void Geodesic::generateNormals(){
+    if(numPoints){
+        delete normals;
+        normals = (double*)malloc(sizeof(double)*numPoints*3);
+        for(int i = 0; i < numPoints; i++){
+            float length = sqrtf( pow(points[X+3*i],2) + pow(points[Y+3*i],2) + pow(points[Z+3*i],2) );
+            normals[X+3*i] = points[X+3*i] / length;
+            normals[Y+3*i] = points[Y+3*i] / length;
+            normals[Z+3*i] = points[Z+3*i] / length;
+        }
+    }
+}
+
 void Geodesic::initShape(){
     v = 1;
     
@@ -233,16 +246,19 @@ void Geodesic::initShape(){
 
 void Geodesic::setTetrahedron(){
     loadTetrahedron();
+    generateNormals();
     //    initShape();
 }
 
 void Geodesic::setIcosahedron(){
     loadIcosahedron();
+    generateNormals();
     //    initShape();
 }
 
 void Geodesic::setOctahedron(){
     loadOctahedron();
+    generateNormals();
     //    initShape();
 }
 

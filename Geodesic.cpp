@@ -7,6 +7,27 @@
 #define Y 1
 #define Z 2
 
+void Geodesic::tetrahedron(int VFrequency){
+    v = VFrequency;
+    loadTetrahedron();
+    generateNormals();
+    //    initShape();
+}
+
+void Geodesic::icosahedron(int VFrequency){
+    v = VFrequency;
+    loadIcosahedron();
+    generateNormals();
+    //    initShape();
+}
+
+void Geodesic::octahedron(int VFrequency){
+    v = VFrequency;
+    loadOctahedron();
+    generateNormals();
+    //    initShape();
+}
+
 void Geodesic::loadTetrahedron(){
     
     double side = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
@@ -36,10 +57,10 @@ void Geodesic::loadTetrahedron(){
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
     
-    faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 2;
-    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
-    faces[0+3*2] = 2;  faces[1+3*2] = 3;  faces[2+3*2] = 0;
-    faces[0+3*3] = 2;  faces[1+3*3] = 3;  faces[2+3*3] = 1;
+    faces[0+3*0] = 0;  faces[1+3*0] = 2;  faces[2+3*0] = 3;
+    faces[0+3*1] = 0;  faces[1+3*1] = 3;  faces[2+3*1] = 1;
+    faces[0+3*2] = 0;  faces[1+3*2] = 1;  faces[2+3*2] = 2;
+    faces[0+3*3] = 1;  faces[1+3*3] = 3;  faces[2+3*3] = 2;
     
     //    alignTetrahedron();
 }
@@ -95,14 +116,14 @@ void Geodesic::loadOctahedron(){
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
     
-    faces[0+3*0] = 0;  faces[1+3*0] = 4;  faces[2+3*0] = 1;
-    faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 2;
-    faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 3;
-    faces[0+3*3] = 0;  faces[1+3*3] = 3;  faces[2+3*3] = 4;
-    faces[0+3*4] = 5;  faces[1+3*4] = 1;  faces[2+3*4] = 4;
-    faces[0+3*5] = 5;  faces[1+3*5] = 4;  faces[2+3*5] = 3;
-    faces[0+3*6] = 5;  faces[1+3*6] = 3;  faces[2+3*6] = 2;
-    faces[0+3*7] = 5;  faces[1+3*7] = 2;  faces[2+3*7] = 1;
+    faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 4;
+    faces[0+3*1] = 0;  faces[1+3*1] = 2;  faces[2+3*1] = 1;
+    faces[0+3*2] = 0;  faces[1+3*2] = 3;  faces[2+3*2] = 2;
+    faces[0+3*3] = 0;  faces[1+3*3] = 4;  faces[2+3*3] = 3;
+    faces[0+3*4] = 5;  faces[1+3*4] = 4;  faces[2+3*4] = 1;
+    faces[0+3*5] = 5;  faces[1+3*5] = 3;  faces[2+3*5] = 4;
+    faces[0+3*6] = 5;  faces[1+3*6] = 2;  faces[2+3*6] = 3;
+    faces[0+3*7] = 5;  faces[1+3*7] = 1;  faces[2+3*7] = 2;
 }
 
 void Geodesic::loadIcosahedron(){
@@ -164,27 +185,29 @@ void Geodesic::loadIcosahedron(){
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
     
-    faces[0+3*0] = 0;  faces[1+3*0] = 8;  faces[2+3*0] = 9;
-    faces[0+3*1] = 0;  faces[1+3*1] = 8;  faces[2+3*1] = 4;
-    faces[0+3*2] = 0;  faces[1+3*2] = 9;  faces[2+3*2] = 5;
-    faces[0+3*3] = 0;  faces[1+3*3] = 1;  faces[2+3*3] = 4;
-    faces[0+3*4] = 0;  faces[1+3*4] = 1;  faces[2+3*4] = 5;
-    faces[0+3*5] = 8;  faces[1+3*5] = 3;  faces[2+3*5] = 9;
-    faces[0+3*6] = 8;  faces[1+3*6] = 3;  faces[2+3*6] = 7;
-    faces[0+3*7] = 8;  faces[1+3*7] = 7;  faces[2+3*7] = 4;
-    faces[0+3*8] = 9;  faces[1+3*8] = 3;  faces[2+3*8] = 6;
-    faces[0+3*9] = 9;  faces[1+3*9] = 6;  faces[2+3*9] = 5;
+    faces[0+3*0] = 8;  faces[1+3*0] = 7;  faces[2+3*0] = 4;
+    faces[0+3*1] = 8;  faces[1+3*1] = 3;  faces[2+3*1] = 7;
+    faces[0+3*2] = 8;  faces[1+3*2] = 4;  faces[2+3*2] = 0;
+    faces[0+3*3] = 8;  faces[1+3*3] = 0;  faces[2+3*3] = 9;
+    faces[0+3*4] = 9;  faces[1+3*4] = 3;  faces[2+3*4] = 8;
+    faces[0+3*5] = 9;  faces[1+3*5] = 0;  faces[2+3*5] = 5;
+    faces[0+3*6] = 9;  faces[1+3*6] = 5;  faces[2+3*6] = 6;
+    faces[0+3*7] = 9;  faces[1+3*7] = 6;  faces[2+3*7] = 3;
     
-    faces[0+3*10] = 7;  faces[1+3*10] = 4;  faces[2+3*10] = 11;
-    faces[0+3*11] = 7;  faces[1+3*11] = 3;  faces[2+3*11] = 2;
-    faces[0+3*12] = 7;  faces[1+3*12] = 2;  faces[2+3*12] = 11;
-    faces[0+3*13] = 2;  faces[1+3*13] = 10;  faces[2+3*13] = 11;
-    faces[0+3*14] = 2;  faces[1+3*14] = 10;  faces[2+3*14] = 6;
-    faces[0+3*15] = 2;  faces[1+3*15] = 3;  faces[2+3*15] = 6;
-    faces[0+3*16] = 10;  faces[1+3*16] = 11;  faces[2+3*16] = 1;
-    faces[0+3*17] = 10;  faces[1+3*17] = 5;  faces[2+3*17] = 6;
+    faces[0+3*8] = 3;  faces[1+3*8] = 2;  faces[2+3*8] = 7;
+    faces[0+3*9] = 3;  faces[1+3*9] = 6;  faces[2+3*9] = 2;
+    
+    faces[0+3*10] = 0;  faces[1+3*10] = 4;  faces[2+3*10] = 1;
+    faces[0+3*11] = 0;  faces[1+3*11] = 1;  faces[2+3*11] = 5;
+    
+    faces[0+3*12] = 11;  faces[1+3*12] = 4;  faces[2+3*12] = 7;
+    faces[0+3*13] = 11;  faces[1+3*13] = 7;  faces[2+3*13] = 2;
+    faces[0+3*14] = 11;  faces[1+3*14] = 2;  faces[2+3*14] = 10;
+    faces[0+3*15] = 11;  faces[1+3*15] = 10;  faces[2+3*15] = 1;
+    faces[0+3*16] = 11;  faces[1+3*16] = 1;  faces[2+3*16] = 4;
+    faces[0+3*17] = 10;  faces[1+3*17] = 6;  faces[2+3*17] = 5;
     faces[0+3*18] = 10;  faces[1+3*18] = 5;  faces[2+3*18] = 1;
-    faces[0+3*19] = 11;  faces[1+3*19] = 1;  faces[2+3*19] = 4;
+    faces[0+3*19] = 10;  faces[1+3*19] = 2;  faces[2+3*19] = 6;
     
     alignIcosahedron();
 }
@@ -208,15 +231,14 @@ void Geodesic::generateNormals(){
         normals = (double*)malloc(sizeof(double)*numPoints*3);
         for(int i = 0; i < numPoints; i++){
             float length = sqrtf( pow(points[X+3*i],2) + pow(points[Y+3*i],2) + pow(points[Z+3*i],2) );
-            normals[X+3*i] = points[X+3*i] / length;
-            normals[Y+3*i] = points[Y+3*i] / length;
-            normals[Z+3*i] = points[Z+3*i] / length;
+            normals[X+3*i] = points[X+3*i] / length * (i/12.0);
+            normals[Y+3*i] = points[Y+3*i] / length * (i/12.0);
+            normals[Z+3*i] = points[Z+3*i] / length * (i/12.0);
         }
     }
 }
 
 void Geodesic::initShape(){
-    v = 1;
     
     delete visiblePoints;
     delete visibleLines;
@@ -242,24 +264,6 @@ void Geodesic::initShape(){
     lineClassLengths[0] = sqrt((points[lines[1] + X] - points[lines[0] + X]) * (points[lines[1] + X] - points[lines[0] + X]) +
                                (points[lines[1] + Y] - points[lines[0] + Y]) * (points[lines[1] + Y] - points[lines[0] + Y]) +
                                (points[lines[1] + Z] - points[lines[0] + Z]) * (points[lines[1] + Z] - points[lines[0] + Z]) );
-}
-
-void Geodesic::setTetrahedron(){
-    loadTetrahedron();
-    generateNormals();
-    //    initShape();
-}
-
-void Geodesic::setIcosahedron(){
-    loadIcosahedron();
-    generateNormals();
-    //    initShape();
-}
-
-void Geodesic::setOctahedron(){
-    loadOctahedron();
-    generateNormals();
-    //    initShape();
 }
 
 void Geodesic::classifyLines(){
@@ -331,12 +335,6 @@ void Geodesic::classifyLines(){
 }
 
 void Geodesic::geodecise(int vFreq){
-    if(primitiveType == 0)
-        loadIcosahedron();
-    else if (primitiveType == 1)
-        loadOctahedron();
-    else if (primitiveType == 2)
-        loadTetrahedron();
     divideFaces(vFreq);
     spherize();
     if(vFreq != 1)
@@ -400,6 +398,7 @@ void Geodesic::divideFaces(int vFreq){
                         newPointsArray[newI*3+X] = pointA[X] + j * xAB + k * xAC;
                         newPointsArray[newI*3+Y] = pointA[Y] + j * yAB + k * yAC;
                         newPointsArray[newI*3+Z] = pointA[Z] + j * zAB + k * zAC;
+                        newI++;
                     }
                 }
             }
@@ -408,10 +407,55 @@ void Geodesic::divideFaces(int vFreq){
         delete points;
         memcpy(points, newPointsArray, newI);
         //        points_ = [[NSArray alloc] initWithArray:points];
-        //        removeDuplicatePoints();
+        removeDuplicatePoints();
         //        [self removeDuplicatePoints];
     }
 }
+void Geodesic::removeDuplicatePoints()
+{
+    //    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
+    //    NSMutableArray *points = [[NSMutableArray alloc] init];
+    int duplicateIndexes[numPoints];
+    for(int i = 0; i < numPoints; i++)
+        duplicateIndexes[i] = -1;
+    int i, j;
+    int numDuplicates = 0;
+    bool found;
+    double elbow = .00000000001;
+    for(i = 0; i < numPoints - 1; i++)
+    {
+        for(j = i+1; j < numPoints; j++)
+        {
+            if (points[X+i*3] - elbow < points[X+j*3] && points[X+i*3] + elbow > points[X+j*3] &&
+                points[Y+i*3] - elbow < points[Y+j*3] && points[Y+i*3] + elbow > points[Y+j*3] &&
+                points[Z+i*3] - elbow < points[Z+j*3] && points[Z+i*3] + elbow > points[Z+j*3] )
+            {
+                //NSLog(@"Duplicates(X): %.21g %.21g",[points_[i] getX], [points_[j] getX]);
+                //                [duplicateIndexes addObject:[[NSNumber alloc] initWithInt:j]];
+                duplicateIndexes[j] = i;
+                numDuplicates++;
+            }
+        }
+    }
+    for(i = 0; i < numPoints; i++){
+        if(duplicateIndexes[i] != -1){
+            for(int f = 0; i < numFaces; i++){
+                
+            }
+        }
+    }
+    //    for(i = 0; i < numPoints; i++)
+    //    {
+    //        found = false;
+    //        for(j = 0; j < duplicateIndexes.count; j++){
+    //            if(i == [duplicateIndexes[j] integerValue])
+    //                found = true;
+    //                }
+    //        if(!found) [points addObject:points_[i]];
+    //    }
+    //    points_ = [[NSArray alloc] initWithArray:points];
+}
+
 
 void Geodesic::spherize(){
     int i;
@@ -473,9 +517,10 @@ void Geodesic::connectTheDots()
             }
         }
     }
-    if(primitiveType == 1) ceiling = shortest * 3.4;  // octahedron
-    else if (primitiveType == 0) ceiling = shortest * 2.5;  //1.5 if using Distance, not DistanceSquared
-    else if (primitiveType == 2) {printf("FAIL: connectTheDots() not set up for Tetrahedra");}
+    //    if(primitiveType == 1) ceiling = shortest * 3.4;  // octahedron
+    //    else if (primitiveType == 0) ceiling = shortest * 2.5;  //1.5 if using Distance, not DistanceSquared
+    //    else if (primitiveType == 2) {printf("FAIL: connectTheDots() not set up for Tetrahedra");}
+    
     //all further line segments will be based on this shortest value:
     for(i = 0; i < numPoints; i++){
         for(j=0; j < numPoints; j++){

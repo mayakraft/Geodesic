@@ -32,11 +32,9 @@ class Geodesic{
     
 public:
     
-    void setIcosahedron();
-    void setOctahedron();
-    void setTetrahedron();
-    void geodecise(int vFreq);
-    void classifyLines();
+    void icosahedron(int VFrequency);
+    void octahedron(int VFrequency);
+    void tetrahedron(int VFrequency);
     
     int numPoints;
     int numLines;
@@ -44,6 +42,7 @@ public:
     
     double *points = NULL;  // each a double[3]- [0]:x [1]:y [2]:z
     int *lines = NULL;      // each an int[2]- [0]:index in points [1]:index in points
+    // faces clockwise winding
     int *faces = NULL;      // each an int[3]- [0]:index in points [1]:index in points [2]:index in points
     
     double *normals = NULL;
@@ -62,7 +61,6 @@ private:
     double *lineClassLengths = NULL; // size of
     
     int v;
-    char primitiveType; // 0:icosahedron, 1:octahedron, 2:tetrahedron
     
     void loadIcosahedron();
     void loadOctahedron();
@@ -75,7 +73,9 @@ private:
     void spherize();
     void connectTheDots();
     
-//    void removeDuplicatePoints();
+    void removeDuplicatePoints();
+    void geodecise(int vFreq);
+    void classifyLines();
     
 };
 

@@ -5,12 +5,11 @@
 //  Created by Robby on 3/26/14.
 //  Copyright (c) 2013 Robby Kraft. All rights reserved.
 //
-//  for equilateral triangle geometry
+//  Tetrahedron, Octahedron, Icosahedron
 //
-//  Tetrahedron, Octahedron, Icosahedron data
-//  triangle face subdivide
-//  duplicate point merge
-//  spherize (geodecise) from origin
+//  face subdivide
+//  (remove duplicates)
+//  spherize (geodecise)
 //
 //  ?: crop sphere
 //
@@ -24,9 +23,15 @@
 //   - hidden lines and points which lie below ground level
 //
 
+
+#pragma mark- generate lines[] from face data
+
+
 #include <iostream>
 #include <fstream>
 #include <math.h>
+
+using namespace std;
 
 class Geodesic{
     
@@ -50,6 +55,7 @@ public:
 private:
     
     void initShape();
+    void makeOBJ();
     
     void generateNormals();
     

@@ -12,15 +12,15 @@
 
 @class OBJ;
 
-@interface Mesh : NSObject
+@interface GeodesicMesh : NSObject
 
 -(void) load:(Geodesic*)geodesic;
--(void) loadOBJ:(OBJ*)obj;
 
--(void) draw; // (draw triangles)
+-(void) draw;  // (draw triangles)
 
 -(void) drawPoints;
 -(void) drawLines;
 -(void) drawNormalLines;
+-(void) drawFaceNormalLines;
 
 @end

@@ -1,14 +1,13 @@
 //
 //
-//  Geodesic Geometry Generator
+//  geodesic geometry
 //
 //  Created by Robby on 3/26/14.
 //  Copyright (c) 2013 Robby Kraft. All rights reserved.
 //
-//  Tetrahedron, Octahedron, Icosahedron
+//  Tetrahedra, Octahedra, Icosahedra
 //
 //  face subdivide
-//  (remove duplicates)
 //  spherize (geodecise)
 //
 //  ?: crop sphere
@@ -40,60 +39,43 @@ public:
     void icosahedron(int VFrequency);
     void octahedron(int VFrequency);
     void tetrahedron(int VFrequency);
-    
+
     int numPoints;
     int numLines;
     int numFaces;
-    
+
     double *points = NULL;  // each a double[3]- [0]:x [1]:y [2]:z
-    int *lines = NULL;      // each an int[2]- [0]:index in points [1]:index in points
-    // faces clockwise winding
-    int *faces = NULL;      // each an int[3]- [0]:index in points [1]:index in points [2]:index in points
+    int *lines = NULL;      // each an int[2]- [0]:index in *points [1]:index in *points
+    int *faces = NULL;      // each an int[3]- [0]:index in *points [1]:index in *points [2]:index in *points
     
-    double *normals = NULL;
+    double *normals = NULL;  // vertex normals
+    double *faceNormals = NULL;
     
 private:
-    
-    void initShape();
-    void makeOBJ();
-    
-    void generateNormals();
-    
-    bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
-    bool *visibleLines = NULL;   // size of numLines, not size of *lines array
-    bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
-    
-    int *lineClass = NULL;           // size of numLines
-    double *lineClassLengths = NULL; // size of
-    
+
     int v;
     
     void loadIcosahedron();
     void loadOctahedron();
     void loadTetrahedron();
-    // move a point along Y axis
     void alignIcosahedron();
     void alignTetrahedron();
     
     void divideFaces(int vFreq);
-    void spherize();
-    void connectTheDots();
-    
     void removeDuplicatePoints();
-    void geodecise(int vFreq);
+    void spherize();
+    void generateNormals();
+
+    // crop
+    bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
+    bool *visibleLines = NULL;   // size of numLines, not size of *lines array
+    bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
+    int *lineClass = NULL;           // size of numLines
+    double *lineClassLengths = NULL; // size of
+    void crop(float c);
+    void initCropData();
+    void connectTheDots();
     void classifyLines();
-    
+
+    void makeOBJ(string filename);
 };
-
-
-
-//    BOOL icosahedron; // 1 = icosa, 0 = octa
-
-//-(id) init;
-//-(id) initWithDome:(Dome*) input;
-//-(id) initWithTriangle;
-//-(void) geodecise:(int)v;
-//-(void) geodeciseTriangle:(int)v;
-//-(void) classifyLines;
-//-(void) setIcosahedron;
-//-(void) setOctahedron;

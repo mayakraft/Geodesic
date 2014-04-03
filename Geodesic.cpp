@@ -13,8 +13,6 @@ void Geodesic::tetrahedron(int VFrequency){
     divideFaces(v);
     spherize();
     generateNormals();
-    makeOBJ();
-    //    initShape();
 }
 
 void Geodesic::icosahedron(int VFrequency){
@@ -23,8 +21,6 @@ void Geodesic::icosahedron(int VFrequency){
     divideFaces(v);
     spherize();
     generateNormals();
-    makeOBJ();
-    //    initShape();
 }
 
 void Geodesic::octahedron(int VFrequency){
@@ -33,8 +29,6 @@ void Geodesic::octahedron(int VFrequency){
     divideFaces(v);
     spherize();
     generateNormals();
-    makeOBJ();
-    //    initShape();
 }
 
 void Geodesic::loadTetrahedron(){
@@ -71,7 +65,7 @@ void Geodesic::loadTetrahedron(){
     faces[0+3*2] = 0;  faces[1+3*2] = 1;  faces[2+3*2] = 2;
     faces[0+3*3] = 1;  faces[1+3*3] = 3;  faces[2+3*3] = 2;
     
-    //    alignTetrahedron();
+//    alignTetrahedron();
 }
 
 void Geodesic::alignTetrahedron(){
@@ -140,7 +134,7 @@ void Geodesic::loadIcosahedron(){
     numPoints = 12;
     numLines = 30;
     numFaces = 20;
-    
+
     delete points;
     points = (double*)malloc(sizeof(double)*numPoints*3);
     
@@ -156,7 +150,7 @@ void Geodesic::loadIcosahedron(){
     points[X+3*9] = -1.0;  points[Y+3*9] = phi;  points[Z+3*9] = 0.0;
     points[X+3*10] = -1.0;  points[Y+3*10] = -phi;  points[Z+3*10] = 0.0;
     points[X+3*11] = 1.0;  points[Y+3*11] = -phi;  points[Z+3*11] = 0.0;
-    
+
     delete lines;
     lines = (int*)malloc(sizeof(int)*numLines*2);
     
@@ -216,7 +210,7 @@ void Geodesic::loadIcosahedron(){
     faces[0+3*17] = 10;  faces[1+3*17] = 6;  faces[2+3*17] = 5;
     faces[0+3*18] = 10;  faces[1+3*18] = 5;  faces[2+3*18] = 1;
     faces[0+3*19] = 10;  faces[1+3*19] = 2;  faces[2+3*19] = 6;
-    
+
     alignIcosahedron();
 }
 
@@ -235,20 +229,30 @@ void Geodesic::alignIcosahedron(){
 
 void Geodesic::generateNormals(){
     if(numPoints){
+        double length;
         delete normals;
         normals = (double*)malloc(sizeof(double)*numPoints*3);
         for(int i = 0; i < numPoints; i++){
-            float length = sqrtf( pow(points[X+3*i],2) + pow(points[Y+3*i],2) + pow(points[Z+3*i],2) );
+            length = sqrtf( pow(points[X+3*i],2) + pow(points[Y+3*i],2) + pow(points[Z+3*i],2) );
             normals[X+3*i] = points[X+3*i] / length;// * (i/12.0);
             normals[Y+3*i] = points[Y+3*i] / length;// * (i/12.0);
             normals[Z+3*i] = points[Z+3*i] / length;// * (i/12.0);
         }
     }
+    if(numFaces){
+        delete faceNormals;
+        faceNormals = (double*)malloc(sizeof(double)*numFaces*3);
+        for(int i = 0; i < numFaces; i++){
+            faceNormals[i*3+X] = ( normals[faces[i*3+0]*3+X] + normals[faces[i*3+1]*3+X] + normals[faces[i*3+2]*3+X] ) / 3.0;
+            faceNormals[i*3+Y] = ( normals[faces[i*3+0]*3+Y] + normals[faces[i*3+1]*3+Y] + normals[faces[i*3+2]*3+Y] ) / 3.0;
+            faceNormals[i*3+Z] = ( normals[faces[i*3+0]*3+Z] + normals[faces[i*3+1]*3+Z] + normals[faces[i*3+2]*3+Z] ) / 3.0;
+        }
+    }
 }
 
-void Geodesic::makeOBJ(){
+void Geodesic::makeOBJ(string filename){
     ofstream myfile;
-    myfile.open ("mesh.obj");
+    myfile.open (filename);
     myfile << "# geodesic dome object\n";
     myfile << "# Domekit, Robby Kraft\n";
     myfile << "o Dome\n";
@@ -259,7 +263,269 @@ void Geodesic::makeOBJ(){
     myfile.close();
 }
 
-void Geodesic::initShape(){
+// NEW POINTS / FACE
+// V0: 1           +2 =
+// V1: 3 per face  +3 =
+// V2: 6           +4 =
+// V3: 10          +5 =
+// V4: 15          +6 =
+// V5: 21
+
+// NEW FACES / FACE
+// V0:
+// V1: 1  +3 =  (1*1)
+// V2: 4  +5 =  (2*2)
+// V3: 9  +7 =  (3*3)
+// V4: 16 +9 =  (4*4)
+// V5: 25       (5*5)
+
+//         o   A                               0
+//        / \         clockwise winding       2 1
+//       /   \                               5 4 3
+//      /     \                             9 8 7 6
+//  C  o_______o  B
+//
+//           side length  /  frequency (v)
+//       \  = AB     short for AB/v
+//        / = AC
+//
+//        /\         /\        /\           /\
+//       /\/\                   /\         /\/\
+//      /\/\/\
+//     /\/\/\/\
+//                 first    only 1 up      add 2
+//       goal       row     triangle     up and down
+//
+//        /\                /\              /\
+//       /\/\              /\/\            /\/\
+//      /\/\/\            /\/\/\          /\/\/\
+//           /\              /\/\          /\/\/\
+//
+//     after the       add 2 faces
+//     first face        each step
+//    of each row     an up and a down
+//          ______
+//       a /\    / b    INDEX SHORTCUTS (row = row # from A)
+//        /  \  /        p->c  i-1
+//      p/____\/c        p->a  i-row
+//                       p->b  i-row-1
+
+void Geodesic::divideFaces(int vFreq){
+    v = vFreq;
+    if(v > 1){
+        // shortcut calculate points per face
+        int pointsPerFace = 3;
+        for(int i = 1; i < vFreq; i++)
+            pointsPerFace += (i+2);
+        // new Points, Faces arrays, and their sizes
+        double newPointsArray[numFaces * pointsPerFace * 3 + numPoints];
+        int newFacesArray[v*(v+1)*numFaces*3*3];   // data overflow problem. correctly approximate array size
+        int newPI = 0;
+        int newFI = 0;
+        // original points in their original indeces
+        for(int i = 0; i < numPoints; i++){
+            newPointsArray[i*3+X] = points[i*3+X];
+            newPointsArray[i*3+Y] = points[i*3+Y];
+            newPointsArray[i*3+Z] = points[i*3+Z];
+            newPI++;
+        }
+        // bring along the parent polyhedra's faces too
+//        for(int i = 0; i < numFaces; i++){
+//            newFacesArray[i*3+0] = faces[i*3+0];
+//            newFacesArray[i*3+1] = faces[i*3+1];
+//            newFacesArray[i*3+2] = faces[i*3+2];
+//            newFI++;
+//        }
+        int i, j, k;
+        double segments = v;
+        double *pointA, *pointB, *pointC;
+        int faceA, faceB, faceC;
+        double AB[3], BC[3];
+        int faceP1, faceP2, faceP3;
+        for(i=0; i < numFaces; i++){
+            // retain pointers to major 3 vertices
+            faceA = faces[i*3 + 0];
+            faceB = faces[i*3 + 1];
+            faceC = faces[i*3 + 2];
+            pointA = &points[faceA*3];
+            pointB = &points[faceB*3];
+            pointC = &points[faceC*3];
+            // change from A to B / frequency, and B to C
+            AB[X] = ( pointB[X] - pointA[X] ) / segments;
+            AB[Y] = ( pointB[Y] - pointA[Y] ) / segments;
+            AB[Z] = ( pointB[Z] - pointA[Z] ) / segments;
+            BC[X] = ( pointC[X] - pointB[X] ) / segments;
+            BC[Y] = ( pointC[Y] - pointB[Y] ) / segments;
+            BC[Z] = ( pointC[Z] - pointB[Z] ) / segments;
+            printf("(%d): (%.3f, %.3f, %.3f) : (%.3f, %.3f, %.3f)\n",i, AB[X], AB[Y], AB[Z], BC[X], BC[Y], BC[Z]);
+            // iterate 1, 12, 123, 1234, 12345, 123456...
+            for(j = 0; j <= v; j++){
+                for(k = 0; k <= j; k++){
+                    // skip the 3 original vertices
+                    if(!((j == 0 && k == 0) || (j == v & k == 0) || (j == v && k == v))){  //ignore 3 points of the triangle
+                        // POINTS
+                        newPointsArray[newPI*3+X] = pointA[X] + j * AB[X] + k * BC[X];
+                        newPointsArray[newPI*3+Y] = pointA[Y] + j * AB[Y] + k * BC[Y];
+                        newPointsArray[newPI*3+Z] = pointA[Z] + j * AB[Z] + k * BC[Z];
+                        newPI++;
+                    }
+                    // FACES
+                    if(k != 0){
+                        // build a vertical pointing triangle face
+                        faceP1 = (newPI-1);
+                        faceP2 = (newPI-1)-j-1;
+                        faceP3 = (newPI-1)-1;
+                        if(j == v) faceP2++;  // last row->parent row is offset by one because of skipping one of the original triangle points
+                        if((j == v && k == v)){  // i have no idea why the last triangle on the last row differs from the other triangles on the last row
+                            faceP2++;
+                            faceP3++;
+                        }
+                        // special case, preserve 3 original points when possible
+                        if(j == 1) faceP2 = faceA;  // (original pointA)
+                        if(j == v && k == 1) faceP3 = faceB;
+                        if(j == v && k == v) faceP1 = faceC;
+                        
+                        newFacesArray[newFI*3+0] = faceP1;
+                        newFacesArray[newFI*3+1] = faceP2;
+                        newFacesArray[newFI*3+2] = faceP3;
+                        newFI++;
+                        
+                        //also build a downward pointing triangle face
+                        if( k != j){
+                            faceP1 = (newPI-1);
+                            faceP2 = (newPI-1)-j+1-1;
+                            faceP3 = (newPI-1)-j-1;
+                            if(j == v){
+                                faceP2++;
+                                faceP3++;
+                            }
+                            newFacesArray[newFI*3+0] = faceP1;
+                            newFacesArray[newFI*3+1] = faceP2;
+                            newFacesArray[newFI*3+2] = faceP3;
+                            newFI++;
+                        }
+                    }
+                    // LINES maybe?
+                }
+            }
+        }
+        
+        numPoints = newPI;
+        delete points;
+        points = (double*)malloc(sizeof(double)*numPoints*3);
+        for(int i = 0; i < numPoints*3; i++)
+            points[i] = newPointsArray[i];
+
+        numFaces = newFI;
+        delete faces;
+        faces = (int*)malloc(sizeof(int)*numFaces*3);
+        for(int i = 0; i < numFaces*3; i++)
+            faces[i] = newFacesArray[i];
+        
+//        removeDuplicatePoints();
+//        [self removeDuplicatePoints];
+    }
+}
+void Geodesic::removeDuplicatePoints()
+{
+//    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
+//    NSMutableArray *points = [[NSMutableArray alloc] init];
+    int duplicateIndexes[numPoints];
+    for(int i = 0; i < numPoints; i++)
+        duplicateIndexes[i] = -1;
+    int i, j;
+    int numDuplicates = 0;
+//    bool found;
+    double elbow = .00000000001;
+    for(i = 0; i < numPoints - 1; i++){
+        bool duplicate = false;
+        for(j = i+1; j < numPoints; j++){
+            if (points[X+i*3] - elbow < points[X+j*3] && points[X+i*3] + elbow > points[X+j*3] &&
+                points[Y+i*3] - elbow < points[Y+j*3] && points[Y+i*3] + elbow > points[Y+j*3] &&
+                points[Z+i*3] - elbow < points[Z+j*3] && points[Z+i*3] + elbow > points[Z+j*3] )
+            {
+                //NSLog(@"Duplicates(X): %.21g %.21g",[points_[i] getX], [points_[j] getX]);
+//                [duplicateIndexes addObject:[[NSNumber alloc] initWithInt:j]];
+                duplicateIndexes[j] = i;
+                duplicate = true;
+            }
+        }
+        if(duplicate)
+            numDuplicates++;
+    }
+    for(i = 0; i < numPoints; i++){
+        printf("P: %d\n",duplicateIndexes[i]);
+    }
+    
+    for(i = 0; i < numPoints; i++)
+        if(duplicateIndexes[i] != -1)
+            for(int f = 0; i < numFaces; i++)
+                for(int e = 0; e < 3; e++)
+                    if(faces[f*3+e] == i)
+                        faces[f*3+e] = duplicateIndexes[i];
+
+    for(i = 0; i < numLines; i++)
+        if(duplicateIndexes[i] != -1)
+            for(int f = 0; i < numLines; i++)
+                for(int e = 0; e < 2; e++)
+                    if(lines[f*2+e] == i)
+                        lines[f*2+e] = duplicateIndexes[i];
+
+    double newPointsArray[numPoints - numDuplicates];
+    int index = 0;
+    for(i = 0; i < numPoints; i++){
+        if(duplicateIndexes[i] == -1){
+            newPointsArray[index] = points[i];
+            index++;
+        }
+    }
+    
+    delete points;
+    numPoints = numPoints - numDuplicates;
+    memcpy(points, newPointsArray, numPoints);
+    
+//    for(i = 0; i < numPoints; i++)
+//    {
+//        found = false;
+//        for(j = 0; j < duplicateIndexes.count; j++){
+//            if(i == [duplicateIndexes[j] integerValue])
+//                found = true;
+//                }
+//        if(!found) [points addObject:points_[i]];
+//    }
+//    points_ = [[NSArray alloc] initWithArray:points];
+}
+
+
+void Geodesic::spherize(){
+    int i;
+    double difference, distance;
+    double maxdistance = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+    for(i = 0; i < numPoints; i++)
+    {
+        distance = sqrt(pow(points[i*3+X], 2) +
+                        pow(points[i*3+Y], 2) +
+                        pow(points[i*3+Z], 2) );
+        difference = maxdistance / distance;
+        points[i*3+X]*=difference;
+        points[i*3+Y]*=difference;
+        points[i*3+Z]*=difference;
+    }
+}
+
+// V0: 1           +2 =
+// V1: 3 per face  +3 =
+// V2: 6           +4 =
+// V3: 10          +5 =
+// V4: 15          +6 =
+// V5: 21
+
+// V1: 3    3
+// V2: 9    1*3 + 2*3
+// V3: 18   1*3 + 2*3 + 3*3
+// V4: 30
+
+void Geodesic::initCropData(){
     
     delete visiblePoints;
     delete visibleLines;
@@ -355,352 +621,6 @@ void Geodesic::classifyLines(){
     //for(i=0; i < lineClassLengths_.count; i++) NSLog(@"Strut %d: %f", i, [lineClassLengths_[i] floatValue]);
 }
 
-void Geodesic::geodecise(int vFreq){
-    divideFaces(vFreq);
-    spherize();
-    if(vFreq != 1)
-        connectTheDots();
-    classifyLines();
-}
-
-//-(void) geodeciseTriangle:(int)vNum
-//{
-//    [self loadTriangle];
-//    [self divideFaces:vNum];
-//    //[self spherize];
-//    icosahedron = true;
-//    if(vNum!=1)[self connectTheDots];
-//    [self classifyLines];
-//}
-
-// NEW POINTS / FACE
-// V0: 1           +2 =
-// V1: 3 per face  +3 =
-// V2: 6           +4 =
-// V3: 10          +5 =
-// V4: 15          +6 =
-// V5: 21
-
-// NEW FACES / FACE
-// V0:
-// V1: 1  +3 =  (1*1)
-// V2: 4  +5 =  (2*2)
-// V3: 9  +7 =  (3*3)
-// V4: 16 +9 =  (4*4)
-// V5: 25       (5*5)
-
-//         o   A                               0
-//        / \         clockwise winding       2 1
-//       /   \                               5 4 3
-//      /     \                             9 8 7 6
-//  C  o_______o  B
-//
-//           side length  /  frequency (v)
-//       \  = AB     short for AB/v
-//        / = AC
-//
-//        /\         /\        /\           /\
-//       /\/\                   /\         /\/\
-//      /\/\/\
-//     /\/\/\/\
-//                 first    only 1 up      add 2
-//       goal       row     triangle     up and down
-//
-//        /\                /\              /\
-//       /\/\              /\/\            /\/\
-//      /\/\/\            /\/\/\          /\/\/\
-//           /\              /\/\          /\/\/\
-//
-//     after the       add 2 faces
-//     first face        each step
-//    of each row     an up and a down
-//          ______
-//       a /\    / b    INDEX SHORTCUTS (row = row # from A)
-//        /  \  /        p->c  i-1
-//      p/____\/c        p->a  i-row
-//                       p->b  i-row-1
-
-void Geodesic::divideFaces(int vFreq){
-    v = vFreq;
-    if(v > 1){
-        // shortcut calculate points per face
-        int pointsPerFace = 3;
-        for(int i = 1; i < vFreq; i++)
-            pointsPerFace += (i+2);
-        // new Points, Faces arrays, and their sizes
-        double newPointsArray[numFaces * pointsPerFace * 3 + numPoints];
-        int newFacesArray[v*(v+1)*numFaces*3*3];   // data overflow problem. correctly approximate array size
-        int newPI = 0;
-        int newFI = 0;
-        // original points in their original indeces
-        for(int i = 0; i < numPoints; i++){
-            newPointsArray[i*3+X] = points[i*3+X];
-            newPointsArray[i*3+Y] = points[i*3+Y];
-            newPointsArray[i*3+Z] = points[i*3+Z];
-            newPI++;
-        }
-        for(int i = 0; i < numFaces; i++){
-            newFacesArray[i*3+0] = faces[i*3+0];
-            newFacesArray[i*3+1] = faces[i*3+1];
-            newFacesArray[i*3+2] = faces[i*3+2];
-            newFI++;
-        }
-        int i, j, k;
-        double segments = v;
-        double *pointA, *pointB, *pointC;
-        int faceA, faceB, faceC;
-        double AB[3], BC[3];
-        int faceP1, faceP2, faceP3;
-        for(i=0; i < numFaces; i++){
-            // retain pointers to major 3 vertices
-            faceA = faces[i*3 + 0];
-            faceB = faces[i*3 + 1];
-            faceC = faces[i*3 + 2];
-            pointA = &points[faceA*3];
-            pointB = &points[faceB*3];
-            pointC = &points[faceC*3];
-            // change from A to B / frequency, and B to C
-            AB[X] = ( pointB[X] - pointA[X] ) / segments;
-            AB[Y] = ( pointB[Y] - pointA[Y] ) / segments;
-            AB[Z] = ( pointB[Z] - pointA[Z] ) / segments;
-            BC[X] = ( pointC[X] - pointB[X] ) / segments;
-            BC[Y] = ( pointC[Y] - pointB[Y] ) / segments;
-            BC[Z] = ( pointC[Z] - pointB[Z] ) / segments;
-            printf("(%d): (%.3f, %.3f, %.3f) : (%.3f, %.3f, %.3f)\n",i, AB[X], AB[Y], AB[Z], BC[X], BC[Y], BC[Z]);
-            // iterate 1, 12, 123, 1234, 12345, 123456...
-            for(j = 0; j <= v; j++){
-                for(k = 0; k <= j; k++){
-                    // skip the 3 original vertices
-                    if(!((j == 0 && k == 0) || (j == v & k == 0) || (j == v && k == v))){  //ignore 3 points of the triangle
-                        // POINTS
-                        newPointsArray[newPI*3+X] = pointA[X] + j * AB[X] + k * BC[X];
-                        newPointsArray[newPI*3+Y] = pointA[Y] + j * AB[Y] + k * BC[Y];
-                        newPointsArray[newPI*3+Z] = pointA[Z] + j * AB[Z] + k * BC[Z];
-                        newPI++;
-                    }
-                    // FACES
-                    if(k != 0){
-                        faceP1 = (newPI-1);
-                        faceP2 = (newPI-1)-j-1;
-                        faceP3 = (newPI-1)-1;
-                        if(j == v) faceP2++;  // last row->parent row is offset by one because of skipping one of the original triangle points
-                        if((j == v && k == v)){  // i have no idea why the last triangle on the last row differs from the other triangles on the last row
-                            faceP2++;
-                            faceP3++;
-                        }
-                        // special case, preserve 3 original points when possible
-                        if(j == 1) faceP2 = faceA;  // (original pointA)
-                        if(j == v && k == 1) faceP3 = faceB;
-                        if(j == v && k == v) faceP1 = faceC;
-                        
-                        //                            newFacesArray[newFI*3+0] = faceP1;
-                        //                            newFacesArray[newFI*3+1] = faceP2;
-                        //                            newFacesArray[newFI*3+2] = faceP3;
-                        //                            printf("::: j(%d) k(%d) PI(%d)\n::: %d, %d, %d\n::: %d, %d, %d\n", j, k, newPI, faceA, faceB, faceC, faceP1, faceP2, faceP3);
-                        //                            newFI++;
-                        //build a vertical pointing triangle face
-                        //if(k != 1){
-                        //also build a downward pointing triangle face
-                        if( k != j){
-                            faceP1 = (newPI-1);
-                            faceP2 = (newPI-1)-j+1-1;
-                            faceP3 = (newPI-1)-j-1;
-                            if(j == v){
-                                faceP2++;
-                                faceP3++;
-                            }
-                            //                            printf("::: j(%d) k(%d) PI(%d)\n::: %d, %d, %d\n::: %d, %d, %d\n", j, k, newPI, faceA, faceB, faceC, faceP1, faceP2, faceP3);
-                            newFacesArray[newFI*3+0] = faceP1;
-                            newFacesArray[newFI*3+1] = faceP2;
-                            newFacesArray[newFI*3+2] = faceP3;
-                            newFI++;
-                        }
-                    }
-                    // LINES maybe?
-                }
-            }
-        }
-        
-        numPoints = newPI;
-        delete points;
-        points = (double*)malloc(sizeof(double)*numPoints*3);
-        for(int i = 0; i < numPoints*3; i++)
-            points[i] = newPointsArray[i];
-        //        printf("DIVIDE FACES (%d) POINTS\n_____________________\n",numPoints);
-        //        for(int i = 0; i < numPoints; i++)
-        //            printf("P: (%.3f, %.3f, %.3f)\n", points[i*3], points[i*3+1], points[i*3+2]);
-        
-        numFaces = newFI;
-        delete faces;
-        faces = (int*)malloc(sizeof(int)*numFaces*3);
-        for(int i = 0; i < numFaces*3; i++)
-            faces[i] = newFacesArray[i];
-        printf("DIVIDE FACES (%d) FACES\n_____________________\n",numFaces);
-        for(int i = 0; i < numFaces; i++)
-            printf("F: (%d, %d, %d)\n", faces[i*3], faces[i*3+1], faces[i*3+2]);
-        
-        
-        //        for(int i = 0; i < numPoints/3.; i++){
-        //            printf("P: (%.3f, %.3f, %.3f)", points[i*3+X], points[i*3+Y], points[i*3+Z]);
-        //        }
-        //        removeDuplicatePoints();
-        //        [self removeDuplicatePoints];
-    }
-}
-void Geodesic::removeDuplicatePoints()
-{
-    //    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
-    //    NSMutableArray *points = [[NSMutableArray alloc] init];
-    int duplicateIndexes[numPoints];
-    for(int i = 0; i < numPoints; i++)
-        duplicateIndexes[i] = -1;
-    int i, j;
-    int numDuplicates = 0;
-    bool found;
-    double elbow = .00000000001;
-    for(i = 0; i < numPoints - 1; i++){
-        bool duplicate = false;
-        for(j = i+1; j < numPoints; j++){
-            if (points[X+i*3] - elbow < points[X+j*3] && points[X+i*3] + elbow > points[X+j*3] &&
-                points[Y+i*3] - elbow < points[Y+j*3] && points[Y+i*3] + elbow > points[Y+j*3] &&
-                points[Z+i*3] - elbow < points[Z+j*3] && points[Z+i*3] + elbow > points[Z+j*3] )
-            {
-                //NSLog(@"Duplicates(X): %.21g %.21g",[points_[i] getX], [points_[j] getX]);
-                //                [duplicateIndexes addObject:[[NSNumber alloc] initWithInt:j]];
-                duplicateIndexes[j] = i;
-                duplicate = true;
-            }
-        }
-        if(duplicate)
-            numDuplicates++;
-    }
-    for(i = 0; i < numPoints; i++){
-        printf("P: %d\n",duplicateIndexes[i]);
-    }
-    
-    for(i = 0; i < numPoints; i++)
-        if(duplicateIndexes[i] != -1)
-            for(int f = 0; i < numFaces; i++)
-                for(int e = 0; e < 3; e++)
-                    if(faces[f*3+e] == i)
-                        faces[f*3+e] = duplicateIndexes[i];
-    
-    for(i = 0; i < numLines; i++)
-        if(duplicateIndexes[i] != -1)
-            for(int f = 0; i < numLines; i++)
-                for(int e = 0; e < 2; e++)
-                    if(lines[f*2+e] == i)
-                        lines[f*2+e] = duplicateIndexes[i];
-    
-    double newPointsArray[numPoints - numDuplicates];
-    int index = 0;
-    for(i = 0; i < numPoints; i++){
-        if(duplicateIndexes[i] == -1){
-            newPointsArray[index] = points[i];
-            index++;
-        }
-    }
-    
-    delete points;
-    numPoints = numPoints - numDuplicates;
-    memcpy(points, newPointsArray, numPoints);
-    
-    //    for(i = 0; i < numPoints; i++)
-    //    {
-    //        found = false;
-    //        for(j = 0; j < duplicateIndexes.count; j++){
-    //            if(i == [duplicateIndexes[j] integerValue])
-    //                found = true;
-    //                }
-    //        if(!found) [points addObject:points_[i]];
-    //    }
-    //    points_ = [[NSArray alloc] initWithArray:points];
-}
-
-
-void Geodesic::spherize(){
-    int i;
-    double difference, distance;
-    double maxdistance = 0;
-    /*for(i = 0; i < points_.count; i++){
-     distance = sqrt(pow([points_[i] getX], 2) + pow([points_[i] getY], 2) + pow([points_[i] getZ], 2) );
-     if(distance > maxdistance) maxdistance = distance;
-     }*/
-    // never mind, i already know the max distance
-    maxdistance = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
-    for(i = 0; i < numPoints; i++)
-    {
-        distance = sqrt(pow(points[i*3+X], 2) +
-                        pow(points[i*3+Y], 2) +
-                        pow(points[i*3+Z], 2) );
-        difference = maxdistance / distance;
-        points[i*3+X]*=difference;
-        points[i*3+Y]*=difference;
-        points[i*3+Z]*=difference;
-    }
-}
-
-// V0: 1           +2 =
-// V1: 3 per face  +3 =
-// V2: 6           +4 =
-// V3: 10          +5 =
-// V4: 15          +6 =
-// V5: 21
-
-// V1: 3    3
-// V2: 9    1*3 + 2*3
-// V3: 18   1*3 + 2*3 + 3*3
-// V4: 30
-
-void Geodesic::connectTheDots()
-{
-    // Calibrated for Regular Domes
-    //    NSMutableArray *lines = [[NSMutableArray alloc] init];
-    //    int lines[];
-    int i, j;
-    double elbow = .0000002;
-    double distanceSquared, shortest, ceiling;
-    bool firstRun;
-    for(i = 0; i < 1; i++){  // Shortcut for regular dome
-        firstRun = true;
-        for(j=0; j < numPoints; j++){
-            if(j != i){
-                distanceSquared= pow( points[j*3+X] - points[i*3+X], 2) +
-                pow( points[j*3+Y] - points[i*3+Y], 2) +
-                pow( points[j*3+Z] - points[i*3+Z], 2);
-                if(firstRun){
-                    shortest = distanceSquared;
-                    firstRun = false;
-                }
-                else{
-                    if(distanceSquared+elbow < shortest) shortest = distanceSquared;
-                }
-            }
-        }
-    }
-    //    if(primitiveType == 1) ceiling = shortest * 3.4;  // octahedron
-    //    else if (primitiveType == 0) ceiling = shortest * 2.5;  //1.5 if using Distance, not DistanceSquared
-    //    else if (primitiveType == 2) {printf("FAIL: connectTheDots() not set up for Tetrahedra");}
-    
-    //all further line segments will be based on this shortest value:
-    for(i = 0; i < numPoints; i++){
-        for(j=0; j < numPoints; j++){
-            if(j != i){
-                distanceSquared = pow( points[j*3+X] - points[i*3+X], 2) +
-                pow( points[j*3+Y] - points[i*3+Y], 2) +
-                pow( points[j*3+Z] - points[i*3+Z], 2);
-                if(distanceSquared < ceiling){
-                    //                    [lines addObjectsFromArray:[[NSArray alloc] initWithObjects:[[NSNumber alloc] initWithInt:i],
-                    //                                                                                [[NSNumber alloc] initWithInt:j],
-                    //                                                                                nil]];
-                }
-            }
-        }
-    }
-    //    lines_ = [[NSArray alloc] initWithArray:lines];
-    //    [self removeDuplicateLines];
-}
-
 //-(void) removeDuplicateLines
 //{
 //    //Unwrapping NSNumbers is slow as fuck. first step = convert to C array
@@ -708,7 +628,7 @@ void Geodesic::connectTheDots()
 //    int linesC[lines_.count];
 //    int i, j, count = [lines count];
 //    bool duplicates[lines_.count];
-//
+//    
 //    for(i = 0; i < lines_.count; i++)
 //    {
 //        linesC[i] = [lines_[i] integerValue];
@@ -820,11 +740,11 @@ void Geodesic::connectTheDots()
 //               [[Point3D alloc] initWithCoordinatesX:0 Y:radius Z:0],
 //               [[Point3D alloc] initWithCoordinatesX:radius Y:0 Z:0],
 //               [[Point3D alloc] initWithCoordinatesX:0 Y:0 Z:-radius],
-//
+//               
 //               [[Point3D alloc] initWithCoordinatesX:-radius Y:0 Z:0],
 //               [[Point3D alloc] initWithCoordinatesX:0 Y:0 Z:radius],
 //               [[Point3D alloc] initWithCoordinatesX:0 Y:-radius Z:0], nil];
-//
+//    
 //    lines_ = [[NSArray alloc] initWithObjects:
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:4],
@@ -839,7 +759,7 @@ void Geodesic::connectTheDots()
 //              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:2],
 //              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:1],
 //              nil];
-//
+//    
 //    faces_ = [[NSArray alloc] initWithObjects:
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:1],
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:2],
@@ -859,17 +779,17 @@ void Geodesic::connectTheDots()
 //                                               [[Point3D alloc] initWithCoordinatesX:0 Y:-1 Z:phi],
 //                                               [[Point3D alloc] initWithCoordinatesX:0 Y:-1 Z:-phi],
 //                                               [[Point3D alloc] initWithCoordinatesX:0 Y:1 Z:-phi],
-//
+//               
 //                                               [[Point3D alloc] initWithCoordinatesX:phi Y:0 Z:1],
 //                                               [[Point3D alloc] initWithCoordinatesX:-phi Y:0 Z:1],
 //                                               [[Point3D alloc] initWithCoordinatesX:-phi Y:0 Z:-1],
 //                                               [[Point3D alloc] initWithCoordinatesX:phi Y:0 Z:-1],
-//
+//               
 //                                               [[Point3D alloc] initWithCoordinatesX:1 Y:phi Z:0],
 //                                               [[Point3D alloc] initWithCoordinatesX:-1 Y:phi Z:0],
 //                                               [[Point3D alloc] initWithCoordinatesX:-1 Y:-phi Z:0],
 //                                               [[Point3D alloc] initWithCoordinatesX:1 Y:-phi Z:0], nil];
-//
+//    
 //    lines_ = [[NSArray alloc] initWithObjects:
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],
 //              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:9],
@@ -902,7 +822,7 @@ void Geodesic::connectTheDots()
 //              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:6],
 //              [[NSNumber alloc] initWithInt:6],[[NSNumber alloc] initWithInt:3],
 //              nil];
-//
+//    
 //    faces_ = [[NSArray alloc] initWithObjects:
 //            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:9],
 //            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:4],
@@ -946,57 +866,57 @@ void Geodesic::connectTheDots()
 //}
 
 /*
- -(void) generateFaces
- {
- // trace every three-line segment paths, record all paths which are closed
- int i, j, k;
- BOOL found;
- NSNumber *first, *second, *third;   // an index to a Point3D in points_
- NSMutableArray *faces = [[NSMutableArray alloc] init];
- for(i=0;i < lines_.count; i+=2)
- {
- first = lines_[i];
- second = lines_[i+1];
- // search all paths to find another point which touches either *first or *second
- for(j=0; j < lines_.count; j+=2)
- {
- third = nil;
- if (lines_[j] == first && lines_[j+1] != second) third = lines_[j+1];
- else if(lines_[j+1] == first && lines_[j] != second) third = lines_[j];
- if(third != nil)
- {
- found = false;
- // search all paths again to confirm point touches both *first and *second
- for(k=0; k< lines_.count; k+=2)
- if( (lines_[k] == third && lines_[k+1] == second) || (lines_[k] == second && lines_[k+1] == third) )
- found = true;
- 
- if(found) [faces addObjectsFromArray:[[NSArray alloc] initWithObjects:first, second, third, nil]];
- }
- }
- }
- 
- // remove duplicates
- for (i = 0; i < faces.count; i+=3) {
- first = faces[i];
- second = faces[i+1];
- third = faces[i+2];
- for (j = 0; j < faces.count; j+=3) {
- if (j != i) {
- if ((first == faces[j] && second == faces[j+1] && third == faces[j+2]) ||
- (second == faces[j] && first == faces[j+1] && third == faces[j+2]) ||
- (first == faces[j] && third == faces[j+1] && second == faces[j+2]) ||
- (second == faces[j] && third == faces[j+1] && first == faces[j+2]) ||
- (third == faces[j] && first == faces[j+1] && second == faces[j+2]) ||
- (third == faces[j] && second == faces[j+1] && first == faces[j+2]))
- {
- [faces removeObjectsInRange:NSMakeRange(j, 3)];
- j-=3;
- }
- }
- }
- }
- for(i=0; i < faces.count; i+=3) NSLog(@"%@ -- %@ -- %@", faces[i], faces[i+1], faces[i+2]);
- faces_ = [[NSArray alloc] initWithArray:faces];
- }
+-(void) generateFaces
+{
+    // trace every three-line segment paths, record all paths which are closed
+    int i, j, k;
+    BOOL found;
+    NSNumber *first, *second, *third;   // an index to a Point3D in points_
+    NSMutableArray *faces = [[NSMutableArray alloc] init];
+    for(i=0;i < lines_.count; i+=2)
+    {
+        first = lines_[i];
+        second = lines_[i+1];
+        // search all paths to find another point which touches either *first or *second
+        for(j=0; j < lines_.count; j+=2)
+        {
+            third = nil;
+            if (lines_[j] == first && lines_[j+1] != second) third = lines_[j+1];
+            else if(lines_[j+1] == first && lines_[j] != second) third = lines_[j];
+            if(third != nil)
+            {
+                found = false;
+                // search all paths again to confirm point touches both *first and *second
+                for(k=0; k< lines_.count; k+=2)
+                    if( (lines_[k] == third && lines_[k+1] == second) || (lines_[k] == second && lines_[k+1] == third) )
+                        found = true;
+                
+                if(found) [faces addObjectsFromArray:[[NSArray alloc] initWithObjects:first, second, third, nil]];
+            }
+        }
+    }
+    
+    // remove duplicates
+    for (i = 0; i < faces.count; i+=3) {
+        first = faces[i];
+        second = faces[i+1];
+        third = faces[i+2];
+        for (j = 0; j < faces.count; j+=3) {
+            if (j != i) {
+                if ((first == faces[j] && second == faces[j+1] && third == faces[j+2]) ||
+                    (second == faces[j] && first == faces[j+1] && third == faces[j+2]) ||
+                    (first == faces[j] && third == faces[j+1] && second == faces[j+2]) ||
+                    (second == faces[j] && third == faces[j+1] && first == faces[j+2]) ||
+                    (third == faces[j] && first == faces[j+1] && second == faces[j+2]) ||
+                    (third == faces[j] && second == faces[j+1] && first == faces[j+2]))
+                {
+                    [faces removeObjectsInRange:NSMakeRange(j, 3)];
+                    j-=3;
+                }
+            }
+        }
+    }
+    for(i=0; i < faces.count; i+=3) NSLog(@"%@ -- %@ -- %@", faces[i], faces[i+1], faces[i+2]);
+    faces_ = [[NSArray alloc] initWithArray:faces];
+}
  */

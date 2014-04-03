@@ -6,34 +6,33 @@
 //  Copyright (c) 2014 Robby Kraft. All rights reserved.
 //
 
-#import "Mesh.h"
+#import "GeodesicMesh.h"
 #include <fstream>
 
 #define X 0
 #define Y 1
 #define Z 2
 
-@interface Mesh (){
+@interface GeodesicMesh (){
     // data
     float *glTriangles;  // GL_TRIANGLES
     float *glNormals;  // GL_NORMALS
     int numTriangles;
 
+    int numFaces;
     float *glLines;  // GL_LINES
     int numLinePoints;
-    float *glPoints; // GL_POINTS
+    float *glPoints;  // GL_POINTS
     int numPoints;
     
     // ornaments
     float *normalLines;
     float *normalFaces;
+    float *faceNormalLines;
 }
 @end
 
-@implementation Mesh
-
--(void)loadOBJ:(OBJ *)obj{
-}
+@implementation GeodesicMesh
 
 -(void) load:(Geodesic*)geodesic{
     
@@ -43,8 +42,11 @@
     [self makeGLLines:geodesic];
     [self makeNormals:geodesic];
     [self makeNormalLines:geodesic];
+    [self makeFaceNormalLines:geodesic];
+    [self extrudeTriangles:geodesic];
     
     numPoints = geodesic->numPoints;
+    numFaces = geodesic->numFaces;
     glPoints = (float*)malloc(sizeof(float)*numPoints*3);
     for(int i = 0; i < geodesic->numPoints; i++){
         glPoints[i*3+X] = geodesic->points[i*3+X];
@@ -87,7 +89,7 @@
     glEnableClientState(GL_NORMAL_ARRAY);
 
     glPushMatrix();
-    glColor4f(0.0, 0.0, 1.0, 0.5);
+    glColor4f(0.0, 0.0, 0.0, 1.0);
     glVertexPointer(3, GL_FLOAT, 0, glTriangles);
     glNormalPointer(GL_FLOAT, 0, glNormals);
     glDrawArrays(GL_TRIANGLES, 0, numTriangles);
@@ -110,6 +112,14 @@
     glColor4f(0.0, 1.0, 0.0, 1.0);
     glVertexPointer(3, GL_FLOAT, 0, normalLines);
     glDrawArrays(GL_LINES, 0, numPoints*2);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+-(void)drawFaceNormalLines{
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glColor4f(0.0, 1.0, 0.0, 1.0);
+    glVertexPointer(3, GL_FLOAT, 0, faceNormalLines);
+    glDrawArrays(GL_LINES, 0, numFaces*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -140,6 +150,24 @@
         glTriangles[i*9 + 2*3 + 0] = geodesic->points[ geodesic->faces[2+i*3]*3 + X ];
         glTriangles[i*9 + 2*3 + 1] = geodesic->points[ geodesic->faces[2+i*3]*3 + Y ];
         glTriangles[i*9 + 2*3 + 2] = geodesic->points[ geodesic->faces[2+i*3]*3 + Z ];
+    }
+}
+
+-(void) extrudeTriangles:(Geodesic*)geodesic{
+    float scale = .5;
+    for(int i = 0; i < geodesic->numFaces; i++){
+        // triangle vertex 1: X Y and Z
+        glTriangles[i*9 + 0*3 + 0] += geodesic->faceNormals[0+i*3] * scale;
+        glTriangles[i*9 + 0*3 + 1] += geodesic->faceNormals[1+i*3] * scale;
+        glTriangles[i*9 + 0*3 + 2] += geodesic->faceNormals[2+i*3] * scale;
+        // triangle vertex 2: X Y and Z
+        glTriangles[i*9 + 1*3 + 0] += geodesic->faceNormals[0+i*3] * scale;
+        glTriangles[i*9 + 1*3 + 1] += geodesic->faceNormals[1+i*3] * scale;
+        glTriangles[i*9 + 1*3 + 2] += geodesic->faceNormals[2+i*3] * scale;
+        // triangle vertex 3: X Y and Z
+        glTriangles[i*9 + 2*3 + 0] += geodesic->faceNormals[0+i*3] * scale;
+        glTriangles[i*9 + 2*3 + 1] += geodesic->faceNormals[1+i*3] * scale;
+        glTriangles[i*9 + 2*3 + 2] += geodesic->faceNormals[2+i*3] * scale;
     }
 }
 
@@ -190,5 +218,26 @@
         normalLines[i*6+5] = geodesic->points[i*3+Z] + geodesic->normals[i*3+Z];
     }
 }
+
+
+-(void) makeFaceNormalLines:(Geodesic*)geodesic{
+    delete normalLines;
+    faceNormalLines = (float*)malloc(sizeof(float)*geodesic->numFaces*6);
+    for(int i = 0; i < geodesic->numFaces; i++){
+        faceNormalLines[i*6+0] = (geodesic->points[ geodesic->faces[i*3+0] *3+X] +
+                                  geodesic->points[ geodesic->faces[i*3+1] *3+X] +
+                                  geodesic->points[ geodesic->faces[i*3+2] *3+X] ) / 3.0;
+        faceNormalLines[i*6+1] = (geodesic->points[ geodesic->faces[i*3+0] *3+Y] +
+                                  geodesic->points[ geodesic->faces[i*3+1] *3+Y] +
+                                  geodesic->points[ geodesic->faces[i*3+2] *3+Y] ) / 3.0;
+        faceNormalLines[i*6+2] = (geodesic->points[ geodesic->faces[i*3+0] *3+Z] +
+                                  geodesic->points[ geodesic->faces[i*3+1] *3+Z] +
+                                  geodesic->points[ geodesic->faces[i*3+2] *3+Z] ) / 3.0;
+        faceNormalLines[i*6+3] = faceNormalLines[i*6+0] + geodesic->faceNormals[i*3+X];
+        faceNormalLines[i*6+4] = faceNormalLines[i*6+1] + geodesic->faceNormals[i*3+Y];
+        faceNormalLines[i*6+5] = faceNormalLines[i*6+2] + geodesic->faceNormals[i*3+Z];
+    }
+}
+
 
 @end

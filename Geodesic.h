@@ -24,6 +24,7 @@
 
 
 #pragma mark- generate lines[] from face data
+#pragma mark- crop function
 
 
 #include <iostream>
@@ -70,9 +71,9 @@ private:
     bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
     bool *visibleLines = NULL;   // size of numLines, not size of *lines array
     bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
-    int *lineClass = NULL;           // size of numLines
-    double *lineClassLengths = NULL; // size of
-    void crop(float c);
+    int *lineClass = NULL;       // size of numLines
+    double *lineClassLengths = NULL;
+    void crop(float c);  //to do
     void initCropData();
     void connectTheDots();
     void classifyLines();

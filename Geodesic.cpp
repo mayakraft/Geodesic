@@ -254,7 +254,7 @@ void Geodesic::makeOBJ(string filename){
     ofstream myfile;
     myfile.open (filename);
     myfile << "# geodesic dome object\n";
-    myfile << "# Domekit, Robby Kraft\n";
+    myfile << "# robby kraft\n";
     myfile << "o Dome\n";
     for(int i = 0; i < numPoints; i++)
         myfile << "v " << points[i*3] << " " << points[i*3+1] << " " << points[i*3+2] << "\n";
@@ -357,7 +357,6 @@ void Geodesic::divideFaces(int vFreq){
             BC[X] = ( pointC[X] - pointB[X] ) / segments;
             BC[Y] = ( pointC[Y] - pointB[Y] ) / segments;
             BC[Z] = ( pointC[Z] - pointB[Z] ) / segments;
-            printf("(%d): (%.3f, %.3f, %.3f) : (%.3f, %.3f, %.3f)\n",i, AB[X], AB[Y], AB[Z], BC[X], BC[Y], BC[Z]);
             // iterate 1, 12, 123, 1234, 12345, 123456...
             for(j = 0; j <= v; j++){
                 for(k = 0; k <= j; k++){
@@ -551,6 +550,10 @@ void Geodesic::initCropData(){
     lineClassLengths[0] = sqrt((points[lines[1] + X] - points[lines[0] + X]) * (points[lines[1] + X] - points[lines[0] + X]) +
                                (points[lines[1] + Y] - points[lines[0] + Y]) * (points[lines[1] + Y] - points[lines[0] + Y]) +
                                (points[lines[1] + Z] - points[lines[0] + Z]) * (points[lines[1] + Z] - points[lines[0] + Z]) );
+}
+
+void Geodesic::crop(float c){
+// todo
 }
 
 void Geodesic::classifyLines(){

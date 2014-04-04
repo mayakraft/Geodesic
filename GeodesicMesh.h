@@ -1,26 +1,48 @@
 //
 //  Mesh.h
-//  StagingArea
 //
-//  Created by Robby Kraft on 3/27/14.
+//  Created by Robby on 3/27/14.
 //  Copyright (c) 2014 Robby Kraft. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <GLKit/GLKit.h>
-#import "Geodesic.h"
+#ifndef __Geodesic__Mesh__
+#define __Geodesic__Mesh__
 
-@class OBJ;
+#include <iostream>
 
-@interface GeodesicMesh : NSObject
+class Geodesic;
 
--(void) load:(Geodesic*)geodesic;
+class GeodesicMesh{
+public:
+    void load(Geodesic* geodesic);
+    void draw();  // (draw triangles)
+    void drawPoints();
+    void drawLines();
+    void drawNormalLines();
+    void drawFaceNormalLines();
+    void log();
 
--(void) draw;  // (draw triangles)
+private:
+    float *glTriangles = NULL;  // GL_TRIANGLES
+    float *glNormals = NULL;  // GL_NORMALS
+    int numTriangles;
+    int numFaces;
+    int numLines;
+    float *glLines = NULL;  // GL_LINES
+    int numLinePoints;
+    float *glPoints = NULL;  // GL_POINTS
+    int numPoints;
+    // ornaments
+    float *normalLines = NULL;
+    float *normalFaces = NULL;
+    float *faceNormalLines = NULL;
 
--(void) drawPoints;
--(void) drawLines;
--(void) drawNormalLines;
--(void) drawFaceNormalLines;
+    void makeGLTriangles(Geodesic* geodesic);
+    void extrudeTriangles(Geodesic* geodesic);
+    void makeGLLines(Geodesic* geodesic);
+    void makeNormals(Geodesic* geodesic);
+    void makeNormalLines(Geodesic* geodesic);
+    void makeFaceNormalLines(Geodesic* geodesic);
+};
 
-@end
+#endif

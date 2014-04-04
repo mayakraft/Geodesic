@@ -70,7 +70,7 @@ void Geodesic::loadTetrahedron(){
 }
 
 void Geodesic::alignTetrahedron(){
-    double offset = -0.615479708670387;//M_PI/4.0f;
+    double offset = -0.615479708670387;
     double distance, angle;
     //rotate around the z until one point is at the zenith, along the (Y or X?) axis
     for(int i = 0; i < numPoints; i++){

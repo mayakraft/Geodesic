@@ -22,6 +22,8 @@
 //   - hidden lines and points which lie below ground level
 //
 
+#ifndef __Geodesic__Geometry__
+#define __Geodesic__Geometry__
 
 #pragma mark- generate lines[] from face data
 #pragma mark- crop function
@@ -80,3 +82,5 @@ private:
 
     void makeOBJ(string filename);
 };
+
+#endif

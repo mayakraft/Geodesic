@@ -92,18 +92,20 @@ void GeodesicMesh::makeGLTriangles(Geodesic* geodesic){
     delete glTriangles;
     glTriangles = (float*)malloc(sizeof(float)*numTriangles*3);
     for(int i = 0; i < geodesic->numFaces; i++){
-        // triangle vertex 1: X Y and Z
-        glTriangles[i*9 + 0*3 + 0] = geodesic->points[ geodesic->faces[0+i*3]*3 + X ];
-        glTriangles[i*9 + 0*3 + 1] = geodesic->points[ geodesic->faces[0+i*3]*3 + Y ];
-        glTriangles[i*9 + 0*3 + 2] = geodesic->points[ geodesic->faces[0+i*3]*3 + Z ];
-        // triangle vertex 2: X Y and Z
-        glTriangles[i*9 + 1*3 + 0] = geodesic->points[ geodesic->faces[1+i*3]*3 + X ];
-        glTriangles[i*9 + 1*3 + 1] = geodesic->points[ geodesic->faces[1+i*3]*3 + Y ];
-        glTriangles[i*9 + 1*3 + 2] = geodesic->points[ geodesic->faces[1+i*3]*3 + Z ];
-        // triangle vertex 3: X Y and Z
-        glTriangles[i*9 + 2*3 + 0] = geodesic->points[ geodesic->faces[2+i*3]*3 + X ];
-        glTriangles[i*9 + 2*3 + 1] = geodesic->points[ geodesic->faces[2+i*3]*3 + Y ];
-        glTriangles[i*9 + 2*3 + 2] = geodesic->points[ geodesic->faces[2+i*3]*3 + Z ];
+        if(geodesic->visibleFaces[i]){
+            // triangle vertex 1: X Y and Z
+            glTriangles[i*9 + 0*3 + 0] = geodesic->points[ geodesic->faces[0+i*3]*3 + X ];
+            glTriangles[i*9 + 0*3 + 1] = geodesic->points[ geodesic->faces[0+i*3]*3 + Y ];
+            glTriangles[i*9 + 0*3 + 2] = geodesic->points[ geodesic->faces[0+i*3]*3 + Z ];
+            // triangle vertex 2: X Y and Z
+            glTriangles[i*9 + 1*3 + 0] = geodesic->points[ geodesic->faces[1+i*3]*3 + X ];
+            glTriangles[i*9 + 1*3 + 1] = geodesic->points[ geodesic->faces[1+i*3]*3 + Y ];
+            glTriangles[i*9 + 1*3 + 2] = geodesic->points[ geodesic->faces[1+i*3]*3 + Z ];
+            // triangle vertex 3: X Y and Z
+            glTriangles[i*9 + 2*3 + 0] = geodesic->points[ geodesic->faces[2+i*3]*3 + X ];
+            glTriangles[i*9 + 2*3 + 1] = geodesic->points[ geodesic->faces[2+i*3]*3 + Y ];
+            glTriangles[i*9 + 2*3 + 2] = geodesic->points[ geodesic->faces[2+i*3]*3 + Z ];
+        }
     }
 }
 

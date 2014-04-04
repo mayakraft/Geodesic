@@ -43,6 +43,9 @@ public:
     void octahedron(int VFrequency);
     void tetrahedron(int VFrequency);
 
+    void crop(float latitude); // top to bottom, 0 to 1, retain top portion
+    
+    // try to make the rest private
     int numPoints;
     int numLines;
     int numFaces;
@@ -55,6 +58,11 @@ public:
     double *faceNormals = NULL;
     
     int v;
+
+    // crop
+    bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
+    bool *visibleLines = NULL;   // size of numLines, not size of *lines array
+    bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
 
 private:
     
@@ -69,15 +77,10 @@ private:
     void spherize();
     void generateNormals();
 
-    // crop
-    bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
-    bool *visibleLines = NULL;   // size of numLines, not size of *lines array
-    bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
+    // diagram
     int *lineClass = NULL;       // size of numLines
     double *lineClassLengths = NULL;
-    void crop(float c);  //to do
-    void initCropData();
-    void connectTheDots();
+    void initDiagramData();
     void classifyLines();
 
     void makeOBJ(string filename);

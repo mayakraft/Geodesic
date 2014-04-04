@@ -525,36 +525,39 @@ void Geodesic::spherize(){
 // V3: 18   1*3 + 2*3 + 3*3
 // V4: 30
 
-void Geodesic::initCropData(){
+void Geodesic::initDiagramData(){
     
-    delete visiblePoints;
-    delete visibleLines;
-    delete visibleFaces;
     delete lineClass;
     delete lineClassLengths;
-    visiblePoints = (bool*)malloc(sizeof(bool)*numPoints);
-    visibleLines = (bool*)malloc(sizeof(bool)*numLines);
-    visibleFaces = (bool*)malloc(sizeof(bool)*numFaces);
     lineClass = (int*)malloc(sizeof(int)*numLines);
-    // this now gets allocated at the end of classifyLines()
-    //    lineClassLengths = (double*)malloc(sizeof(double)*numLines);   // allocating WAY too many places
-    
-    for(int i = 0; i < numPoints; i++)
-        visiblePoints[i] = true;
+    // this now gets allocated at the end of classifyLines() //    lineClassLengths = (double*)malloc(sizeof(double)*numLines);   // allocating WAY too many places
     for(int i = 0; i < numLines; i++){
-        visibleLines[i] = true;
         lineClass[i] = 0;
     }
-    for(int i = 0; i < numFaces; i++)
-        visibleFaces[i] = true;
-    
     lineClassLengths[0] = sqrt((points[lines[1] + X] - points[lines[0] + X]) * (points[lines[1] + X] - points[lines[0] + X]) +
                                (points[lines[1] + Y] - points[lines[0] + Y]) * (points[lines[1] + Y] - points[lines[0] + Y]) +
                                (points[lines[1] + Z] - points[lines[0] + Z]) * (points[lines[1] + Z] - points[lines[0] + Z]) );
 }
 
-void Geodesic::crop(float c){
-// todo
+void Geodesic::crop(float latitude){
+    float NUDGE = .04;  // make this smarter
+    double c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
+    delete visiblePoints;
+    delete visibleLines;
+    delete visibleFaces;
+    visiblePoints = (bool*)calloc(numPoints,sizeof(bool));
+    visibleLines = (bool*)calloc(numLines,sizeof(bool));
+    visibleFaces = (bool*)calloc(numFaces,sizeof(bool));
+    
+    for(int i = 0; i < numPoints; i++)
+        if(points[i*3+Y] > c)
+            visiblePoints[i] = true;
+    for(int i = 0; i < numLines; i++)
+        if(points[lines[i*2+0]*3+Y] > c && points[lines[i*2+1]*3+Y] > c)
+            visibleLines[i] = true;
+    for(int i = 0; i < numFaces; i++)
+        if(points[faces[i*3+0]*3+Y] > c && points[faces[i*3+1]*3+Y] > c && points[faces[i*3+2]*3+Y] > c)
+            visibleFaces[i] = true;
 }
 
 void Geodesic::classifyLines(){

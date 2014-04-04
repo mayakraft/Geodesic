@@ -36,13 +36,13 @@
 
 -(void) load:(Geodesic*)geodesic{
     
-    NSLog(@"NUM POINTS:%d, LINES:%d, FACES:%d",geodesic->numPoints, geodesic->numLines, geodesic->numFaces);
+    NSLog(@"(V%d) NUM POINTS:%d, LINES:%d, FACES:%d", geodesic->v, geodesic->numPoints, geodesic->numLines, geodesic->numFaces);
     
     [self makeGLTriangles:geodesic];
     [self makeGLLines:geodesic];
     [self makeNormals:geodesic];
-    [self makeNormalLines:geodesic];
-    [self makeFaceNormalLines:geodesic];
+//    [self makeNormalLines:geodesic];
+//    [self makeFaceNormalLines:geodesic];
     [self extrudeTriangles:geodesic];
     
     numPoints = geodesic->numPoints;
@@ -55,7 +55,7 @@
     }
 
 //    NSLog(@"_____________________\nFACES\n_____________________");
-//    for(int i = 0; i < geodesic.numFaces; i++){
+//    for(int i = 0; i < numFaces; i++){
 //        printf("(%.3f, %.3f, %.3f) --- (%.3f, %.3f, %.3f) --- (%.3f, %.3f, %.3f)\n",
 //               glTriangles[0+i*9], glTriangles[1+i*9], glTriangles[2+i*9],
 //               glTriangles[3+i*9], glTriangles[4+i*9], glTriangles[5+i*9],

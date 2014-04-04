@@ -52,9 +52,9 @@ public:
     double *normals = NULL;  // vertex normals
     double *faceNormals = NULL;
     
-private:
-
     int v;
+
+private:
     
     void loadIcosahedron();
     void loadOctahedron();

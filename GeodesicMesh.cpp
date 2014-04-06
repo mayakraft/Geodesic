@@ -92,7 +92,7 @@ void GeodesicMesh::makeGLTriangles(Geodesic* geodesic){
     delete glTriangles;
     glTriangles = (float*)malloc(sizeof(float)*numTriangles*3);
     for(int i = 0; i < geodesic->numFaces; i++){
-        if(geodesic->visibleFaces[i]){
+        if(!geodesic->visibleFaces || geodesic->visibleFaces[i]){
             // triangle vertex 1: X Y and Z
             glTriangles[i*9 + 0*3 + 0] = geodesic->points[ geodesic->faces[0+i*3]*3 + X ];
             glTriangles[i*9 + 0*3 + 1] = geodesic->points[ geodesic->faces[0+i*3]*3 + Y ];

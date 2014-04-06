@@ -44,8 +44,12 @@ public:
     void tetrahedron(int VFrequency);
 
     void crop(float latitude); // top to bottom, 0 to 1, retain top portion
-    
+
+    void OBJ(char *&data, int &length);  // fills &data with OBJ file
+
     // try to make the rest private
+    int v;
+    
     int numPoints;
     int numLines;
     int numFaces;
@@ -57,14 +61,15 @@ public:
     double *normals = NULL;  // vertex normals
     double *faceNormals = NULL;
     
-    int v;
-
     // crop
     bool *visiblePoints = NULL;  // size of numPoints, not size of *points array
     bool *visibleLines = NULL;   // size of numLines, not size of *lines array
     bool *visibleFaces = NULL;   // size of numFaces, not size of *faces array
 
 private:
+    
+    float latitude;  // of crop
+    string solid; // tetrahedron, octahedron, icosahedron
     
     void loadIcosahedron();
     void loadOctahedron();
@@ -83,7 +88,6 @@ private:
     void initDiagramData();
     void classifyLines();
 
-    void makeOBJ(string filename);
 };
 
 #endif

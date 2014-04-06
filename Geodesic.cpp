@@ -10,6 +10,7 @@
 void Geodesic::tetrahedron(int VFrequency){
     v = VFrequency;
     loadTetrahedron();
+    solid = "Tetrahedron";
     divideFaces(v);
     spherize();
     generateNormals();
@@ -18,6 +19,7 @@ void Geodesic::tetrahedron(int VFrequency){
 void Geodesic::icosahedron(int VFrequency){
     v = VFrequency;
     loadIcosahedron();
+    solid = "Icosahedron";
     divideFaces(v);
     spherize();
     generateNormals();
@@ -26,6 +28,7 @@ void Geodesic::icosahedron(int VFrequency){
 void Geodesic::octahedron(int VFrequency){
     v = VFrequency;
     loadOctahedron();
+    solid = "Octahedron";
     divideFaces(v);
     spherize();
     generateNormals();
@@ -251,18 +254,42 @@ void Geodesic::generateNormals(){
     }
 }
 
-void Geodesic::makeOBJ(string filename){
-    ofstream myfile;
-    myfile.open (filename);
-    myfile << "# geodesic dome object\n";
-    myfile << "# robby kraft\n";
-    myfile << "o Dome\n";
-    for(int i = 0; i < numPoints; i++)
-        myfile << "v " << points[i*3] << " " << points[i*3+1] << " " << points[i*3+2] << "\n";
-    for(int i = 0; i < numFaces; i++)
-        myfile << "f "<< faces[i*3] << " " << faces[i*3+1] << " " << faces[i*3+2] << "\n";
-    myfile.close();
+void Geodesic::OBJ(char *&data, int &length){
+    string obj;
+    obj.append("# GEODESIC SOLID\n# DOMEKIT\no ");
+    obj.append(to_string(v));
+    obj.append("V Geodesic ");
+    obj.append(solid);
+    obj.append("\n");
+    for(int i = 0; i < numPoints; i++){
+        obj.append("v ");
+        obj.append(to_string((double)points[i*3+0]));     obj.append(" ");
+        obj.append(to_string((double)points[i*3+1]));     obj.append(" ");
+        obj.append(to_string((double)points[i*3+2]));     obj.append("\n");
+    }
+    for(int i = 0; i < numFaces; i++){
+        obj.append("f ");
+        obj.append(to_string(1 + faces[i*3+0]));     obj.append(" ");
+        obj.append(to_string(1 + faces[i*3+1]));     obj.append(" ");
+        obj.append(to_string(1 + faces[i*3+2]));     obj.append("\n");
+    }
+    length = (int)obj.length();
+    data = (char*)calloc(obj.length(), sizeof(char));
+    memcpy(data, obj.c_str(), length);
 }
+
+//void Geodesic::OBJ(string filename){
+//    ofstream myfile;
+//    myfile.open (filename);
+//    myfile << "# geodesic dome object\n";
+//    myfile << "# robby kraft\n";
+//    myfile << "o Dome\n";
+//    for(int i = 0; i < numPoints; i++)
+//        myfile << "v " << points[i*3] << " " << points[i*3+1] << " " << points[i*3+2] << "\n";
+//    for(int i = 0; i < numFaces; i++)
+//        myfile << "f "<< faces[i*3] << " " << faces[i*3+1] << " " << faces[i*3+2] << "\n";
+//    myfile.close();
+//}
 
 // NEW POINTS / FACE
 // V0: 1           +2 =

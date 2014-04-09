@@ -7,10 +7,23 @@
 #define Y 1
 #define Z 2
 
+void Geodesic::getPoints(double *p[], int *nP){
+    *p = points;
+    *nP = numPoints;
+}
+void Geodesic::getLines(int *l[], int *nL){
+    *l = lines;
+    *nL = numLines;
+}
+void Geodesic::getFaces(int *f[], int *nF){
+    *f = faces;
+    *nF = numFaces;
+}
+
 void Geodesic::tetrahedron(int VFrequency){
     v = VFrequency;
     loadTetrahedron();
-    solid = "Tetrahedron";
+    title = "Tetrahedron";
     divideFaces(v);
     spherize();
     generateNormals();
@@ -19,7 +32,7 @@ void Geodesic::tetrahedron(int VFrequency){
 void Geodesic::icosahedron(int VFrequency){
     v = VFrequency;
     loadIcosahedron();
-    solid = "Icosahedron";
+    title = "Icosahedron";
     divideFaces(v);
     spherize();
     generateNormals();
@@ -28,24 +41,21 @@ void Geodesic::icosahedron(int VFrequency){
 void Geodesic::octahedron(int VFrequency){
     v = VFrequency;
     loadOctahedron();
-    solid = "Octahedron";
+    title = "Octahedron";
     divideFaces(v);
     spherize();
     generateNormals();
 }
 
 void Geodesic::loadTetrahedron(){
-    
     double side = 0.70710678118655;
     double f = 1.224744871391589;
-    
     numPoints = 4;
     numLines = 6;
     numFaces = 4;
     
     delete points;
     points = (double*)malloc(sizeof(double)*numPoints*3);
-    
     points[X+3*0] = 0.0;    points[Y+3*0] = 1.0/f;   points[Z+3*0] = side/f;
     points[X+3*1] = 0.0;    points[Y+3*1] = -1.0/f;  points[Z+3*1] = side/f;
     points[X+3*2] = 1.0/f;   points[Y+3*2] = 0.0;   points[Z+3*2] = -side/f;
@@ -53,7 +63,6 @@ void Geodesic::loadTetrahedron(){
     
     delete lines;
     lines = (int*)malloc(sizeof(int)*numLines*2);
-    
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 2;
     lines[0+2*2] = 0;  lines[1+2*2] = 3;
@@ -63,16 +72,11 @@ void Geodesic::loadTetrahedron(){
     
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
-    
     faces[0+3*0] = 0;  faces[1+3*0] = 3;  faces[2+3*0] = 2;
     faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
     faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 1;
     faces[0+3*3] = 1;  faces[1+3*3] = 2;  faces[2+3*3] = 3;
-    
-    alignTetrahedron();
-}
-
-void Geodesic::alignTetrahedron(){
+    // rotate and align one point to Y axis
     double offset = -0.615479708670387;
     double distance, angle;
     //rotate around the z until one point is at the zenith, along the (Y or X?) axis
@@ -86,25 +90,21 @@ void Geodesic::alignTetrahedron(){
 }
 
 void Geodesic::loadOctahedron(){
-    
     numPoints = 6;
     numLines = 12;
     numFaces = 8;
     
     delete points;
     points = (double*)malloc(sizeof(double)*numPoints*3);
-    
     points[X+3*0] = 0.0;   points[Y+3*0] = 1.0;   points[Z+3*0] = 0.0;
     points[X+3*1] = 1.0;   points[Y+3*1] = 0.0;   points[Z+3*1] = 0.0;
     points[X+3*2] = 0.0;   points[Y+3*2] = 0.0;   points[Z+3*2] = -1.0;
-    
     points[X+3*3] = -1.0;  points[Y+3*3] = 0.0;   points[Z+3*3] = 0.0;
     points[X+3*4] = 0.0;   points[Y+3*4] = 0.0;   points[Z+3*4] = 1.0;
     points[X+3*5] = 0.0;   points[Y+3*5] = -1.0;  points[Z+3*5] = 0.0;
     
     delete lines;
     lines = (int*)malloc(sizeof(int)*numLines*2);
-    
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 4;
     lines[0+2*2] = 0;  lines[1+2*2] = 2;
@@ -120,7 +120,6 @@ void Geodesic::loadOctahedron(){
     
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
-    
     faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 4;
     faces[0+3*1] = 0;  faces[1+3*1] = 2;  faces[2+3*1] = 1;
     faces[0+3*2] = 0;  faces[1+3*2] = 3;  faces[2+3*2] = 2;
@@ -132,16 +131,13 @@ void Geodesic::loadOctahedron(){
 }
 
 void Geodesic::loadIcosahedron(){
-    
     double f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
-    
     numPoints = 12;
     numLines = 30;
     numFaces = 20;
-
+    
     delete points;
     points = (double*)malloc(sizeof(double)*numPoints*3);
-    
     points[X+3*0] = 0.0;  points[Y+3*0] = 1.0/f;  points[Z+3*0] = phi/f;
     points[X+3*1] = 0.0;  points[Y+3*1] = -1.0/f;  points[Z+3*1] = phi/f;
     points[X+3*2] = 0.0;  points[Y+3*2] = -1.0/f;  points[Z+3*2] = -phi/f;
@@ -157,7 +153,6 @@ void Geodesic::loadIcosahedron(){
 
     delete lines;
     lines = (int*)malloc(sizeof(int)*numLines*2);
-    
     lines[0+2*0] = 0;  lines[1+2*0] = 8;
     lines[0+2*1] = 0;  lines[1+2*1] = 9;
     lines[0+2*2] = 0;  lines[1+2*2] = 1;
@@ -191,7 +186,6 @@ void Geodesic::loadIcosahedron(){
     
     delete faces;
     faces = (int*)malloc(sizeof(int)*numFaces*3);
-    
     faces[0+3*0] = 8;  faces[1+3*0] = 7;  faces[2+3*0] = 4;
     faces[0+3*1] = 8;  faces[1+3*1] = 3;  faces[2+3*1] = 7;
     faces[0+3*2] = 8;  faces[1+3*2] = 4;  faces[2+3*2] = 0;
@@ -214,14 +208,10 @@ void Geodesic::loadIcosahedron(){
     faces[0+3*17] = 10;  faces[1+3*17] = 6;  faces[2+3*17] = 5;
     faces[0+3*18] = 10;  faces[1+3*18] = 5;  faces[2+3*18] = 1;
     faces[0+3*19] = 10;  faces[1+3*19] = 2;  faces[2+3*19] = 6;
-
-    alignIcosahedron();
-}
-
-void Geodesic::alignIcosahedron(){
+    // align 2 points to polar Y
     double offset =  (M_PI/2) - atan( (1 + sqrt(5)) / 2 );
     double distance, angle;
-    //rotate around the z until one point is at the zenith, along the (Y or X?) axis
+    //rotate around the z until one point is at the zenith
     for(int i = 0; i < numPoints; i++){
         angle = atan2(points[i*3+X], points[i*3+Y]);
         distance = sqrt( pow(points[i*3+X], 2) + pow(points[i*3+Y], 2) );
@@ -259,7 +249,7 @@ void Geodesic::OBJ(char *&data, int &length){
     obj.append("# GEODESIC SOLID\n# DOMEKIT\no ");
     obj.append(to_string(v));
     obj.append("V Geodesic ");
-    obj.append(solid);
+    obj.append(title);
     obj.append("\n");
     for(int i = 0; i < numPoints; i++){
         obj.append("v ");
@@ -357,7 +347,7 @@ void Geodesic::divideFaces(int vFreq){
             newPointsArray[i*3+Z] = points[i*3+Z];
             newPI++;
         }
-        // bring along the parent polyhedra's faces too
+        // bring along the parent polyhedra's faces too, non-convex geometry
 //        for(int i = 0; i < numFaces; i++){
 //            newFacesArray[i*3+0] = faces[i*3+0];
 //            newFacesArray[i*3+1] = faces[i*3+1];
@@ -460,6 +450,7 @@ void Geodesic::removeDuplicatePoints()
     int duplicateIndexes[numPoints];
     for(int i = 0; i < numPoints; i++)
         duplicateIndexes[i] = -1;
+//    memset(duplicateIndexes, -1, numPoints);
     int i, j;
     int numDuplicates = 0;
 //    bool found;
@@ -521,6 +512,7 @@ void Geodesic::removeDuplicatePoints()
 //        if(!found) [points addObject:points_[i]];
 //    }
 //    points_ = [[NSArray alloc] initWithArray:points];
+
 }
 
 
@@ -567,7 +559,7 @@ void Geodesic::initDiagramData(){
 }
 
 void Geodesic::crop(float latitude){
-    float NUDGE = .04;  // make this smarter
+    float NUDGE = .04;  // todo make this smarter
     double c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
     delete visiblePoints;
     delete visibleLines;
@@ -575,7 +567,6 @@ void Geodesic::crop(float latitude){
     visiblePoints = (bool*)calloc(numPoints,sizeof(bool));
     visibleLines = (bool*)calloc(numLines,sizeof(bool));
     visibleFaces = (bool*)calloc(numFaces,sizeof(bool));
-    
     for(int i = 0; i < numPoints; i++)
         if(points[i*3+Y] > c)
             visiblePoints[i] = true;
@@ -686,271 +677,3 @@ void Geodesic::classifyLines(){
 //    lines_ = [[NSArray alloc] initWithArray:lines];
 //}
 //
-//-(void) removeDuplicatePoints
-//{
-//    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
-//    NSMutableArray *points = [[NSMutableArray alloc] init];
-//    int i, j;
-//    bool found;
-//    double elbow = .00000000001;
-//    for(i = 0; i < points_.count - 1; i++)
-//    {
-//        for(j = i+1; j < points_.count; j++)
-//        {
-//            if ([points_[i] getX] - elbow < [points_[j] getX] && [points_[i] getX] + elbow > [points_[j] getX] &&
-//                [points_[i] getY] - elbow < [points_[j] getY] && [points_[i] getY] + elbow > [points_[j] getY] &&
-//                [points_[i] getZ] - elbow < [points_[j] getZ] && [points_[i] getZ] + elbow > [points_[j] getZ] )
-//            {
-//                //NSLog(@"Duplicates(X): %.21g %.21g",[points_[i] getX], [points_[j] getX]);
-//                [duplicateIndexes addObject:[[NSNumber alloc] initWithInt:j]];
-//            }
-//        }
-//    }
-//    for(i = 0; i < points_.count; i++)
-//    {
-//        found = false;
-//        for(j = 0; j < duplicateIndexes.count; j++){
-//            if(i == [duplicateIndexes[j] integerValue])
-//                found = true;
-//        }
-//        if(!found) [points addObject:points_[i]];
-//    }
-//    points_ = [[NSArray alloc] initWithArray:points];
-//}
-//
-//-(void) loadTriangle
-//{
-//    points_ = [[NSArray alloc] initWithObjects: [[Point3D alloc] initWithCoordinatesX:-1 Y:sqrt(3)/2 Z:100],
-//               [[Point3D alloc] initWithCoordinatesX:1 Y:sqrt(3)/2 Z:100],
-//               [[Point3D alloc] initWithCoordinatesX:0 Y:-sqrt(3)/2 Z:100], nil];
-//    lines_ = [[NSArray alloc] initWithObjects:  [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:0], nil];
-//    faces_ = [[NSArray alloc] initWithObjects:
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:2],nil];
-//    invisiblePoints_ = [[NSArray alloc] initWithObjects:[[NSNumber alloc] initWithBool:FALSE],
-//                        [[NSNumber alloc] initWithBool:FALSE],
-//                        [[NSNumber alloc] initWithBool:FALSE],nil];
-//    invisibleLines_ = [[NSArray alloc] initWithObjects:
-//                       [[NSNumber alloc] initWithBool:FALSE],[[NSNumber alloc] initWithBool:FALSE],
-//                       [[NSNumber alloc] initWithBool:FALSE],[[NSNumber alloc] initWithBool:FALSE],
-//                       [[NSNumber alloc] initWithBool:FALSE],[[NSNumber alloc] initWithBool:FALSE], nil];
-//    lineClass_ = [[NSArray alloc] initWithObjects:  [[NSNumber alloc] initWithInt:1],
-//                  [[NSNumber alloc] initWithInt:1],
-//                  [[NSNumber alloc] initWithInt:1],nil];
-//    lineClassLengths_ = [[NSArray alloc] initWithObjects:   [[NSNumber alloc] initWithInt:2],
-//                         [[NSNumber alloc] initWithInt:2],
-//                         [[NSNumber alloc] initWithInt:2],nil];
-//}
-
-
-//-(id) initWithDome:(Dome*) input
-//{
-//    points_ = [[NSArray alloc] initWithArray:input.points_];
-//    lines_ = [[NSArray alloc] initWithArray:input.lines_];
-//    faces_ = [[NSArray alloc] initWithArray:input.faces_];
-//    invisiblePoints_ = [[NSArray alloc] initWithArray:input.invisiblePoints_];
-//    invisibleLines_ = [[NSArray alloc] initWithArray:input.invisibleLines_];
-//    lineClass_ = [[NSArray alloc] initWithArray:input.lineClass_];
-//    lineClassLengths_ = [[NSArray alloc] initWithArray:input.lineClassLengths_];
-//    v = input.v;
-//    return self;
-//}
-
-//-(id) initWithTriangle
-//{
-//    [self loadTriangle];
-//    v = 1;
-//    return self;
-//}
-
-//-(void) setIcosahedron {icosahedron = true;}
-//-(void) setOctahedron {icosahedron = false;}
-
-//-(void) loadOctahedron
-//{
-//    double radius = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
-//    points_ = [[NSArray alloc] initWithObjects:
-//               [[Point3D alloc] initWithCoordinatesX:0 Y:radius Z:0],
-//               [[Point3D alloc] initWithCoordinatesX:radius Y:0 Z:0],
-//               [[Point3D alloc] initWithCoordinatesX:0 Y:0 Z:-radius],
-//               
-//               [[Point3D alloc] initWithCoordinatesX:-radius Y:0 Z:0],
-//               [[Point3D alloc] initWithCoordinatesX:0 Y:0 Z:radius],
-//               [[Point3D alloc] initWithCoordinatesX:0 Y:-radius Z:0], nil];
-//    
-//    lines_ = [[NSArray alloc] initWithObjects:
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:1],
-//              nil];
-//    
-//    faces_ = [[NSArray alloc] initWithObjects:
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:1],
-//              nil];
-//}
-//
-//-(void) loadIcosahedron
-//{
-//    double phi = (1 + sqrt(5)) / 2;
-//    points_ = [[NSArray alloc] initWithObjects:[[Point3D alloc] initWithCoordinatesX:0 Y:1 Z:phi],
-//                                               [[Point3D alloc] initWithCoordinatesX:0 Y:-1 Z:phi],
-//                                               [[Point3D alloc] initWithCoordinatesX:0 Y:-1 Z:-phi],
-//                                               [[Point3D alloc] initWithCoordinatesX:0 Y:1 Z:-phi],
-//               
-//                                               [[Point3D alloc] initWithCoordinatesX:phi Y:0 Z:1],
-//                                               [[Point3D alloc] initWithCoordinatesX:-phi Y:0 Z:1],
-//                                               [[Point3D alloc] initWithCoordinatesX:-phi Y:0 Z:-1],
-//                                               [[Point3D alloc] initWithCoordinatesX:phi Y:0 Z:-1],
-//               
-//                                               [[Point3D alloc] initWithCoordinatesX:1 Y:phi Z:0],
-//                                               [[Point3D alloc] initWithCoordinatesX:-1 Y:phi Z:0],
-//                                               [[Point3D alloc] initWithCoordinatesX:-1 Y:-phi Z:0],
-//                                               [[Point3D alloc] initWithCoordinatesX:1 Y:-phi Z:0], nil];
-//    
-//    lines_ = [[NSArray alloc] initWithObjects:
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:9],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:5],
-//              [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:9],
-//              [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:7],
-//              [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:6],
-//              [[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:5],
-//              [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:2],
-//              [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:11],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:10],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:11],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:3],
-//              [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:6],
-//              [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:11],
-//              [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:5],
-//              [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:6],
-//              [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:11],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:11],[[NSNumber alloc] initWithInt:4],
-//              [[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:1],
-//              [[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:6],
-//              [[NSNumber alloc] initWithInt:6],[[NSNumber alloc] initWithInt:3],
-//              nil];
-//    
-//    faces_ = [[NSArray alloc] initWithObjects:
-//            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:9],
-//            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:4],
-//            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:5],
-//            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:4],
-//            [[NSNumber alloc] initWithInt:0],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:5],
-//            [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:9],
-//            [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:7],
-//            [[NSNumber alloc] initWithInt:8],[[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:4],
-//            [[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:6],
-//            [[NSNumber alloc] initWithInt:9],[[NSNumber alloc] initWithInt:6],[[NSNumber alloc] initWithInt:5],
-//            [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:4],[[NSNumber alloc] initWithInt:11],
-//            [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:2],
-//            [[NSNumber alloc] initWithInt:7],[[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:11],
-//            [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:11],
-//            [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:6],
-//            [[NSNumber alloc] initWithInt:2],[[NSNumber alloc] initWithInt:3],[[NSNumber alloc] initWithInt:6],
-//            [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:11],[[NSNumber alloc] initWithInt:1],
-//            [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:6],
-//            [[NSNumber alloc] initWithInt:10],[[NSNumber alloc] initWithInt:5],[[NSNumber alloc] initWithInt:1],
-//            [[NSNumber alloc] initWithInt:11],[[NSNumber alloc] initWithInt:1],[[NSNumber alloc] initWithInt:4],
-//            nil];
-//
-//    [self alignIcosahedron];
-//}
-//
-//-(void) alignIcosahedron
-//{
-//    NSMutableArray *points = [[NSMutableArray alloc] init];
-//    double offset =  (M_PI/2) - atan( (1 + sqrt(5)) / 2 );
-//    double distance, angle;
-//    for(int i = 0; i < points_.count; i++)
-//    {
-//        angle = atan2([points_[i] getX], [points_[i] getY]);
-//        distance = sqrt( pow([points_[i] getX], 2) + pow([points_[i] getY], 2) );
-//        [points addObject:[[Point3D alloc] initWithCoordinatesX:distance*sin(angle+offset)
-//                                                              Y:distance*cos(angle+offset)
-//                                                              Z:[points_[i] getZ]]];
-//    }
-//    points_ = [[NSArray alloc] initWithArray:points];
-//}
-
-/*
--(void) generateFaces
-{
-    // trace every three-line segment paths, record all paths which are closed
-    int i, j, k;
-    BOOL found;
-    NSNumber *first, *second, *third;   // an index to a Point3D in points_
-    NSMutableArray *faces = [[NSMutableArray alloc] init];
-    for(i=0;i < lines_.count; i+=2)
-    {
-        first = lines_[i];
-        second = lines_[i+1];
-        // search all paths to find another point which touches either *first or *second
-        for(j=0; j < lines_.count; j+=2)
-        {
-            third = nil;
-            if (lines_[j] == first && lines_[j+1] != second) third = lines_[j+1];
-            else if(lines_[j+1] == first && lines_[j] != second) third = lines_[j];
-            if(third != nil)
-            {
-                found = false;
-                // search all paths again to confirm point touches both *first and *second
-                for(k=0; k< lines_.count; k+=2)
-                    if( (lines_[k] == third && lines_[k+1] == second) || (lines_[k] == second && lines_[k+1] == third) )
-                        found = true;
-                
-                if(found) [faces addObjectsFromArray:[[NSArray alloc] initWithObjects:first, second, third, nil]];
-            }
-        }
-    }
-    
-    // remove duplicates
-    for (i = 0; i < faces.count; i+=3) {
-        first = faces[i];
-        second = faces[i+1];
-        third = faces[i+2];
-        for (j = 0; j < faces.count; j+=3) {
-            if (j != i) {
-                if ((first == faces[j] && second == faces[j+1] && third == faces[j+2]) ||
-                    (second == faces[j] && first == faces[j+1] && third == faces[j+2]) ||
-                    (first == faces[j] && third == faces[j+1] && second == faces[j+2]) ||
-                    (second == faces[j] && third == faces[j+1] && first == faces[j+2]) ||
-                    (third == faces[j] && first == faces[j+1] && second == faces[j+2]) ||
-                    (third == faces[j] && second == faces[j+1] && first == faces[j+2]))
-                {
-                    [faces removeObjectsInRange:NSMakeRange(j, 3)];
-                    j-=3;
-                }
-            }
-        }
-    }
-    for(i=0; i < faces.count; i+=3) NSLog(@"%@ -- %@ -- %@", faces[i], faces[i+1], faces[i+2]);
-    faces_ = [[NSArray alloc] initWithArray:faces];
-}
- */

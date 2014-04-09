@@ -1,10 +1,3 @@
-//
-//  Mesh.h
-//
-//  Created by Robby on 3/27/14.
-//  Copyright (c) 2014 Robby Kraft. All rights reserved.
-//
-
 #ifndef __Geodesic__Mesh__
 #define __Geodesic__Mesh__
 
@@ -23,15 +16,18 @@ public:
     void log();
 
 private:
+    double *points;
+    int *lines;     // interface to the object model
+    int *faces;
+    int numPoints;
+    int numLines;
+    int numFaces;
     float *glTriangles = NULL;  // GL_TRIANGLES
     float *glNormals = NULL;  // GL_NORMALS
-    int numTriangles;
-    int numFaces;
-    int numLines;
+    int numGLTriangles;
     float *glLines = NULL;  // GL_LINES
-    int numLinePoints;
+    int numGLLinePoints;
     float *glPoints = NULL;  // GL_POINTS
-    int numPoints;
     // ornaments
     float *normalLines = NULL;
     float *normalFaces = NULL;

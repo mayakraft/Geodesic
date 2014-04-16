@@ -9,6 +9,7 @@ class GeodesicMesh{
 public:
     void load(Geodesic* geodesic);
     void draw();  // (draw triangles)
+    void drawExtrudedTriangles();
     void drawPoints();
     void drawLines();
     void drawNormalLines();
@@ -16,22 +17,23 @@ public:
     void log();
 
 private:
-    double *points;
-    int *lines;     // interface to the object model
-    int *faces;
-    int numPoints;
-    int numLines;
-    int numFaces;
-    float *glTriangles = NULL;  // GL_TRIANGLES
-    float *glNormals = NULL;  // GL_NORMALS
-    int numGLTriangles;
-    float *glLines = NULL;  // GL_LINES
-    int numGLLinePoints;
-    float *glPoints = NULL;  // GL_POINTS
+    int             numFaces;
+    int             numLines;
+    int             numPoints;
+    int             numGLTriangles;
+    int             numGLLinePoints;
+    unsigned short  *faces;     //
+    unsigned short  *lines;     // interface to the object model
+    double          *points;    //
+    float           *glTriangles = NULL;  // GL_TRIANGLES
+    float           *glNormals = NULL;    // GL_NORMALS
+    float           *glLines = NULL;      // GL_LINES
+    float           *glPoints = NULL;     // GL_POINTS
+    
     // ornaments
-    float *normalLines = NULL;
-    float *normalFaces = NULL;
-    float *faceNormalLines = NULL;
+    float           *normalLines = NULL;
+    float           *normalFaces = NULL;
+    float           *faceNormalLines = NULL;
 
     void makeGLTriangles(Geodesic* geodesic);
     void extrudeTriangles(Geodesic* geodesic);

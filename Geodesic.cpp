@@ -11,11 +11,11 @@ void Geodesic::getPoints(double *p[], int *nP){
     *p = points;
     *nP = numPoints;
 }
-void Geodesic::getLines(int *l[], int *nL){
+void Geodesic::getLines(unsigned short *l[], int *nL){
     *l = lines;
     *nL = numLines;
 }
-void Geodesic::getFaces(int *f[], int *nF){
+void Geodesic::getFaces(unsigned short *f[], int *nF){
     *f = faces;
     *nF = numFaces;
 }
@@ -62,7 +62,7 @@ void Geodesic::loadTetrahedron(){
     points[X+3*3] = -1.0/f;  points[Y+3*3] = 0.0;   points[Z+3*3] = -side/f;
     
     delete lines;
-    lines = (int*)malloc(sizeof(int)*numLines*2);
+    lines = (unsigned short*)malloc(sizeof(unsigned short)*numLines*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 2;
     lines[0+2*2] = 0;  lines[1+2*2] = 3;
@@ -71,7 +71,7 @@ void Geodesic::loadTetrahedron(){
     lines[0+2*5] = 2;  lines[1+2*5] = 3;
     
     delete faces;
-    faces = (int*)malloc(sizeof(int)*numFaces*3);
+    faces = (unsigned short*)malloc(sizeof(unsigned short)*numFaces*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 3;  faces[2+3*0] = 2;
     faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
     faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 1;
@@ -104,7 +104,7 @@ void Geodesic::loadOctahedron(){
     points[X+3*5] = 0.0;   points[Y+3*5] = -1.0;  points[Z+3*5] = 0.0;
     
     delete lines;
-    lines = (int*)malloc(sizeof(int)*numLines*2);
+    lines = (unsigned short*)malloc(sizeof(unsigned short)*numLines*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 4;
     lines[0+2*2] = 0;  lines[1+2*2] = 2;
@@ -119,7 +119,7 @@ void Geodesic::loadOctahedron(){
     lines[0+2*11] = 5;  lines[1+2*11] = 1;
     
     delete faces;
-    faces = (int*)malloc(sizeof(int)*numFaces*3);
+    faces = (unsigned short*)malloc(sizeof(unsigned short)*numFaces*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 4;
     faces[0+3*1] = 0;  faces[1+3*1] = 2;  faces[2+3*1] = 1;
     faces[0+3*2] = 0;  faces[1+3*2] = 3;  faces[2+3*2] = 2;
@@ -152,7 +152,7 @@ void Geodesic::loadIcosahedron(){
     points[X+3*11] = 1.0/f;  points[Y+3*11] = -phi/f;  points[Z+3*11] = 0.0;
 
     delete lines;
-    lines = (int*)malloc(sizeof(int)*numLines*2);
+    lines = (unsigned short*)malloc(sizeof(unsigned short)*numLines*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 8;
     lines[0+2*1] = 0;  lines[1+2*1] = 9;
     lines[0+2*2] = 0;  lines[1+2*2] = 1;
@@ -185,7 +185,7 @@ void Geodesic::loadIcosahedron(){
     lines[0+2*29] = 6;  lines[1+2*29] = 3;
     
     delete faces;
-    faces = (int*)malloc(sizeof(int)*numFaces*3);
+    faces = (unsigned short*)malloc(sizeof(unsigned short)*numFaces*3);
     faces[0+3*0] = 8;  faces[1+3*0] = 7;  faces[2+3*0] = 4;
     faces[0+3*1] = 8;  faces[1+3*1] = 3;  faces[2+3*1] = 7;
     faces[0+3*2] = 8;  faces[1+3*2] = 4;  faces[2+3*2] = 0;
@@ -435,7 +435,7 @@ void Geodesic::divideFaces(int vFreq){
 
         numFaces = newFI;
         delete faces;
-        faces = (int*)malloc(sizeof(int)*numFaces*3);
+        faces = (unsigned short*)malloc(sizeof(unsigned short)*numFaces*3);
         for(int i = 0; i < numFaces*3; i++)
             faces[i] = newFacesArray[i];
         

@@ -1,6 +1,5 @@
 #include "GeodesicMesh.h"
 #include <OpenGLES/ES1/gl.h>
-#include <fstream>
 #include "Geodesic.h"
 
 #define X 0
@@ -20,6 +19,7 @@ void GeodesicMesh::load(Geodesic* geodesic){
 //    makeNormalLines(geodesic);
 //    makeFaceNormalLines(geodesic);
     extrudeTriangles(geodesic);
+    printf("::: %ld, %ld", sizeof(unsigned short), sizeof(int));
     
     glPoints = (float*)malloc(sizeof(float)*numPoints*3);
     for(int i = 0; i < numPoints; i++){
@@ -30,8 +30,19 @@ void GeodesicMesh::load(Geodesic* geodesic){
 //    log();
 }
 
-
 void GeodesicMesh::draw(){
+	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, 0, &glPoints[0]);
+    glNormalPointer(GL_FLOAT, 0, &glNormals[0]);
+    glDrawElements(GL_TRIANGLES, numFaces*3, GL_UNSIGNED_SHORT, &faces[0]);
+    
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void GeodesicMesh::drawExtrudedTriangles(){
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     

@@ -16,11 +16,15 @@
 #pragma mark- generate lines[] from face data
 #pragma mark- crop function
 
+// typedef to GLfloat, float if using OpenGL
+// or double, long double if you want precision
+typedef float floater;
+
 typedef struct geodesic geodesic;
 
 struct geodesic {
     
-    double          *points;  // each a double[3]- [0]:x [1]:y [2]:z
+    floater         *points;  // each a double[3]- [0]:x [1]:y [2]:z
     unsigned short  *lines;   // each an int[2]- [0]:index in *points [1]:index in *points
     unsigned short  *faces;   // each an int[3]- [0]:index in *points [1]:index in *points [2]:index in *points
     
@@ -28,9 +32,9 @@ struct geodesic {
     unsigned int    numLines;
     unsigned int    numFaces;
 
-    double          *pointNormals;
-    double          *lineNormals;
-    double          *faceNormals;
+    floater         *pointNormals;
+    floater         *lineNormals;
+    floater         *faceNormals;
 };
 
 geodesic icosahedron(int v);

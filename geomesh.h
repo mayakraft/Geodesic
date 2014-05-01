@@ -1,10 +1,36 @@
+//
+//  OpenGL front-end for geodesic.h
+//  Copyright (c) 2013 Robby Kraft
+//  MIT License
+//
+
 #ifndef __Geodesic__Mesh__
 #define __Geodesic__Mesh__
 
-#include <iostream>
+//#include <OpenGLES/ES1/gl.h>
+#include "geodesic.h"
 
-class Geodesic;
+//typedef struct geomesh geomesh;
+//
+//struct geomesh {
+//    GLfloat *vertices;
+//    unsigned short *lines;
+//    unsigned short *faces;
+    
+//    unsigned int numVertices;
+//    unsigned int numLines;
+//    unsigned int numFaces;
+    
+//    geodesic *_geodesic;
+//};
 
+void geodesicDrawTriangles(geodesic *_geodesic);
+void geodesicDrawVertices(geodesic *_geodesic);
+void geodesicDrawLines(geodesic *_geodesic);
+
+//void loadMesh(geomesh *mesh, geodesic *geo);
+
+/*
 class GeodesicMesh{
 public:
     void load(Geodesic* _geodesic);
@@ -44,5 +70,6 @@ private:
     void makeNormalLines();
     void makeFaceNormalLines();
 };
+*/
 
 #endif

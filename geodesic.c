@@ -1,6 +1,7 @@
-#import "geodesic.h"
+#include "geodesic.h"
 #include <stdlib.h>
 #include <math.h>
+#include "geomesh.c"
 
 #define phi (1 + sqrt(5)) / 2.0
 #define M_2PI 6.28318530717958647693528676655900576
@@ -20,24 +21,24 @@
 // rows are encoded into the platonic solids
 //
 
-void _make_tetrahedron(double *points, unsigned int *numPoints,
-                       unsigned short *lines, unsigned int *numLines,
-                       unsigned short *faces, unsigned int *numFaces){
-    double side = 0.70710678118655;
-    double f = 1.224744871391589;
+void _make_tetrahedron(floater **po, unsigned int *numPoints,
+                       unsigned short **li, unsigned int *numLines,
+                       unsigned short **fa, unsigned int *numFaces){
+    floater side = 0.70710678118655;
+    floater f = 1.224744871391589;
     *numPoints = 4;
     *numLines = 6;
     *numFaces = 4;
 
 //    delete points;
-    points = (double*)malloc(sizeof(double)*(*numPoints)*3);
+    floater *points = (floater*)malloc(sizeof(floater)*(*numPoints)*3);
     points[X+3*0] = 0.0;    points[Y+3*0] = 1.0/f;   points[Z+3*0] = side/f;
     points[X+3*1] = 0.0;    points[Y+3*1] = -1.0/f;  points[Z+3*1] = side/f;
     points[X+3*2] = 1.0/f;   points[Y+3*2] = 0.0;   points[Z+3*2] = -side/f;
     points[X+3*3] = -1.0/f;  points[Y+3*3] = 0.0;   points[Z+3*3] = -side/f;
     
 //    delete lines;
-    lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 2;
     lines[0+2*2] = 0;  lines[1+2*2] = 3;
@@ -46,14 +47,14 @@ void _make_tetrahedron(double *points, unsigned int *numPoints,
     lines[0+2*5] = 2;  lines[1+2*5] = 3;
     
 //    delete faces;
-    faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 3;  faces[2+3*0] = 2;
     faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
     faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 1;
     faces[0+3*3] = 1;  faces[1+3*3] = 2;  faces[2+3*3] = 3;
     // rotate and align one point to Y axis
-    double offset = -0.615479708670387;
-    double distance, angle;
+    floater offset = -0.615479708670387;
+    floater distance, angle;
     //rotate around the z until one point is at the zenith, along the (Y or X?) axis
     for(int i = 0; i < *numPoints; i++){
         angle = atan2(points[i*3+Z], points[i*3+Y]);
@@ -62,17 +63,20 @@ void _make_tetrahedron(double *points, unsigned int *numPoints,
         points[i*3+Y] = distance*cos(angle+offset);
         //points[i*3+Z] stays the same
     }
+    *po = points;
+    *li = lines;
+    *fa = faces;
 }
 
-void _make_octahedron(double *points, unsigned int *numPoints,
-                      unsigned short *lines, unsigned int *numLines,
-                      unsigned short *faces, unsigned int *numFaces){
+void _make_octahedron(floater **po, unsigned int *numPoints,
+                      unsigned short **li, unsigned int *numLines,
+                      unsigned short **fa, unsigned int *numFaces){
     *numPoints = 6;
     *numLines = 12;
     *numFaces = 8;
     
 //    delete points;
-    points = (double*)malloc(sizeof(double)*(*numPoints)*3);
+    floater *points = (floater*)malloc(sizeof(floater)*(*numPoints)*3);
     points[X+3*0] = 0.0;   points[Y+3*0] = 1.0;   points[Z+3*0] = 0.0;
     points[X+3*1] = 1.0;   points[Y+3*1] = 0.0;   points[Z+3*1] = 0.0;
     points[X+3*2] = 0.0;   points[Y+3*2] = 0.0;   points[Z+3*2] = -1.0;
@@ -81,7 +85,7 @@ void _make_octahedron(double *points, unsigned int *numPoints,
     points[X+3*5] = 0.0;   points[Y+3*5] = -1.0;  points[Z+3*5] = 0.0;
     
 //    delete lines;
-    lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 4;
     lines[0+2*2] = 0;  lines[1+2*2] = 2;
@@ -96,7 +100,7 @@ void _make_octahedron(double *points, unsigned int *numPoints,
     lines[0+2*11] = 5;  lines[1+2*11] = 1;
     
 //    delete faces;
-    faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 4;
     faces[0+3*1] = 0;  faces[1+3*1] = 2;  faces[2+3*1] = 1;
     faces[0+3*2] = 0;  faces[1+3*2] = 3;  faces[2+3*2] = 2;
@@ -105,18 +109,23 @@ void _make_octahedron(double *points, unsigned int *numPoints,
     faces[0+3*5] = 5;  faces[1+3*5] = 3;  faces[2+3*5] = 4;
     faces[0+3*6] = 5;  faces[1+3*6] = 2;  faces[2+3*6] = 3;
     faces[0+3*7] = 5;  faces[1+3*7] = 1;  faces[2+3*7] = 2;
+
+    *po = points;
+    *li = lines;
+    *fa = faces;
 }
 
-void _make_icosahedron(double *points, unsigned int *numPoints,
-                       unsigned short *lines, unsigned int *numLines,
-                       unsigned short *faces, unsigned int *numFaces){
-    double f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+void _make_icosahedron(floater **po, unsigned int *numPoints,
+                       unsigned short **li, unsigned int *numLines,
+                       unsigned short **fa, unsigned int *numFaces){
+    floater f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
     *numPoints = 12;
     *numLines = 30;
     *numFaces = 20;
     
 //    delete points;
-    points = (double*)malloc(sizeof(double)*(*numPoints)*3);
+    floater *points = (floater*)malloc(sizeof(floater)*(*numPoints)*3);
+    printf("SIZE OF: %lu\n",sizeof(floater)*(*numPoints)*3);
     points[X+3*0] = 0.0;  points[Y+3*0] = 1.0/f;  points[Z+3*0] = phi/f;
     points[X+3*1] = 0.0;  points[Y+3*1] = -1.0/f;  points[Z+3*1] = phi/f;
     points[X+3*2] = 0.0;  points[Y+3*2] = -1.0/f;  points[Z+3*2] = -phi/f;
@@ -131,7 +140,7 @@ void _make_icosahedron(double *points, unsigned int *numPoints,
     points[X+3*11] = 1.0/f;  points[Y+3*11] = -phi/f;  points[Z+3*11] = 0.0;
     
 //    delete lines;
-    lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 8;
     lines[0+2*1] = 0;  lines[1+2*1] = 9;
     lines[0+2*2] = 0;  lines[1+2*2] = 1;
@@ -164,7 +173,7 @@ void _make_icosahedron(double *points, unsigned int *numPoints,
     lines[0+2*29] = 6;  lines[1+2*29] = 3;
     
 //    delete faces;
-    faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 8;  faces[1+3*0] = 7;  faces[2+3*0] = 4;
     faces[0+3*1] = 8;  faces[1+3*1] = 3;  faces[2+3*1] = 7;
     faces[0+3*2] = 8;  faces[1+3*2] = 4;  faces[2+3*2] = 0;
@@ -187,9 +196,10 @@ void _make_icosahedron(double *points, unsigned int *numPoints,
     faces[0+3*17] = 10;  faces[1+3*17] = 6;  faces[2+3*17] = 5;
     faces[0+3*18] = 10;  faces[1+3*18] = 5;  faces[2+3*18] = 1;
     faces[0+3*19] = 10;  faces[1+3*19] = 2;  faces[2+3*19] = 6;
+    
     // align 2 points to polar Y
-    double offset =  (M_2PI/4.) - atan( (1 + sqrt(5)) / 2 );
-    double distance, angle;
+    floater offset =  (M_2PI/4.) - atan( (1 + sqrt(5)) / 2 );
+    floater distance, angle;
     //rotate around the z until one point is at the zenith
     for(int i = 0; i < *numPoints; i++){
         angle = atan2(points[i*3+X], points[i*3+Y]);
@@ -198,16 +208,19 @@ void _make_icosahedron(double *points, unsigned int *numPoints,
         points[i*3+Y] = distance*cos(angle+offset);
         //points[i*3+Z] stays the same
     }
+    *po = points;
+    *li = lines;
+    *fa = faces;
 }
-
+/*
 void _generate_geodesic_normals(geodesic *g){
-    /* shortcuts are made possible
-       due to all points lying on the surface
-       of a sphere centered at the origin */
+    // shortcuts are made possible
+    //   due to all points lying on the surface
+    //   of a sphere centered at the origin
     if(g->numPoints){
-        double length;
+        floater length;
 //        delete normals;
-        g->pointNormals = (double*)malloc(sizeof(double)*g->numPoints*3);
+        g->pointNormals = (floater*)malloc(sizeof(floater)*g->numPoints*3);
         for(int i = 0; i < g->numPoints; i++){
 //            length = 1.0;  // we should already know the radius of the sphere
             length = sqrtf( pow(g->points[X+3*i],2) + pow(g->points[Y+3*i],2) + pow(g->points[Z+3*i],2) );
@@ -218,7 +231,7 @@ void _generate_geodesic_normals(geodesic *g){
     }
     if(g->numLines){
 //        delete lineNormals;
-        g->lineNormals = (double*)malloc(sizeof(double)*g->numLines*2);
+        g->lineNormals = (floater*)malloc(sizeof(floater)*g->numLines*2);
         for(int i = 0; i < g->numLines; i++){
             g->lineNormals[i*2+X] = ( g->pointNormals[g->lines[i*2+0]*3+X] +
                                       g->pointNormals[g->lines[i*2+1]*3+X] ) / 2.0;
@@ -230,7 +243,7 @@ void _generate_geodesic_normals(geodesic *g){
     }
     if(g->numFaces){
 //        delete faceNormals;
-        g->faceNormals = (double*)malloc(sizeof(double)*g->numFaces*3);
+        g->faceNormals = (floater*)malloc(sizeof(floater)*g->numFaces*3);
         for(int i = 0; i < g->numFaces; i++){
             g->faceNormals[i*3+X] = ( g->pointNormals[g->faces[i*3+0]*3+X] +
                                       g->pointNormals[g->faces[i*3+1]*3+X] +
@@ -243,7 +256,7 @@ void _generate_geodesic_normals(geodesic *g){
                                       g->pointNormals[g->faces[i*3+2]*3+Z] ) / 3.0;
         }
     }
-}
+}*/
 
 //void Geodesic::OBJ(char *&data, int &length){
 //    string obj;
@@ -254,9 +267,9 @@ void _generate_geodesic_normals(geodesic *g){
 //    obj.append("\n");
 //    for(int i = 0; i < numPoints; i++){
 //        obj.append("v ");
-//        obj.append(to_string((double)points[i*3+0]));     obj.append(" ");
-//        obj.append(to_string((double)points[i*3+1]));     obj.append(" ");
-//        obj.append(to_string((double)points[i*3+2]));     obj.append("\n");
+//        obj.append(to_string((floater)points[i*3+0]));     obj.append(" ");
+//        obj.append(to_string((floater)points[i*3+1]));     obj.append(" ");
+//        obj.append(to_string((floater)points[i*3+2]));     obj.append("\n");
 //    }
 //    for(int i = 0; i < numFaces; i++){
 //        obj.append("f ");
@@ -336,6 +349,7 @@ void _generate_geodesic_normals(geodesic *g){
 //      p/____\/c        p->a  i-row
 //                       p->b  i-row-1
 
+/*
 void _divide_geodesic_faces(geodesic *g, int v){
     if(v > 1){
         // equation to calculate new points per face
@@ -343,7 +357,7 @@ void _divide_geodesic_faces(geodesic *g, int v){
         for(int i = 1; i < v; i++)
             pointsPerFace += (i+2);
         // new Points, Faces arrays, and their sizes
-        double newPointsArray[g->numFaces * pointsPerFace * 3 + g->numPoints];
+        floater newPointsArray[g->numFaces * pointsPerFace * 3 + g->numPoints];
         int newFacesArray[v*(v+1)*g->numFaces*3*3];   // data overflow problem. correctly approximate array size
         int newPI = 0;
         int newFI = 0;
@@ -362,10 +376,10 @@ void _divide_geodesic_faces(geodesic *g, int v){
 //            newFI++;
 //        }
         int i, j, k;
-        double segments = v;
-        double *pointA, *pointB, *pointC;
+        float segments = v;
+        floater *pointA, *pointB, *pointC;
         int faceA, faceB, faceC;
-        double AB[3], BC[3];
+        floater AB[3], BC[3];
         int faceP1, faceP2, faceP3;
         for(i=0; i < g->numFaces; i++){
             // retain pointers to major 3 vertices
@@ -437,7 +451,7 @@ void _divide_geodesic_faces(geodesic *g, int v){
         g->numPoints = newPI;
 //        delete g->points;
         free(g->points);
-        g->points = (double*)malloc(sizeof(double)*g->numPoints*3);
+        g->points = (floater*)malloc(sizeof(floater)*g->numPoints*3);
         for(int i = 0; i < g->numPoints*3; i++)
             g->points[i] = newPointsArray[i];
 
@@ -452,7 +466,9 @@ void _divide_geodesic_faces(geodesic *g, int v){
 //        [self removeDuplicatePoints];
     }
 }
-
+ */
+ 
+/*
 void _remove_duplicate_points(geodesic *g)
 {
 //    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
@@ -499,7 +515,7 @@ void _remove_duplicate_points(geodesic *g)
                     if(g->lines[f*2+e] == i)
                         g->lines[f*2+e] = duplicateIndexes[i];
 
-    double newPointsArray[g->numPoints - numDuplicates];
+    floater newPointsArray[g->numPoints - numDuplicates];
     int index = 0;
     for(i = 0; i < g->numPoints; i++){
         if(duplicateIndexes[i] == -1){
@@ -523,12 +539,12 @@ void _remove_duplicate_points(geodesic *g)
 //    }
 //    points_ = [[NSArray alloc] initWithArray:points];
 
-}
+}*/
 
-void _spherize_points(double *points, unsigned int numPoints){
+void _spherize_points(floater *points, unsigned int numPoints){
     int i;
-    double difference, distance;
-    double maxdistance = 1.0;//sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+    floater difference, distance;
+    floater maxdistance = 1.0;//sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
     for(i = 0; i < numPoints; i++)
     {
         distance = sqrt(pow(points[i*3+X], 2) +
@@ -558,7 +574,7 @@ void Geodesic::initDiagramData(){
     delete lineClass;
     delete lineClassLengths;
     lineClass = (int*)malloc(sizeof(int)*numLines);
-    // this now gets allocated at the end of classifyLines() //    lineClassLengths = (double*)malloc(sizeof(double)*numLines);   // allocating WAY too many places
+    // this now gets allocated at the end of classifyLines() //    lineClassLengths = (floater*)malloc(sizeof(floater)*numLines);   // allocating WAY too many places
     for(int i = 0; i < numLines; i++){
         lineClass[i] = 0;
     }
@@ -570,7 +586,7 @@ void Geodesic::initDiagramData(){
 // top to bottom, 0 to 1, retain top portion
 void Geodesic::crop(float latitude){
     float NUDGE = .04;  // todo make this smarter
-    double c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
+    float c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
     delete visiblePoints;
     delete visibleLines;
     delete visibleFaces;
@@ -591,12 +607,12 @@ void Geodesic::crop(float latitude){
 void Geodesic::classifyLines(){
     int i, j;
     unsigned int rounded;
-    double distance;
+    floater distance;
     bool found;
     unsigned int elbow = 100000000;
     double nudge = .00000000001;
     unsigned int lengths[numLines];  // allocating WAY too much space here
-    double originalLengths[numLines];     // "
+    floater originalLengths[numLines];     // "
     
     int numLengths = 0;
     int numOriginalLengths = 0;
@@ -645,7 +661,7 @@ void Geodesic::classifyLines(){
     }
     
     // copy line lengths data into an appropriately sized array
-    lineClassLengths = (double*)malloc(sizeof(double)*numOriginalLengths);
+    lineClassLengths = (floater*)malloc(sizeof(floater)*numOriginalLengths);
     for(int i = 0; i < numOriginalLengths; i++)
         lineClassLengths[i] = originalLengths[i];
     
@@ -692,27 +708,27 @@ void Geodesic::classifyLines(){
 
 geodesic tetrahedron(int v){
     geodesic g;
-    _make_tetrahedron(g.points, &g.numPoints, g.lines, &g.numLines, g.faces, &g.numFaces);
-    _divide_geodesic_faces(&g, v);
-    _spherize_points(g.points, g.numPoints);
+    _make_tetrahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+//    _divide_geodesic_faces(&g, v);
+//    _spherize_points(g.points, g.numPoints);
 //    _generate_geodesic_normals(&g);
     return g;
 }
 
 geodesic icosahedron(int v){
     geodesic g;
-    _make_icosahedron(g.points, &g.numPoints, g.lines, &g.numLines, g.faces, &g.numFaces);
-    _divide_geodesic_faces(&g, v);
-    _spherize_points(g.points, g.numPoints);
+    _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+//    _divide_geodesic_faces(&g, v);
+//    _spherize_points(g.points, g.numPoints);
 //    _generate_geodesic_normals(&g);
     return g;
 }
 
 geodesic octahedron(int v){
     geodesic g;
-    _make_octahedron(g.points, &g.numPoints, g.lines, &g.numLines, g.faces, &g.numFaces);
-    _divide_geodesic_faces(&g, v);
-    _spherize_points(g.points, g.numPoints);
+    _make_octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+//    _divide_geodesic_faces(&g, v);
+//    _spherize_points(g.points, g.numPoints);
 //    _generate_geodesic_normals(&g);
     return g;
 }

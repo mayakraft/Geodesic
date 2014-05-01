@@ -24,9 +24,9 @@
 //    geodesic *_geodesic;
 //};
 
-void geodesicDrawTriangles(geodesic *_geodesic);
-void geodesicDrawVertices(geodesic *_geodesic);
-void geodesicDrawLines(geodesic *_geodesic);
+void geodesicDrawTriangles(geodesic *g);
+void geodesicDrawLines(geodesic *g);
+void geodesicDrawPoints(geodesic *g);
 
 //void loadMesh(geomesh *mesh, geodesic *geo);
 

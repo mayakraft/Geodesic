@@ -16,8 +16,8 @@
 #pragma mark- generate lines[] from face data
 #pragma mark- crop function
 
-// typedef to GLfloat, float if using OpenGL
-// or double, long double if you want precision
+// typedef to GLfloat, float if using OpenGLES
+// or double, long double for higher precision
 typedef float floater;
 
 typedef struct geodesic geodesic;
@@ -44,5 +44,7 @@ geodesic tetrahedron(int v);
 geodesic tetrahedronDome(int v, float crop);
 geodesic octahedronDome(int v, float crop);
 geodesic icosahedronDome(int v, float crop);
+
+void freeGeodesic(geodesic *g);
 
 #endif

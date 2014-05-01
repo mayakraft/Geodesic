@@ -1,23 +1,58 @@
 # geodesic geometry generator
 
-points, lines, and triangles (clockwise winding), vertex normals, face normals
+R. Buckminster Fuller method 1 spheres and domes from icosahedra, octahedra, and tetrahedra
 
-OBJ file export
+OpenGL-ready
+
+# properties
+
+points, lines, faces (clockwise winding)
+
+vertex normals, line normals, face normals
 
 # methods
 
-``` c++
- // make a sphere
-geodesic.icosahedron(3)  // 3V icosahedron
-geodesic.tetrahedron(4)  // 4V tetrahedron
-geodesic.octahedron(1)  // an octahedron
+``` c
+// get a geodesic object
+geodesic icosahedron(int v);
+geodesic octahedron(int v);
+geodesic tetrahedron(int v);
 
- // crop sphere into 5/9 dome
-geodesic.crop(5/9.); 
+geodesic tetrahedronDome(int v, float crop);
+geodesic octahedronDome(int v, float crop);
+geodesic icosahedronDome(int v, float crop);
+
+/// wait, migrating from C++
+//export OBJ file
+
+// render
+void geodesicDrawTriangles(geodesic *g);  // GL_TRIANGLES
+void geodesicDrawLines(geodesic *g);      // GL_LINES
+void geodesicDrawPoints(geodesic *g);   // GL_POINTS
+
+// free() object
+void freeGeodesic(geodesic *g);
 ```
 
-## mesh class
+# usage
 
-make OpenGL representation of geodesic object
+``` c
+ // make a sphere
+geodesic sphere1 = icosahedron(3)  // 3V icosahedron
+geodesic sphere2 = tetrahedron(4)  // 4V tetrahedron
+geodesic sphere3 = octahedron(1)  // a regular octahedron
+
+ // make a dome
+geodesic dome1 = icosahedronDome(3, 5/9.); // 3V 5/9 dome
+geodesic dome2 = octahedronDome(8, 1/2.); // 8V 8/16 dome
+
+ // reuse an object, free it first
+freeGeodesic(&dome);  // don’t call unless it’s been allocated!
+
+ // in an OpenGL context
+glPushMatrix();
+geodesicDrawTriangles(&dome);
+glPopMatrix();
+```
 
 ![picture](https://raw.github.com/robbykraft/Geodesic/master/picture.png)

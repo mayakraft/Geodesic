@@ -21,40 +21,39 @@
 ////    log();
 //}
 
-
 void geodesicDrawTriangles(geodesic *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
 
     glVertexPointer(3, GL_FLOAT, 0, g->points);
-//    glNormalPointer(GL_FLOAT, 0, g->faceNormals);
+    glNormalPointer(GL_FLOAT, 0, g->faceNormals);
     glDrawElements(GL_TRIANGLES, g->numFaces*3, GL_UNSIGNED_SHORT, g->faces);
     
-//    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void geodesicDrawLines(geodesic *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     
     glVertexPointer(3, GL_FLOAT, 0, g->points);
-//    glNormalPointer(GL_FLOAT, 0, g->lineNormals);
+    glNormalPointer(GL_FLOAT, 0, g->lineNormals);
     glDrawElements(GL_LINES, g->numLines*2, GL_UNSIGNED_SHORT, g->lines);
     
-//    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicDrawVertices(geodesic *g){
+void geodesicDrawPoints(geodesic *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     
     glVertexPointer(3, GL_FLOAT, 0, g->points);
-//    glNormalPointer(GL_FLOAT, 0, g->pointNormals);
+    glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawArrays(GL_POINTS, 0, g->numPoints);
     
-//    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -83,15 +82,6 @@ void geodesicDrawVertices(geodesic *g){
 //    
 //    glDisableClientState(GL_NORMAL_ARRAY);
 //    glDisableClientState(GL_VERTEX_ARRAY);
-//}
-
-//void GeodesicMesh::makeGLPoints(){
-//    glPoints = (float*)malloc(sizeof(float)*numPoints*3);
-//    for(int i = 0; i < numPoints; i++){
-//        glPoints[i*3+X] = points[i*3+X];
-//        glPoints[i*3+Y] = points[i*3+Y];
-//        glPoints[i*3+Z] = points[i*3+Z];
-//    }
 //}
 
 /*

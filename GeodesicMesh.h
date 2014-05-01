@@ -18,11 +18,11 @@ public:
 
 private:
     Geodesic *geodesic;
-    int             numFaces;
-    int             numLines;
-    int             numPoints;
-    int             numGLTriangles;
-    int             numGLLinePoints;
+    unsigned int    numFaces;
+    unsigned int    numLines;
+    unsigned int    numPoints;
+    unsigned int    numGLTriangles;
+    unsigned int    numGLLinePoints;
     unsigned short  *faces;     //
     unsigned short  *lines;     // interface to the object model
     double          *points;    //

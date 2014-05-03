@@ -8,21 +8,20 @@
 #define __Geodesic__Mesh__
 
 //#include <OpenGLES/ES1/gl.h>
-#include "geodesic.h"
 
-//typedef struct geomesh geomesh;
-//
-//struct geomesh {
-//    GLfloat *vertices;
-//    unsigned short *lines;
-//    unsigned short *faces;
-    
-//    unsigned int numVertices;
-//    unsigned int numLines;
-//    unsigned int numFaces;
-    
-//    geodesic *_geodesic;
-//};
+
+typedef struct geomesh geomesh;
+
+struct geomesh {
+    float *vertexNormalsLines;
+    float *lineNormalsLines;
+    float *faceNormalsLines;
+    unsigned int numVertexNormals;
+    unsigned int numLineNormals;
+    unsigned int numFaceNormals;
+};
+
+geomesh makeMesh(geodesic *g);
 
 void geodesicDrawTriangles(geodesic *g);
 void geodesicDrawLines(geodesic *g);

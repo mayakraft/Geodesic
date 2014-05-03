@@ -24,9 +24,9 @@
 void geodesicDrawTriangles(geodesic *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
-
+    
     glVertexPointer(3, GL_FLOAT, 0, g->points);
-    glNormalPointer(GL_FLOAT, 0, g->faceNormals);
+    glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawElements(GL_TRIANGLES, g->numFaces*3, GL_UNSIGNED_SHORT, g->faces);
     
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -38,7 +38,7 @@ void geodesicDrawLines(geodesic *g){
     glEnableClientState(GL_NORMAL_ARRAY);
     
     glVertexPointer(3, GL_FLOAT, 0, g->points);
-    glNormalPointer(GL_FLOAT, 0, g->lineNormals);
+    glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawElements(GL_LINES, g->numLines*2, GL_UNSIGNED_SHORT, g->lines);
     
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -57,7 +57,31 @@ void geodesicDrawPoints(geodesic *g){
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-// mesh-inhabiting ornaments
+geomesh makeMesh(geodesic *g){
+    geomesh mesh;
+    mesh.faceNormalsLines = malloc(sizeof(float)*g->numFaces*3*2);
+    for(int i = 0; i < g->numFaces; i++){
+        mesh.faceNormalsLines[i*6+0+X] = g->faceNormals[i*3+X];
+        mesh.faceNormalsLines[i*6+0+Y] = g->faceNormals[i*3+Y];
+        mesh.faceNormalsLines[i*6+0+Z] = g->faceNormals[i*3+Z];
+        mesh.faceNormalsLines[i*6+3+X] = g->faceNormals[i*3+X]*1.25;
+        mesh.faceNormalsLines[i*6+3+Y] = g->faceNormals[i*3+Y]*1.25;
+        mesh.faceNormalsLines[i*6+3+Z] = g->faceNormals[i*3+Z]*1.25;
+    }
+    mesh.numFaceNormals = g->numFaces;
+    return mesh;
+}
+
+void geodesicMeshDrawFaceNormalLines(geomesh *g){
+	glEnableClientState(GL_VERTEX_ARRAY);
+    
+    glVertexPointer(3, GL_FLOAT, 0, g->faceNormalsLines);
+    glDrawArrays(GL_LINES, 0, g->numFaceNormals*2);
+    
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+// mesh ornaments
 //void GeodesicMesh::drawNormalLines(){
 //    glEnableClientState(GL_VERTEX_ARRAY);
 //    glVertexPointer(3, GL_FLOAT, 0, normalLines);

@@ -257,13 +257,13 @@ void _generate_geodesic_normals(geodesic *g){
     }
     if(g->numLines){
 //        free(lineNormals);
-        g->lineNormals = (float_*)malloc(sizeof(float_)*g->numLines*2*3);
+        g->lineNormals = (float_*)malloc(sizeof(float_)*g->numLines*3);
         for(int i = 0; i < g->numLines; i++){
-            g->lineNormals[i*2+X] = ( g->pointNormals[g->lines[i*2+0]*3+X] +
+            g->lineNormals[i*3+X] = ( g->pointNormals[g->lines[i*2+0]*3+X] +
                                       g->pointNormals[g->lines[i*2+1]*3+X] ) / 2.0;
-            g->lineNormals[i*2+Y] = ( g->pointNormals[g->lines[i*2+0]*3+Y] +
+            g->lineNormals[i*3+Y] = ( g->pointNormals[g->lines[i*2+0]*3+Y] +
                                       g->pointNormals[g->lines[i*2+1]*3+Y] ) / 2.0;
-            g->lineNormals[i*2+Z] = ( g->pointNormals[g->lines[i*2+0]*3+Z] +
+            g->lineNormals[i*3+Z] = ( g->pointNormals[g->lines[i*2+0]*3+Z] +
                                       g->pointNormals[g->lines[i*2+1]*3+Z] ) / 2.0;
         }
     }
@@ -504,7 +504,7 @@ void _divide_geodesic_faces(geodesic *g, int v){
         // an un-elegant fix is to heuristically merge points
         // that haev the same coordinates into one point
         // and update pointers in lines[] and faces[] arrays
-        _remove_duplicate_points(g);
+//        _remove_duplicate_points(g);
     }
 }
 
@@ -522,6 +522,10 @@ void _spherize_points(float_ *points, unsigned int numPoints){
         points[i*3+Y]*=difference;
         points[i*3+Z]*=difference;
     }
+}
+
+void _crop_geodesic(geodesic *g, float crop){
+    //TODO: crop
 }
 
 geodesic tetrahedron(int v){
@@ -552,18 +556,20 @@ geodesic octahedron(int v){
 }
 
 geodesic tetrahedronDome(int v, float crop) {
-    geodesic g;
+    geodesic g = tetrahedron(v);
+    _crop_geodesic(&g, crop);
     return g;
 }
 geodesic octahedronDome(int v, float crop) {
-    geodesic g;
+    geodesic g = octahedron(v);
+    _crop_geodesic(&g, crop);
     return g;
 }
 geodesic icosahedronDome(int v, float crop) {
-    geodesic g;
+    geodesic g = icosahedron(v);
+    _crop_geodesic(&g, crop);
     return g;
 }
-
 
 // sample 128 precision: 1.189731495357231765085759326628007
 // sample 64 precision: 1.7976931348623157

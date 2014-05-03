@@ -7,9 +7,6 @@
 #ifndef __Geodesic__Mesh__
 #define __Geodesic__Mesh__
 
-//#include <OpenGLES/ES1/gl.h>
-
-
 typedef struct geomesh geomesh;
 
 struct geomesh {
@@ -19,6 +16,9 @@ struct geomesh {
     unsigned int numVertexNormals;
     unsigned int numLineNormals;
     unsigned int numFaceNormals;
+    
+    unsigned int numTriangles;
+    float *glTriangles;
 };
 
 geomesh makeMesh(geodesic *g);

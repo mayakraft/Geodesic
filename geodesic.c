@@ -210,6 +210,9 @@ void freeGeodesic(geodesic *g){
     // be VERY careful with this one:
     // an initially unallocated geodesic will still register
     // TRUE on the if()s and call free() and crash
+    g->numPoints = 0;
+    g->numLines = 0;
+    g->numFaces = 0;
     if(g->points){
         free(g->points);
         g->points = NULL;
@@ -234,9 +237,7 @@ void freeGeodesic(geodesic *g){
         free(g->faceNormals);
         g->faceNormals = NULL;
     }
-    g->numPoints = 0;
-    g->numLines = 0;
-    g->numFaces = 0;
+//    free(g);
 }
 
 void _generate_geodesic_normals(geodesic *g){

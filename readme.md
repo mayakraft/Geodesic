@@ -2,13 +2,21 @@
 
 R. Buckminster Fuller method 1 spheres and domes from icosahedra, octahedra, and tetrahedra
 
-OpenGL-ready
-
 # properties
 
-points, lines, faces (clockwise winding)
+``` c
+unsigned int    numPoints;
+unsigned int    numLines;
+unsigned int    numFaces;
 
-vertex normals, line normals, face normals
+float           *points;  // count(numPoints*3)
+unsigned short  *lines;   // count(numLines*2)
+unsigned short  *faces;   // count(numFaces*3), clockwise winding
+    
+float           *pointNormals;  // count(numPoints*3)
+float           *lineNormals;   // count(numLines*3)
+float           *faceNormals;   // count(numFaces*3)
+```
 
 # methods
 

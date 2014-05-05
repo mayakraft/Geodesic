@@ -45,32 +45,30 @@ void geodesicDrawPoints(geodesic *g){
 // normal line indicators: vertices, lines, faces
 // extruded triangle faces and normals
 
-void geodesicMeshDrawVertexNormalLines(geomesh *m){
+void geodesicMeshDrawVertexNormalLines(geomeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->vertexNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numVertexNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicMeshDrawLineNormalLines(geomesh *m){
+void geodesicMeshDrawLineNormalLines(geomeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->lineNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numLineNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicMeshDrawFaceNormalLines(geomesh *m){
+void geodesicMeshDrawFaceNormalLines(geomeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->faceNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numFaceNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-#define EX_SCALE .833333333
-
-void geodesicMeshDrawExtrudedTriangles(geomesh *mesh){
+void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh){
     glPushMatrix();
-    glScalef(EX_SCALE, EX_SCALE, EX_SCALE);
+    glScalef(mesh->shrink, mesh->shrink, mesh->shrink);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh->glTriangles);
@@ -81,8 +79,8 @@ void geodesicMeshDrawExtrudedTriangles(geomesh *mesh){
     glPopMatrix();
 }
 
-geomesh makeMesh(geodesic *g){
-    geomesh mesh;
+geomeshNormals makeMeshNormals(geodesic *g){
+    geomeshNormals mesh;
     mesh.vertexNormalsLines = (GLfloat*)malloc(sizeof(float)*(g->numPoints)*3*2);
     for(int i = 0; i < g->numPoints; i++){
         mesh.vertexNormalsLines[i*6+0+X] = g->pointNormals[i*3+X];
@@ -111,6 +109,32 @@ geomesh makeMesh(geodesic *g){
         mesh.faceNormalsLines[i*6+3+Z] = g->faceNormals[i*3+Z]*1.025;
     }
 
+    mesh.numVertexNormals = g->numPoints;
+    mesh.numLineNormals = g->numLines;
+    mesh.numFaceNormals = g->numFaces;
+
+    return mesh;
+}
+
+void extrudeTriangles(geomeshTriangles *mesh, geodesic *g, float distance){
+    for(int i = 0; i < g->numFaces; i++){
+        mesh->glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * distance;
+        mesh->glTriangles[i*9 + 0*3 + 1] += g->faceNormals[1+i*3] * distance;
+        mesh->glTriangles[i*9 + 0*3 + 2] += g->faceNormals[2+i*3] * distance;
+        // triangle vertex 2: X Y and Z
+        mesh->glTriangles[i*9 + 1*3 + 0] += g->faceNormals[0+i*3] * distance;
+        mesh->glTriangles[i*9 + 1*3 + 1] += g->faceNormals[1+i*3] * distance;
+        mesh->glTriangles[i*9 + 1*3 + 2] += g->faceNormals[2+i*3] * distance;
+        // triangle vertex 3: X Y and Z
+        mesh->glTriangles[i*9 + 2*3 + 0] += g->faceNormals[0+i*3] * distance;
+        mesh->glTriangles[i*9 + 2*3 + 1] += g->faceNormals[1+i*3] * distance;
+        mesh->glTriangles[i*9 + 2*3 + 2] += g->faceNormals[2+i*3] * distance;
+    }
+}
+
+geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){
+    geomeshTriangles mesh;
+    mesh.shrink = shrink;
     mesh.glTriangles = (float*)malloc(sizeof(float)*g->numFaces*3*3);
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
@@ -128,47 +152,62 @@ geomesh makeMesh(geodesic *g){
     }
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
-        mesh.glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 0*3 + 1] += g->faceNormals[1+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 0*3 + 2] += g->faceNormals[2+i*3] * (1/EX_SCALE - 1);
+        mesh.glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 0*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 0*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
         // triangle vertex 2: X Y and Z
-        mesh.glTriangles[i*9 + 1*3 + 0] += g->faceNormals[0+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 1*3 + 1] += g->faceNormals[1+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 1*3 + 2] += g->faceNormals[2+i*3] * (1/EX_SCALE - 1);
+        mesh.glTriangles[i*9 + 1*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 1*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 1*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
         // triangle vertex 3: X Y and Z
-        mesh.glTriangles[i*9 + 2*3 + 0] += g->faceNormals[0+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 2*3 + 1] += g->faceNormals[1+i*3] * (1/EX_SCALE - 1);
-        mesh.glTriangles[i*9 + 2*3 + 2] += g->faceNormals[2+i*3] * (1/EX_SCALE - 1);
+        mesh.glTriangles[i*9 + 2*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 2*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
+        mesh.glTriangles[i*9 + 2*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
     }
+    
+// TRADITIONAL CURVED FACE NORMALS
+//    mesh.glTriangleNormals = (float*)malloc(sizeof(float)*g->numFaces*3*3);
+//    for(int i = 0; i < g->numFaces; i++){
+//        // triangle vertex 1: X Y and Z
+//        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->pointNormals[ g->faces[0+i*3]*3 + X ];
+//        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->pointNormals[ g->faces[0+i*3]*3 + Y ];
+//        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->pointNormals[ g->faces[0+i*3]*3 + Z ];
+//        // triangle vertex 2: X Y and Z
+//        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->pointNormals[ g->faces[1+i*3]*3 + X ];
+//        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->pointNormals[ g->faces[1+i*3]*3 + Y ];
+//        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->pointNormals[ g->faces[1+i*3]*3 + Z ];
+//        // triangle vertex 3: X Y and Z
+//        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->pointNormals[ g->faces[2+i*3]*3 + X ];
+//        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->pointNormals[ g->faces[2+i*3]*3 + Y ];
+//        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->pointNormals[ g->faces[2+i*3]*3 + Z ];
+//    }
+    
+    // DISCO BALL MIRROR NORMALS
     mesh.glTriangleNormals = (float*)malloc(sizeof(float)*g->numFaces*3*3);
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
-        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->pointNormals[ g->faces[0+i*3]*3 + X ];
-        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->pointNormals[ g->faces[0+i*3]*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->pointNormals[ g->faces[0+i*3]*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->faceNormals[ i*3 + X ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->faceNormals[ i*3 + Y ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->faceNormals[ i*3 + Z ];
         // triangle vertex 2: X Y and Z
-        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->pointNormals[ g->faces[1+i*3]*3 + X ];
-        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->pointNormals[ g->faces[1+i*3]*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->pointNormals[ g->faces[1+i*3]*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->faceNormals[ i*3 + X ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->faceNormals[ i*3 + Y ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->faceNormals[ i*3 + Z ];
         // triangle vertex 3: X Y and Z
-        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->pointNormals[ g->faces[2+i*3]*3 + X ];
-        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->pointNormals[ g->faces[2+i*3]*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->pointNormals[ g->faces[2+i*3]*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->faceNormals[ i*3 + X ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->faceNormals[ i*3 + Y ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->faceNormals[ i*3 + Z ];
     }
     
-    mesh.numVertexNormals = g->numPoints;
-    mesh.numLineNormals = g->numLines;
-    mesh.numFaceNormals = g->numFaces;
     mesh.numTriangles = g->numFaces;
 
     return mesh;
 }
 
-void freeMesh(geomesh *m){
+void deleteMeshNormals(geomeshNormals *m){
     m->numVertexNormals = 0;
     m->numLineNormals = 0;
     m->numFaceNormals = 0;
-    m->numTriangles = 0;
     if(m->vertexNormalsLines){
         free(m->vertexNormalsLines);
         m->vertexNormalsLines = NULL;
@@ -181,6 +220,11 @@ void freeMesh(geomesh *m){
         free(m->faceNormalsLines);
         m->faceNormalsLines = NULL;
     }
+//    free(m);
+}
+
+void deleteMeshTriangles(geomeshTriangles *m){
+    m->numTriangles = 0;
     if(m->glTriangles){
         free(m->glTriangles);
         m->glTriangles = NULL;
@@ -189,5 +233,5 @@ void freeMesh(geomesh *m){
         free(m->glTriangleNormals);
         m->glTriangleNormals = NULL;
     }
-//    free(m);
+    //    free(m);
 }

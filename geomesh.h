@@ -14,25 +14,31 @@ void geodesicDrawTriangles(geodesic *g);
 void geodesicDrawLines(geodesic *g);
 void geodesicDrawPoints(geodesic *g);
 
-
 // geodesic mesh
 
-typedef struct geomesh geomesh;
-struct geomesh {
+typedef struct geomeshNormals geomeshNormals;
+struct geomeshNormals {
     float *vertexNormalsLines;
     float *lineNormalsLines;
     float *faceNormalsLines;
     unsigned int numVertexNormals;
     unsigned int numLineNormals;
     unsigned int numFaceNormals;
-    
+};
+
+typedef struct geomeshTriangles geomeshTriangles;
+struct geomeshTriangles{
     unsigned int numTriangles;
     float *glTriangles;
     float *glTriangleNormals;
+    
+    float shrink;  // shrink face
 };
 
-geomesh makeMesh(geodesic *g);
+geomeshNormals makeMeshNormals(geodesic *g);
+geomeshTriangles makeMeshTriangles(geodesic *g, float scale);
 
-void freeMesh(geomesh *m);
+void deleteMeshNormals(geomeshNormals *m);
+void deleteMeshTriangles(geomeshTriangles *m);
 
 #endif

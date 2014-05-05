@@ -206,7 +206,7 @@ void _make_icosahedron(float_ **po, unsigned int *numPoints,
     *fa = faces;
 }
 
-void freeGeodesic(geodesic *g){
+void deleteGeodesic(geodesic *g){
     // be VERY careful with this one:
     // an initially unallocated geodesic will still register
     // TRUE on the if()s and call free() and crash

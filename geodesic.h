@@ -12,11 +12,24 @@
 
 #ifndef __geodesic__geometry__
 #define __geodesic__geometry__
+typedef struct geodesic geodesic;
 
 
-#define _float_precision 32  // 32, 64, 128
-// if calculating: go for a high level of precision
-// if rendering: coordinate this with GLfloat
+
+#define _float_precision 32  // 32, 64, 128, for rendering-coordinate this with GLfloat
+
+geodesic icosahedron(int v);
+geodesic octahedron(int v);
+geodesic tetrahedron(int v);
+
+void deleteGeodesic(geodesic *g);
+
+//TODO: not implemented
+geodesic tetrahedronDome(int v, float crop);
+geodesic octahedronDome(int v, float crop);
+geodesic icosahedronDome(int v, float crop);
+
+
 
 #if _float_precision==128
 typedef long double float_;
@@ -27,34 +40,16 @@ typedef float float_;
 #else
 typedef float float_;
 #endif
-typedef struct geodesic geodesic;
-
-
-geodesic icosahedron(int v);
-geodesic octahedron(int v);
-geodesic tetrahedron(int v);
-
-void freeGeodesic(geodesic *g);
-
-
-//TODO: not implemented
-geodesic tetrahedronDome(int v, float crop);
-geodesic octahedronDome(int v, float crop);
-geodesic icosahedronDome(int v, float crop);
-
 struct geodesic {
-    
     unsigned int    numPoints;
     unsigned int    numLines;
     unsigned int    numFaces;
-
     float_          *points;  // count: numPoints * 3
     unsigned short  *lines;   // count: numLines * 2
     unsigned short  *faces;   // count: numFaces * 3
-    
-    float_          *pointNormals;
-    float_          *lineNormals;
-    float_          *faceNormals;
+    float_          *pointNormals;  // count: numPoints * 3
+    float_          *lineNormals;   // count: numLines * 3
+    float_          *faceNormals;   // count: numFaces * 3
 };
 
 #endif

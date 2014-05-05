@@ -1,4 +1,4 @@
-# geodesic geometry generator
+# geodesic geometry
 
 R. Buckminster Fuller method 1 spheres and domes from icosahedra, octahedra, and tetrahedra
 
@@ -39,7 +39,7 @@ void geodesicDrawLines(geodesic *g);      // GL_LINES
 void geodesicDrawPoints(geodesic *g);   // GL_POINTS
 
 // free() object
-void freeGeodesic(geodesic *g);
+void deleteGeodesic(geodesic *g);
 ```
 
 # usage
@@ -55,7 +55,7 @@ geodesic dome1 = icosahedronDome(3, 5/9.); // 3V 5/9 dome
 geodesic dome2 = octahedronDome(8, 1/2.); // 8V 8/16 dome
 
  // reuse an object, free it first
-freeGeodesic(&dome);  // don’t call unless it’s been allocated!
+deleteGeodesic(&dome);  // don’t call unless it’s been allocated!
 
  // in an OpenGL context
 glPushMatrix();

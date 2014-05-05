@@ -8,11 +8,14 @@
 #define __geodesic__mesh__
 
 
+
 // geodesic
 
 void geodesicDrawTriangles(geodesic *g);
 void geodesicDrawLines(geodesic *g);
 void geodesicDrawPoints(geodesic *g);
+
+
 
 // geodesic mesh
 
@@ -31,9 +34,14 @@ struct geomeshTriangles{
     unsigned int numTriangles;
     float *glTriangles;
     float *glTriangleNormals;
-    
+
     float shrink;  // shrink face
 };
+
+void geodesicMeshDrawVertexNormalLines(geomeshNormals *m);
+void geodesicMeshDrawLineNormalLines(geomeshNormals *m);
+void geodesicMeshDrawFaceNormalLines(geomeshNormals *m);
+void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh);
 
 geomeshNormals makeMeshNormals(geodesic *g);
 geomeshTriangles makeMeshTriangles(geodesic *g, float scale);

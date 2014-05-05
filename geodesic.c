@@ -21,7 +21,7 @@
 // 10 in row 2
 // 15 in row 3
 // ...
-// rows are encoded into the platonic solids
+// rows will be encoded into the platonic solids
 //
 
 void _make_tetrahedron(float_ **po, unsigned int *numPoints,
@@ -339,7 +339,7 @@ void _generate_geodesic_normals(geodesic *g){
 //      p/____\/c        p->a  i-row
 //                       p->b  i-row-1
 
-void _remove_duplicate_points(geodesic *g);
+void _remove_duplicate_points_lines(geodesic *g);
 
 void _divide_geodesic_faces(geodesic *g, int v){
     if(v > 1){
@@ -505,7 +505,7 @@ void _divide_geodesic_faces(geodesic *g, int v){
         // an un-elegant fix is to heuristically merge points
         // that haev the same coordinates into one point
         // and update pointers in lines[] and faces[] arrays
-//        _remove_duplicate_points(g);
+        _remove_duplicate_points_lines(g);
     }
 }
 
@@ -535,15 +535,7 @@ geodesic tetrahedron(int v){
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _generate_geodesic_normals(&g);
-    return g;
-}
-
-geodesic icosahedron(int v){
-    geodesic g;
-    _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
-    _divide_geodesic_faces(&g, v);
-    _spherize_points(g.points, g.numPoints);
-    _generate_geodesic_normals(&g);
+    printf("%dV geodesic tetrahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;
 }
 
@@ -553,6 +545,17 @@ geodesic octahedron(int v){
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _generate_geodesic_normals(&g);
+    printf("%dV geodesic octahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
+    return g;
+}
+
+geodesic icosahedron(int v){
+    geodesic g;
+    _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+    _divide_geodesic_faces(&g, v);
+    _spherize_points(g.points, g.numPoints);
+    _generate_geodesic_normals(&g);
+    printf("%dV geodesic icosahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;
 }
 
@@ -585,129 +588,165 @@ geodesic icosahedronDome(int v, float crop) {
 #define ELBOW .00001
 #endif
 
-void _remove_duplicate_points(geodesic *g){
+void _remove_duplicate_points_lines(geodesic *g){
     
-    int numDuplicates = 0;  // keep track of the number of duplicates?
-
-    // build an array with size of numPoints
-    // mostly containing -1 for each point
-    // unless it is a duplicate, then it contains
-    // the index of the point which it is a copy of
+    // make array of size numPoints which looks like this:
+    // -1  -1  -1  -1   3  -1  -1  -1  -1  -1  5   5  -1  -1  -1
+    // mostly -1s, except at duplicate points, store the first instance of duplication
     int duplicateIndexes[g->numPoints];
     for(int i = 0; i < g->numPoints; i++)
         duplicateIndexes[i] = -1;
     for(int i = 0; i < g->numPoints - 1; i++){
-        bool duplicate = false;
         for(int j = i+1; j < g->numPoints; j++){
             if (g->points[X+i*3] - ELBOW < g->points[X+j*3] && g->points[X+i*3] + ELBOW > g->points[X+j*3] &&
                 g->points[Y+i*3] - ELBOW < g->points[Y+j*3] && g->points[Y+i*3] + ELBOW > g->points[Y+j*3] &&
                 g->points[Z+i*3] - ELBOW < g->points[Z+j*3] && g->points[Z+i*3] + ELBOW > g->points[Z+j*3] )
             {
                 duplicateIndexes[j] = i;
-                duplicate = true;
             }
         }
-        if(duplicate)
-            numDuplicates++;
     }
     
-//    printf("DUPLICATE INDEXES (-1 = original)");
-//    for(int i = 0; i < g->numPoints; i++){
-//        printf("P(%d): %d\n", i, duplicateIndexes[i]);
-//    }
-    // replaces all occurances of duplicated indexes
-    // with their originals
+    // replaces all pointers to duplicated indexes with their first instance
+    // FACES
+    for(int f = 0; f < g->numFaces*3; f++){
+        if(duplicateIndexes[g->faces[f]] != -1)
+            g->faces[f] = duplicateIndexes[g->faces[f]];
+    }
+    // LINES
+    unsigned short *lineWasAssociatedWithADuplicate = calloc(g->numLines, sizeof(unsigned short));
+    for(int l = 0; l < g->numLines*2; l++){
+        if(duplicateIndexes[g->lines[l]] != -1){
+            g->lines[l] = duplicateIndexes[g->lines[l]];
+            lineWasAssociatedWithADuplicate[l/2] = 1;  // this is going to help us with searching our line duplicates
+        }
+    }
+    
+    //
+    //   DUPLICATE LINES
+    //
+    // now we have all we need to handle duplicate account of lines
+    // build an array of -1s, except where a duplicate lies-
+    // it will contain the index of it's first occurrence
+    int duplicateLineIndexes[g->numLines];
+    for(int i = 0; i < g->numLines; i++)
+        duplicateLineIndexes[i] = -1;
+    unsigned int duplicateCount = 0;
+    for(int i = 0; i < g->numLines; i++){
+        for(int j = i+1; j < g->numLines; j++){
+            // loop in a loop, bad news
+            // use the following to cut down on calls
+            if(lineWasAssociatedWithADuplicate[j]){
+                if(  (g->lines[i*2+0] == g->lines[j*2+0] && g->lines[i*2+1] == g->lines[j*2+1]) ||
+                     (g->lines[i*2+0] == g->lines[j*2+1] && g->lines[i*2+1] == g->lines[j*2+0]) ) {
+                    if(duplicateLineIndexes[j] == -1){
+                        duplicateLineIndexes[j] = i;
+                        duplicateCount++;
+                    }
+                }
+            }
+        }
+    }
+    free(lineWasAssociatedWithADuplicate);
+    unsigned int newNumLines = g->numLines - duplicateCount;
 
-    // FACES AND LINES
+    unsigned int indexLineOffset = 0;
+    // invert duplicate indexes array so duplicates have -1s
+    // the rest increment naturally
+    // 1  2  3  4  5  6  -1  7  8  -1  9  -1  -1  -1  10  11
+    for(int i = 0; i < g->numLines; i++){
+        if(duplicateLineIndexes[i] != -1){
+            duplicateLineIndexes[i] = -1;
+            // by how many indexes is the array currently shifting
+            // back to cover up the holes of the duplicated indexes
+            indexLineOffset++;
+        } else{
+            duplicateLineIndexes[i] = i-indexLineOffset;
+        }
+    }
+    unsigned short *newLines = malloc(sizeof(unsigned short)*newNumLines*2);
+    for(int i = 0; i < g->numLines; i++){
+        if(duplicateLineIndexes[i] != -1){
+            newLines[duplicateLineIndexes[i]*2+0] = g->lines[i*2+0];
+            newLines[duplicateLineIndexes[i]*2+1] = g->lines[i*2+1];
+        }
+    }
+    g->numLines = 0;
+    free(g->lines);
+    g->lines = newLines;
+    g->numLines = newNumLines;
+    //
+    //   END DUPLICATE LINES
+    //
+    
+    unsigned int indexPointOffset = 0;
+    unsigned int newNumPoints = 0;
+    // invert duplicate indexes array so duplicates have -1s
+    // the rest are their own indexes, in the new collapsed array,
+    // which removes all the duplicated indexes completely. looks like:
+    // 1  2  3  4  5  6  -1  7  8  -1  9  -1  -1  -1  10  11
     for(int i = 0; i < g->numPoints; i++){
         if(duplicateIndexes[i] != -1){
-            // FACES
-            for(int f = 0; f < g->numFaces*3; f++){
-                if(g->faces[f] == i)
-                    g->faces[f] = duplicateIndexes[i];
-            }
-            // LINES
-            for(int l = 0; l < g->numLines*2; l++){
-                if(g->lines[l] == i)
-                    g->lines[l] = duplicateIndexes[i];
-            }
+            duplicateIndexes[i] = -1;
+            // by how many indexes is the array currently shifting
+            // back to cover up the holes of the duplicated indexes
+            indexPointOffset++;
+        } else{
+            duplicateIndexes[i] = i-indexPointOffset;
+            newNumPoints++;
         }
     }
-//TODO: still left, remove points from point array which are no longer used
+
+
+    float_ *newPointsArray = malloc(sizeof(float_)*newNumPoints*3);
+    for(int i = 0; i < g->numPoints; i++){
+        if(duplicateIndexes[i] != -1){
+            newPointsArray[duplicateIndexes[i]*3+X] = g->points[i*3+X];
+            newPointsArray[duplicateIndexes[i]*3+Y] = g->points[i*3+Y];
+            newPointsArray[duplicateIndexes[i]*3+Z] = g->points[i*3+Z];
+        }
+    }
+
+    g->numPoints = 0;
+    free(g->points);
+    g->points = newPointsArray;
+    g->numPoints = newNumPoints;
+
+    // finally, update faces and lines with the moved indexes of the shortened point array
+    // FACES
+    for(int f = 0; f < g->numFaces*3; f++){
+        if(duplicateIndexes[g->faces[f]] != -1)
+            g->faces[f] = duplicateIndexes[g->faces[f]];
+    }
+    // LINES
+    for(int l = 0; l < g->numLines*2; l++){
+        if(duplicateIndexes[g->lines[l]] != -1)
+            g->lines[l] = duplicateIndexes[g->lines[l]];
+    }
 }
 
-void _remove_duplicate_points_old(geodesic *g)
-{
-//    NSMutableArray *duplicateIndexes = [[NSMutableArray alloc] init];
-//    NSMutableArray *points = [[NSMutableArray alloc] init];
-    int duplicateIndexes[g->numPoints];
-    for(int i = 0; i < g->numPoints; i++)
-        duplicateIndexes[i] = -1;
-//    memset(duplicateIndexes, -1, numPoints);
-    int i, j;
-    int numDuplicates = 0;
-//    bool found;
-    
-    for(i = 0; i < g->numPoints - 1; i++){
-        bool duplicate = false;
-        for(j = i+1; j < g->numPoints; j++){
-            if (g->points[X+i*3] - ELBOW < g->points[X+j*3] && g->points[X+i*3] + ELBOW > g->points[X+j*3] &&
-                g->points[Y+i*3] - ELBOW < g->points[Y+j*3] && g->points[Y+i*3] + ELBOW > g->points[Y+j*3] &&
-                g->points[Z+i*3] - ELBOW < g->points[Z+j*3] && g->points[Z+i*3] + ELBOW > g->points[Z+j*3] )
-            {
-                //NSLog(@"Duplicates(X): %.21g %.21g",[points_[i] getX], [points_[j] getX]);
-//                [duplicateIndexes addObject:[[NSNumber alloc] initWithInt:j]];
-                duplicateIndexes[j] = i;
-                duplicate = true;
-            }
-        }
-        if(duplicate)
-            numDuplicates++;
-    }
-    for(i = 0; i < g->numPoints; i++){
-        printf("P: %d\n",duplicateIndexes[i]);
-    }
-    
-    for(i = 0; i < g->numPoints; i++)
-        if(duplicateIndexes[i] != -1)
-            for(int f = 0; i < g->numFaces; i++)
-                for(int e = 0; e < 3; e++)
-                    if(g->faces[f*3+e] == i)
-                        g->faces[f*3+e] = duplicateIndexes[i];
-
-    for(i = 0; i < g->numLines; i++)
-        if(duplicateIndexes[i] != -1)
-            for(int f = 0; i < g->numLines; i++)
-                for(int e = 0; e < 2; e++)
-                    if(g->lines[f*2+e] == i)
-                        g->lines[f*2+e] = duplicateIndexes[i];
-
-    float_ newPointsArray[g->numPoints - numDuplicates];
-    int index = 0;
-    for(i = 0; i < g->numPoints; i++){
-        if(duplicateIndexes[i] == -1){
-            newPointsArray[index] = g->points[i];
-            index++;
-        }
-    }
-    
-//    delete points;
-    g->numPoints = g->numPoints - numDuplicates;
-    memcpy(g->points, newPointsArray, g->numPoints);
-    
-//    for(i = 0; i < numPoints; i++)
-//    {
-//        found = false;
-//        for(j = 0; j < duplicateIndexes.count; j++){
-//            if(i == [duplicateIndexes[j] integerValue])
-//                found = true;
-//                }
-//        if(!found) [points addObject:points_[i]];
-//    }
-//    points_ = [[NSArray alloc] initWithArray:points];
-
+/*
+// top to bottom, 0 to 1, retain top portion
+void Geodesic::crop(float latitude){
+    float NUDGE = .04;  // todo make this smarter
+    float c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
+    delete visiblePoints;
+    delete visibleLines;
+    delete visibleFaces;
+    visiblePoints = (bool*)calloc(numPoints,sizeof(bool));
+    visibleLines = (bool*)calloc(numLines,sizeof(bool));
+    visibleFaces = (bool*)calloc(numFaces,sizeof(bool));
+    for(int i = 0; i < numPoints; i++)
+        if(points[i*3+Y] > c)
+            visiblePoints[i] = true;
+    for(int i = 0; i < numLines; i++)
+        if(points[lines[i*2+0]*3+Y] > c && points[lines[i*2+1]*3+Y] > c)
+            visibleLines[i] = true;
+    for(int i = 0; i < numFaces; i++)
+        if(points[faces[i*3+0]*3+Y] > c && points[faces[i*3+1]*3+Y] > c && points[faces[i*3+2]*3+Y] > c)
+            visibleFaces[i] = true;
 }
-
+*/
 
 // V0: 1           +2 =
 // V1: 3 per face  +3 =
@@ -734,28 +773,6 @@ void Geodesic::initDiagramData(){
                                (points[lines[1] + Y] - points[lines[0] + Y]) * (points[lines[1] + Y] - points[lines[0] + Y]) +
                                (points[lines[1] + Z] - points[lines[0] + Z]) * (points[lines[1] + Z] - points[lines[0] + Z]) );
 }
-
-// top to bottom, 0 to 1, retain top portion
-void Geodesic::crop(float latitude){
-    float NUDGE = .04;  // todo make this smarter
-    float c = 1.0-((latitude+NUDGE)*2.);  // map from -1 to 1
-    delete visiblePoints;
-    delete visibleLines;
-    delete visibleFaces;
-    visiblePoints = (bool*)calloc(numPoints,sizeof(bool));
-    visibleLines = (bool*)calloc(numLines,sizeof(bool));
-    visibleFaces = (bool*)calloc(numFaces,sizeof(bool));
-    for(int i = 0; i < numPoints; i++)
-        if(points[i*3+Y] > c)
-            visiblePoints[i] = true;
-    for(int i = 0; i < numLines; i++)
-        if(points[lines[i*2+0]*3+Y] > c && points[lines[i*2+1]*3+Y] > c)
-            visibleLines[i] = true;
-    for(int i = 0; i < numFaces; i++)
-        if(points[faces[i*3+0]*3+Y] > c && points[faces[i*3+1]*3+Y] > c && points[faces[i*3+2]*3+Y] > c)
-            visibleFaces[i] = true;
-}
-
 void Geodesic::classifyLines(){
     int i, j;
     unsigned int rounded;

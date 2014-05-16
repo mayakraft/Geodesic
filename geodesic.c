@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "geomesh.c"
+#include "geodiagram.c"
 
 #define phi (1 + sqrt(5)) / 2.0
 #define M_2PI 6.28318530717958647693528676655900576
@@ -33,13 +34,13 @@ void _make_tetrahedron(float_ **po, unsigned int *numPoints,
     *numLines = 6;
     *numFaces = 4;
 
-    float_ *points = (float_*)malloc(sizeof(float_)*(*numPoints)*3);
+    float_ *points = malloc(sizeof(float_)*(*numPoints)*3);
     points[X+3*0] = 0.0;     points[Y+3*0] = 1.0/f;   points[Z+3*0] = side/f;
     points[X+3*1] = 0.0;     points[Y+3*1] = -1.0/f;  points[Z+3*1] = side/f;
     points[X+3*2] = 1.0/f;   points[Y+3*2] = 0.0;     points[Z+3*2] = -side/f;
     points[X+3*3] = -1.0/f;  points[Y+3*3] = 0.0;     points[Z+3*3] = -side/f;
     
-    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 2;
     lines[0+2*2] = 0;  lines[1+2*2] = 3;
@@ -47,7 +48,7 @@ void _make_tetrahedron(float_ **po, unsigned int *numPoints,
     lines[0+2*4] = 1;  lines[1+2*4] = 3;
     lines[0+2*5] = 2;  lines[1+2*5] = 3;
     
-    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 3;  faces[2+3*0] = 2;
     faces[0+3*1] = 0;  faces[1+3*1] = 1;  faces[2+3*1] = 3;
     faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 1;
@@ -75,7 +76,7 @@ void _make_octahedron(float_ **po, unsigned int *numPoints,
     *numLines = 12;
     *numFaces = 8;
     
-    float_ *points = (float_*)malloc(sizeof(float_)*(*numPoints)*3);
+    float_ *points = malloc(sizeof(float_)*(*numPoints)*3);
     points[X+3*0] = 0.0;   points[Y+3*0] = 1.0;   points[Z+3*0] = 0.0;
     points[X+3*1] = 1.0;   points[Y+3*1] = 0.0;   points[Z+3*1] = 0.0;
     points[X+3*2] = 0.0;   points[Y+3*2] = 0.0;   points[Z+3*2] = -1.0;
@@ -83,7 +84,7 @@ void _make_octahedron(float_ **po, unsigned int *numPoints,
     points[X+3*4] = 0.0;   points[Y+3*4] = 0.0;   points[Z+3*4] = 1.0;
     points[X+3*5] = 0.0;   points[Y+3*5] = -1.0;  points[Z+3*5] = 0.0;
     
-    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;  lines[1+2*0] = 1;
     lines[0+2*1] = 0;  lines[1+2*1] = 4;
     lines[0+2*2] = 0;  lines[1+2*2] = 2;
@@ -97,7 +98,7 @@ void _make_octahedron(float_ **po, unsigned int *numPoints,
     lines[0+2*10] = 5; lines[1+2*10] = 2;
     lines[0+2*11] = 5; lines[1+2*11] = 1;
     
-    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 0;  faces[1+3*0] = 1;  faces[2+3*0] = 4;
     faces[0+3*1] = 0;  faces[1+3*1] = 2;  faces[2+3*1] = 1;
     faces[0+3*2] = 0;  faces[1+3*2] = 3;  faces[2+3*2] = 2;
@@ -120,7 +121,7 @@ void _make_icosahedron(float_ **po, unsigned int *numPoints,
     *numLines = 30;
     *numFaces = 20;
     
-    float_ *points = (float_*)malloc(sizeof(float_)*(*numPoints)*3);
+    float_ *points = malloc(sizeof(float_)*(*numPoints)*3);
     points[X+3*0] = 0.0;     points[Y+3*0] = 1.0/f;    points[Z+3*0] = phi/f;
     points[X+3*1] = 0.0;     points[Y+3*1] = -1.0/f;   points[Z+3*1] = phi/f;
     points[X+3*2] = 0.0;     points[Y+3*2] = -1.0/f;   points[Z+3*2] = -phi/f;
@@ -134,7 +135,7 @@ void _make_icosahedron(float_ **po, unsigned int *numPoints,
     points[X+3*10] = -1.0/f; points[Y+3*10] = -phi/f;  points[Z+3*10] = 0.0;
     points[X+3*11] = 1.0/f;  points[Y+3*11] = -phi/f;  points[Z+3*11] = 0.0;
     
-    unsigned short *lines = (unsigned short*)malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
     lines[0+2*0] = 0;   lines[1+2*0] = 8;
     lines[0+2*1] = 0;   lines[1+2*1] = 9;
     lines[0+2*2] = 0;   lines[1+2*2] = 1;
@@ -166,7 +167,7 @@ void _make_icosahedron(float_ **po, unsigned int *numPoints,
     lines[0+2*28] = 5;  lines[1+2*28] = 6;
     lines[0+2*29] = 6;  lines[1+2*29] = 3;
     
-    unsigned short *faces = (unsigned short*)malloc(sizeof(unsigned short)*(*numFaces)*3);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
     faces[0+3*0] = 8;    faces[1+3*0] = 7;    faces[2+3*0] = 4;
     faces[0+3*1] = 8;    faces[1+3*1] = 3;    faces[2+3*1] = 7;
     faces[0+3*2] = 8;    faces[1+3*2] = 4;    faces[2+3*2] = 0;
@@ -247,7 +248,7 @@ void _generate_geodesic_normals(geodesic *g){
     if(g->numPoints){
         float_ length;
 //        free(normals);
-        g->pointNormals = (float_*)malloc(sizeof(float_)*g->numPoints*3);
+        g->pointNormals = malloc(sizeof(float_)*g->numPoints*3);
         for(int i = 0; i < g->numPoints; i++){
 //            length = 1.0;  // we should already know the radius of the sphere
             length = sqrtf( pow(g->points[X+3*i],2) + pow(g->points[Y+3*i],2) + pow(g->points[Z+3*i],2) );
@@ -258,7 +259,7 @@ void _generate_geodesic_normals(geodesic *g){
     }
     if(g->numLines){
 //        free(lineNormals);
-        g->lineNormals = (float_*)malloc(sizeof(float_)*g->numLines*3);
+        g->lineNormals = malloc(sizeof(float_)*g->numLines*3);
         for(int i = 0; i < g->numLines; i++){
             g->lineNormals[i*3+X] = ( g->pointNormals[g->lines[i*2+0]*3+X] +
                                       g->pointNormals[g->lines[i*2+1]*3+X] ) / 2.0;
@@ -270,7 +271,7 @@ void _generate_geodesic_normals(geodesic *g){
     }
     if(g->numFaces){
 //        free(faceNormals);
-        g->faceNormals = (float_*)malloc(sizeof(float_)*g->numFaces*3);
+        g->faceNormals = malloc(sizeof(float_)*g->numFaces*3);
         for(int i = 0; i < g->numFaces; i++){
             g->faceNormals[i*3+X] = ( g->pointNormals[g->faces[i*3+0]*3+X] +
                                       g->pointNormals[g->faces[i*3+1]*3+X] +
@@ -482,19 +483,19 @@ void _divide_geodesic_faces(geodesic *g, int v){
         
         g->numPoints = newPI;
         free(g->points);
-        g->points = (float_*)malloc(sizeof(float_)*g->numPoints*3);
+        g->points = malloc(sizeof(float_)*g->numPoints*3);
         for(int i = 0; i < g->numPoints*3; i++)
             g->points[i] = newPointsArray[i];
 
         g->numLines = newLI;
         free(g->lines);
-        g->lines = (unsigned short*)malloc(sizeof(unsigned short)*g->numLines*2);
+        g->lines = malloc(sizeof(unsigned short)*g->numLines*2);
         for(int i = 0; i < g->numLines*2; i++)
             g->lines[i] = newLinesArray[i];
 
         g->numFaces = newFI;
         free(g->faces);
-        g->faces = (unsigned short*)malloc(sizeof(unsigned short)*g->numFaces*3);
+        g->faces = malloc(sizeof(unsigned short)*g->numFaces*3);
         for(int i = 0; i < g->numFaces*3; i++)
             g->faces[i] = newFacesArray[i];
         
@@ -745,99 +746,5 @@ void Geodesic::crop(float latitude){
     for(int i = 0; i < numFaces; i++)
         if(points[faces[i*3+0]*3+Y] > c && points[faces[i*3+1]*3+Y] > c && points[faces[i*3+2]*3+Y] > c)
             visibleFaces[i] = true;
-}
-*/
-
-// V0: 1           +2 =
-// V1: 3 per face  +3 =
-// V2: 6           +4 =
-// V3: 10          +5 =
-// V4: 15          +6 =
-// V5: 21
-
-// V1: 3    3
-// V2: 9    1*3 + 2*3
-// V3: 18   1*3 + 2*3 + 3*3
-// V4: 30
-/*
-void Geodesic::initDiagramData(){
-    
-    delete lineClass;
-    delete lineClassLengths;
-    lineClass = (int*)malloc(sizeof(int)*numLines);
-    // this now gets allocated at the end of classifyLines() //    lineClassLengths = (float_*)malloc(sizeof(float_)*numLines);   // allocating WAY too many places
-    for(int i = 0; i < numLines; i++){
-        lineClass[i] = 0;
-    }
-    lineClassLengths[0] = sqrt((points[lines[1] + X] - points[lines[0] + X]) * (points[lines[1] + X] - points[lines[0] + X]) +
-                               (points[lines[1] + Y] - points[lines[0] + Y]) * (points[lines[1] + Y] - points[lines[0] + Y]) +
-                               (points[lines[1] + Z] - points[lines[0] + Z]) * (points[lines[1] + Z] - points[lines[0] + Z]) );
-}
-void Geodesic::classifyLines(){
-    int i, j;
-    unsigned int rounded;
-    float_ distance;
-    bool found;
-    unsigned int elbow = 100000000;
-    double nudge = .00000000001;
-    unsigned int lengths[numLines];  // allocating WAY too much space here
-    float_ originalLengths[numLines];     // "
-    
-    int numLengths = 0;
-    int numOriginalLengths = 0;
-    
-    for(i = 0; i < numLines; i++){
-        // all lines, calculate distance
-        distance = sqrt(  pow(points[ lines[i*2+0] + X] - points[ lines[i*2+1] + X],2)
-                        + pow(points[ lines[i*2+0] + Y] - points[ lines[i*2+1] + Y],2)
-                        + pow(points[ lines[i*2+0] + Z] - points[ lines[i*2+1] + Z],2));
-        // ignore all but 8 decimal places
-        rounded = floor((distance+nudge)*elbow);
-        // begin building lengths array
-        if(i == 0){
-            // first one will always be new, add it to the list
-            lineClass[0] = 0;
-            lengths[0] = rounded;
-            originalLengths[0] = distance;
-            
-            numLengths++;
-            numOriginalLengths++;
-        }
-        else{
-            // search existing lengths
-            found = false;
-            j = 0;
-            while(!found && j < numLengths){
-                if(rounded == lengths[j]){
-                    // if found, set the lineClass to point to an index in lengths
-                    found = true;
-                    lineClass[i] = j;
-                    //NSLog(@"O:%.21g ->%d",distance,j);
-                }
-                j++;
-            }
-            if(!found){
-                // if not found, make a new entry in lengths and originalLengths, point line class to it.
-                lineClass[i] = j;
-                lengths[numLengths] = rounded;
-                originalLengths[numOriginalLengths] = distance;
-                
-                numLengths++;
-                numOriginalLengths++;
-                //NSLog(@"O:%.21g ->%d",distance,j);
-            }
-        }
-    }
-    
-    // copy line lengths data into an appropriately sized array
-    lineClassLengths = (float_*)malloc(sizeof(float_)*numOriginalLengths);
-    for(int i = 0; i < numOriginalLengths; i++)
-        lineClassLengths[i] = originalLengths[i];
-    
-    //    NSLog(@"%d, %d", lineClass.count, lines_.count);
-    //for(i=0; i < lineClass_.count; i++) NSLog(@"%d", [lineClass_[i] integerValue]);
-    //NSLog(@"%d, %d, %d", lines_.count, lineClass_.count, lineClassLengths_.count);
-    //NSLog(@"*****************");
-    //for(i=0; i < lineClassLengths_.count; i++) NSLog(@"Strut %d: %f", i, [lineClassLengths_[i] floatValue]);
 }
 */

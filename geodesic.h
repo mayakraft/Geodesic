@@ -1,14 +1,15 @@
 //
-//  geodesic geometry
+//  geodesic
+//  geometry builder
 //  Copyright (c) 2013 Robby Kraft
 //  MIT License
 //
+
 //  Tetrahedra, Octahedra, Icosahedra
 //
 //  face subdivide
 //  spherize (geodecise)
 //  crop sphere
-//
 
 #ifndef __geodesic__geometry__
 #define __geodesic__geometry__
@@ -16,7 +17,7 @@ typedef struct geodesic geodesic;
 
 
 #define _float_precision 32  // 32:float, 64:double, 128:long double
-// using floats for OpenGLES
+// using floats to match GLfloat in OpenGLES
 
 geodesic icosahedron(int v);
 geodesic octahedron(int v);

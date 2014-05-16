@@ -1,5 +1,6 @@
 //
-//  OpenGL front-end for geodesic.h
+//  geodesic
+//  OpenGL front-end
 //  Copyright (c) 2013 Robby Kraft
 //  MIT License
 //
@@ -21,21 +22,21 @@ void geodesicDrawPoints(geodesic *g);
 
 typedef struct geomeshNormals geomeshNormals;
 struct geomeshNormals {
-    float *vertexNormalsLines;
-    float *lineNormalsLines;
-    float *faceNormalsLines;
-    unsigned int numVertexNormals;
-    unsigned int numLineNormals;
-    unsigned int numFaceNormals;
+    float           *vertexNormalsLines;
+    float           *lineNormalsLines;
+    float           *faceNormalsLines;
+    unsigned int    numVertexNormals;
+    unsigned int    numLineNormals;
+    unsigned int    numFaceNormals;
 };
 
 typedef struct geomeshTriangles geomeshTriangles;
 struct geomeshTriangles{
-    unsigned int numTriangles;
-    float *glTriangles;
-    float *glTriangleNormals;
+    unsigned int    numTriangles;
+    float           *glTriangles;
+    float           *glTriangleNormals;
 
-    float shrink;  // shrink face
+    float           shrink;  // shrink face
 };
 
 void geodesicMeshDrawVertexNormalLines(geomeshNormals *m);

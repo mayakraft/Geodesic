@@ -47,6 +47,8 @@ void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh);
 geomeshNormals makeMeshNormals(geodesic *g);
 geomeshTriangles makeMeshTriangles(geodesic *g, float scale);
 
+void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale);
+
 void deleteMeshNormals(geomeshNormals *m);
 void deleteMeshTriangles(geomeshTriangles *m);
 

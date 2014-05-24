@@ -7,8 +7,8 @@
 
 #define phi (1 + sqrt(5)) / 2.0
 #define M_2PI 6.28318530717958647693528676655900576
-#define SQRT_P_5 0.707106781186547524400844362104849     /* sqrt(.5)  */
-#define SQRT_1_P_5 1.224744871391589049098642037352946     /* sqrt(1.5)  */
+#define SQRT_p_5 0.707106781186547524400844362104849     /* sqrt(.5)  */
+#define SQRT_1_p_5 1.224744871391589049098642037352946     /* sqrt(1.5)  */
 
 #define X 0
 #define Y 1
@@ -28,8 +28,8 @@
 void _make_tetrahedron(float_ **po, unsigned int *numPoints,
                        unsigned short **li, unsigned int *numLines,
                        unsigned short **fa, unsigned int *numFaces){
-    float_ side = SQRT_P_5;
-    float_ f = SQRT_1_P_5;
+    float_ side = SQRT_p_5;
+    float_ f = SQRT_1_p_5;
     *numPoints = 4;
     *numLines = 6;
     *numFaces = 4;
@@ -237,6 +237,14 @@ void deleteGeodesic(geodesic *g){
     if(g->faceNormals){
         free(g->faceNormals);
         g->faceNormals = NULL;
+    }
+    if(g->meridianFaceData){
+        free(g->meridianFaceData);
+        g->meridianFaceData = NULL;
+    }
+    if(g->cropMeridians){
+        free(g->cropMeridians);
+        g->cropMeridians = NULL;
     }
 //    free(g);
 }
@@ -525,9 +533,57 @@ void _spherize_points(float_ *points, unsigned int numPoints){
         points[i*3+Z]*=difference;
     }
 }
+int _qsort_compare (const void * a, const void * b)
+{
+    if ( *(float_*)a <  *(float_*)b ) return -1;
+    if ( *(float_*)a >  *(float_*)b ) return 1;
+    return 0;
+}
+void _sort_faces(geodesic *g){
+    g->meridianFaceData = malloc(sizeof(float_)*g->numFaces);
+    float_ lowest;
+    // only look at Y.
+    for(int i = 0; i < g->numFaces; i++){
+        lowest = g->points[g->faces[i*3+0]*3+1];
+        if(g->points[g->faces[i*3+1]*3+1] < lowest)
+            lowest = g->points[g->faces[i*3+1]*3+1];
+        if(g->points[g->faces[i*3+2]*3+1] < lowest)
+            lowest = g->points[g->faces[i*3+2]*3+1];
+        g->meridianFaceData[i] = lowest;
+    }
+    /////////////////////
+    unsigned int numMeridians = 0;
+    float_ differentMeridians[g->numFaces];
+    for(int i = 0; i < g->numFaces; i++)
+        differentMeridians[i] = 0;
+    for(int i = 0; i < g->numFaces; i++){
+        bool alreadyEntered = false;
+        for(int j = 0; j < numMeridians; j++){
+            if(floorf((differentMeridians[j]+.00001)*1000.0) == floorf((g->meridianFaceData[i]+.00001)*1000.0))
+                alreadyEntered = true;
+        }
+        if(!alreadyEntered){
+            differentMeridians[numMeridians] = g->meridianFaceData[i];
+            numMeridians++;
+        }
+    }
+    qsort(differentMeridians, numMeridians, sizeof(float_), _qsort_compare);
+    //TODO will crash if no meridians are found
+    g->cropMeridians = malloc(sizeof(float_)*numMeridians);
+    
+    for(int i = 0; i < numMeridians-1; i++){
+        g->cropMeridians[i] = (differentMeridians[i] + differentMeridians[i+1])*.5;
+    }
+    g->cropMeridians[numMeridians-1] = (differentMeridians[numMeridians-1] +1.0)*.5;
+//    printf("NUM MERIDIANS: %d\n",numMeridians);
+//    for(int i = 0; i < numMeridians; i++){
+//        printf("%d: %f\n",i, differentMeridians[i]);
+//        printf(" -  %f\n", g->cropMeridians[i]);
+//    }
+}
 
 void _crop_geodesic(geodesic *g, float crop){
-    //TODO: crop
+
 }
 
 geodesic tetrahedron(int v){
@@ -555,6 +611,7 @@ geodesic icosahedron(int v){
     _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
+    _sort_faces(&g);
     _generate_geodesic_normals(&g);
     printf("%dV geodesic icosahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;

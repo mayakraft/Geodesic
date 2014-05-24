@@ -29,7 +29,6 @@ geodesic icosahedronDome(int v, float crop);
 
 void deleteGeodesic(geodesic *g);
 
-
 #if _float_precision==128
 typedef long double float_;
 #elif _float_precision==64
@@ -52,6 +51,9 @@ struct geodesic {
     float_          *pointNormals;  // count: numPoints * 3
     float_          *lineNormals;   // count: numLines * 3
     float_          *faceNormals;   // count: numFaces * 3
+    
+    float_          *meridianFaceData;
+    float_          *cropMeridians;
 };
 
 #endif

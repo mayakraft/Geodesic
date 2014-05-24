@@ -118,6 +118,7 @@ geomeshNormals makeMeshNormals(geodesic *g){
 
 void extrudeTriangles(geomeshTriangles *mesh, geodesic *g, float distance){
     for(int i = 0; i < g->numFaces; i++){
+        // triangle vertex 1: X Y and Z
         mesh->glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * distance;
         mesh->glTriangles[i*9 + 0*3 + 1] += g->faceNormals[1+i*3] * distance;
         mesh->glTriangles[i*9 + 0*3 + 2] += g->faceNormals[2+i*3] * distance;
@@ -130,6 +131,25 @@ void extrudeTriangles(geomeshTriangles *mesh, geodesic *g, float distance){
         mesh->glTriangles[i*9 + 2*3 + 1] += g->faceNormals[1+i*3] * distance;
         mesh->glTriangles[i*9 + 2*3 + 2] += g->faceNormals[2+i*3] * distance;
     }
+}
+
+void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale){
+    m->shrink = scale;
+    for(int i = 0; i < g->numFaces; i++){
+        // triangle vertex 1: X Y and Z
+        m->glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + X ];
+        m->glTriangles[i*9 + 0*3 + 1] = g->points[ g->faces[0+i*3]*3 + Y ];
+        m->glTriangles[i*9 + 0*3 + 2] = g->points[ g->faces[0+i*3]*3 + Z ];
+        // triangle vertex 2: X Y and Z
+        m->glTriangles[i*9 + 1*3 + 0] = g->points[ g->faces[1+i*3]*3 + X ];
+        m->glTriangles[i*9 + 1*3 + 1] = g->points[ g->faces[1+i*3]*3 + Y ];
+        m->glTriangles[i*9 + 1*3 + 2] = g->points[ g->faces[1+i*3]*3 + Z ];
+        // triangle vertex 3: X Y and Z
+        m->glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + X ];
+        m->glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + Y ];
+        m->glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
+    }
+    extrudeTriangles(m, g, (1/scale - 1));
 }
 
 geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){
@@ -150,20 +170,8 @@ geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){
         mesh.glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + Y ];
         mesh.glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
     }
-    for(int i = 0; i < g->numFaces; i++){
-        // triangle vertex 1: X Y and Z
-        mesh.glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 0*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 0*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
-        // triangle vertex 2: X Y and Z
-        mesh.glTriangles[i*9 + 1*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 1*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 1*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
-        // triangle vertex 3: X Y and Z
-        mesh.glTriangles[i*9 + 2*3 + 0] += g->faceNormals[0+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 2*3 + 1] += g->faceNormals[1+i*3] * (1/shrink - 1);
-        mesh.glTriangles[i*9 + 2*3 + 2] += g->faceNormals[2+i*3] * (1/shrink - 1);
-    }
+    extrudeTriangles(&mesh, g, (1/shrink - 1));
+    
     
 // TRADITIONAL CURVED FACE NORMALS
 //    mesh.glTriangleNormals = malloc(sizeof(GLfloat)*g->numFaces*3*3);

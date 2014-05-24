@@ -66,6 +66,10 @@ void _classify_lines(geodiagram *diagram, geodesic *g){
     unsigned int lengths[g->numLines];  // allocating WAY too much space here
     float_ originalLengths[g->numLines];     // "
     
+    for(int i = 0; i < g->numLines; i++){
+        lengths[i] = 0;
+        originalLengths[i] = 0.0;
+    }
     int numLengths = 0;
     int numOriginalLengths = 0;
     
@@ -117,13 +121,13 @@ void _classify_lines(geodiagram *diagram, geodesic *g){
     for(int i = 0; i < numOriginalLengths; i++)
         diagram->lineCategoryLengths[i] = originalLengths[i];
     
-    printf("%d, %d\n", numLengths, numOriginalLengths);
-    for(i=0; i < g->numLines; i++)
-        printf("%d\n", lengths[i]);
+//    printf("%d, %d\n", numLengths, numOriginalLengths);
+//    for(i=0; i < g->numLines; i++)
+//        printf("%d\n", lengths[i]);
 //    printf("%d, %d, %d\n", lines_.count, lineClass_.count, lineClassLengths_.count);
-    printf("*****************\n");
-    for(i=0; i < numOriginalLengths; i++)
-        printf("Strut %d: %f\n", i, diagram->lineCategoryLengths[i]);
+//    printf("*****************\n");
+//    for(i=0; i < numOriginalLengths; i++)
+//        printf("Strut %d: %f\n", i, diagram->lineCategoryLengths[i]);
 
 //    NSLog(@"%d, %d", lineClass.count, lines_.count);
 //    for(i=0; i < lineClass_.count; i++) NSLog(@"%d", [lineClass_[i] integerValue]);

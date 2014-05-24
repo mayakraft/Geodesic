@@ -39,6 +39,13 @@ struct geomeshTriangles{
     float           shrink;  // shrink face
 };
 
+typedef struct geomeshCropPlanes geomeshCropPlanes;
+struct geomeshCropPlanes{
+    unsigned int    numPlanes;
+    float           *glTriangles;
+    float           *glTriangleNormals;
+};
+
 void geodesicMeshDrawVertexNormalLines(geomeshNormals *m);
 void geodesicMeshDrawLineNormalLines(geomeshNormals *m);
 void geodesicMeshDrawFaceNormalLines(geomeshNormals *m);
@@ -46,6 +53,9 @@ void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh);
 
 geomeshNormals makeMeshNormals(geodesic *g);
 geomeshTriangles makeMeshTriangles(geodesic *g, float scale);
+geomeshCropPlanes makeMeshCropPlanes(geodesic *g);
+
+void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m);
 
 void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale);
 

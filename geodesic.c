@@ -552,29 +552,29 @@ void _sort_faces(geodesic *g){
         g->meridianFaceData[i] = lowest;
     }
     /////////////////////
-    unsigned int numMeridians = 0;
+    g->numMeridians = 0;
     float_ differentMeridians[g->numFaces];
     for(int i = 0; i < g->numFaces; i++)
         differentMeridians[i] = 0;
     for(int i = 0; i < g->numFaces; i++){
         bool alreadyEntered = false;
-        for(int j = 0; j < numMeridians; j++){
+        for(int j = 0; j < g->numMeridians; j++){
             if(floorf((differentMeridians[j]+.00001)*1000.0) == floorf((g->meridianFaceData[i]+.00001)*1000.0))
                 alreadyEntered = true;
         }
         if(!alreadyEntered){
-            differentMeridians[numMeridians] = g->meridianFaceData[i];
-            numMeridians++;
+            differentMeridians[g->numMeridians] = g->meridianFaceData[i];
+            g->numMeridians++;
         }
     }
-    qsort(differentMeridians, numMeridians, sizeof(float_), _qsort_compare);
+    qsort(differentMeridians, g->numMeridians, sizeof(float_), _qsort_compare);
     //TODO will crash if no meridians are found
-    g->cropMeridians = malloc(sizeof(float_)*numMeridians);
+    g->cropMeridians = malloc(sizeof(float_)*g->numMeridians);
     
-    for(int i = 0; i < numMeridians-1; i++){
+    for(int i = 0; i < g->numMeridians-1; i++){
         g->cropMeridians[i] = (differentMeridians[i] + differentMeridians[i+1])*.5;
     }
-    g->cropMeridians[numMeridians-1] = (differentMeridians[numMeridians-1] +1.0)*.5;
+    g->cropMeridians[g->numMeridians-1] = (differentMeridians[g->numMeridians-1] +1.0)*.5;
 //    printf("NUM MERIDIANS: %d\n",numMeridians);
 //    for(int i = 0; i < numMeridians; i++){
 //        printf("%d: %f\n",i, differentMeridians[i]);

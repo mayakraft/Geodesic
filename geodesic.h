@@ -54,6 +54,7 @@ struct geodesic {
     
     float_          *meridianFaceData;
     float_          *cropMeridians;
+    unsigned int    numMeridians;
 };
 
 #endif

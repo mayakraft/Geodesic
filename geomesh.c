@@ -79,6 +79,18 @@ void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh){
     glPopMatrix();
 }
 
+void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
+    glPushMatrix();
+    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_NORMAL_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, m->glTriangles);
+//    glNormalPointer(GL_FLOAT, 0, m->glTriangleNormals);
+    glDrawArrays(GL_TRIANGLES, 0, m->numPlanes*3*3);
+//    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glPopMatrix();
+}
+
 geomeshNormals makeMeshNormals(geodesic *g){
     geomeshNormals mesh;
     mesh.vertexNormalsLines = malloc(sizeof(GLfloat)*(g->numPoints)*3*2);
@@ -150,6 +162,18 @@ void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale){
         m->glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
     }
     extrudeTriangles(m, g, (1/scale - 1));
+}
+
+geomeshCropPlanes makeMeshCropPlanes(geodesic *g){
+    geomeshCropPlanes planes;
+    planes.numPlanes = g->numMeridians;
+    planes.glTriangles = malloc(sizeof(float_)*3*3*g->numMeridians);
+    for(int i = 0; i < g->numMeridians; i++){
+        planes.glTriangles[i+0] = 0.0;  planes.glTriangles[i+1] = g->cropMeridians[i];   planes.glTriangles[i+2] = sqrtf(3)/2 - sqrtf(3)/4;
+        planes.glTriangles[i+3] = 1.0;  planes.glTriangles[i+4] = g->cropMeridians[i];   planes.glTriangles[i+5] = 0.0 - sqrtf(3)/4;
+        planes.glTriangles[i+6] =-1.0;  planes.glTriangles[i+7] = g->cropMeridians[i];   planes.glTriangles[i+8] = 0.0 - sqrtf(3)/4;
+    }
+    return planes;
 }
 
 geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){

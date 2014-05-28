@@ -539,7 +539,7 @@ int _qsort_compare (const void * a, const void * b)
     if ( *(float_*)a >  *(float_*)b ) return 1;
     return 0;
 }
-void _sort_faces(geodesic *g){
+void _make_meridians(geodesic *g, int v){
     g->meridianFaceData = malloc(sizeof(float_)*g->numFaces);
     float_ lowest;
     // only look at Y.
@@ -553,31 +553,54 @@ void _sort_faces(geodesic *g){
     }
     /////////////////////
     g->numMeridians = 0;
-    float_ differentMeridians[g->numFaces];
+    float_ pointMeridians[g->numFaces];
     for(int i = 0; i < g->numFaces; i++)
-        differentMeridians[i] = 0;
+        pointMeridians[i] = 0;
     for(int i = 0; i < g->numFaces; i++){
         bool alreadyEntered = false;
         for(int j = 0; j < g->numMeridians; j++){
-            if(floorf((differentMeridians[j]+.00001)*1000.0) == floorf((g->meridianFaceData[i]+.00001)*1000.0))
+            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((g->meridianFaceData[i]+.00001)*1000.0))
                 alreadyEntered = true;
         }
         if(!alreadyEntered){
-            differentMeridians[g->numMeridians] = g->meridianFaceData[i];
+            pointMeridians[g->numMeridians] = g->meridianFaceData[i];
             g->numMeridians++;
         }
     }
-    qsort(differentMeridians, g->numMeridians, sizeof(float_), _qsort_compare);
-    //TODO will crash if no meridians are found
-    g->cropMeridians = malloc(sizeof(float_)*g->numMeridians);
+    // add one last row
+    pointMeridians[g->numMeridians] = 1.0;
+    g->numMeridians++;
+    // numMeridians is larger than what it will end up being
     
+    qsort(pointMeridians, g->numMeridians, sizeof(float_), _qsort_compare);
+    //TODO will crash if no meridians are found
+    //
+    // THE FOLLOWING IS WEIRD CODE
+    // i need to separate the meridians which are false meridians due to points in the same meridians actually
+    // being at slightly different altitudes, from the spaces between actual meridians in the sphere
+    // THERE IS A BETTER WAY TO DO THIS
+    float_ *probableCropMeridians = malloc(sizeof(float_)*g->numMeridians);
+//    g->cropMeridians = malloc(sizeof(float_)*g->numMeridians);
+    unsigned int validCropMeridians = 0;
+    float shouldBeLargerThan = 1.0/3./v;  //TODO: here is where it is failing currently
     for(int i = 0; i < g->numMeridians-1; i++){
-        g->cropMeridians[i] = (differentMeridians[i] + differentMeridians[i+1])*.5;
+        if(pointMeridians[i+1] - pointMeridians[i] > shouldBeLargerThan){
+            probableCropMeridians[validCropMeridians] = (pointMeridians[i] + pointMeridians[i+1])*.5;
+            validCropMeridians++;
+        }
     }
-    g->cropMeridians[g->numMeridians-1] = (differentMeridians[g->numMeridians-1] +1.0)*.5;
-//    printf("NUM MERIDIANS: %d\n",numMeridians);
-//    for(int i = 0; i < numMeridians; i++){
-//        printf("%d: %f\n",i, differentMeridians[i]);
+    
+    g->cropMeridians = malloc(sizeof(float_)*validCropMeridians);
+    g->numMeridians = validCropMeridians;
+    // now numMeridians is correct
+    for(int i = 0; i < validCropMeridians; i++)
+        g->cropMeridians[i] = probableCropMeridians[i];
+    
+    free(probableCropMeridians);
+    
+//    printf("NUM MERIDIANS: %d\n",g->numMeridians);
+//    for(int i = 0; i < g->numMeridians; i++){
+//        printf("%d: %f\n",i, pointMeridians[i]);
 //        printf(" -  %f\n", g->cropMeridians[i]);
 //    }
 }
@@ -611,7 +634,7 @@ geodesic icosahedron(int v){
     _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
-    _sort_faces(&g);
+    _make_meridians(&g, v);
     _generate_geodesic_normals(&g);
     printf("%dV geodesic icosahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;

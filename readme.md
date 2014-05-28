@@ -32,9 +32,6 @@ geodesic icosahedronDome(int v, float crop);
 
 //
 //export OBJ file
-
-// free memory
-void deleteGeodesic(geodesic *g);
 ```
 
 # usage

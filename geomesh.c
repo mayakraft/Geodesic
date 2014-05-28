@@ -39,7 +39,6 @@ void geodesicDrawPoints(geodesic *g){
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-
 // mesh
 
 // normal line indicators: vertices, lines, faces
@@ -82,11 +81,11 @@ void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh){
 void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
     glPushMatrix();
     glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->glTriangles);
-//    glNormalPointer(GL_FLOAT, 0, m->glTriangleNormals);
-    glDrawArrays(GL_TRIANGLES, 0, m->numPlanes*3*3);
-//    glDisableClientState(GL_NORMAL_ARRAY);
+    glNormalPointer(GL_FLOAT, 0, m->glTriangleNormals);
+    glDrawArrays(GL_TRIANGLES, 0, m->numPlanes*3);
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glPopMatrix();
 }
@@ -169,9 +168,15 @@ geomeshCropPlanes makeMeshCropPlanes(geodesic *g){
     planes.numPlanes = g->numMeridians;
     planes.glTriangles = malloc(sizeof(float_)*3*3*g->numMeridians);
     for(int i = 0; i < g->numMeridians; i++){
-        planes.glTriangles[i+0] = 0.0;  planes.glTriangles[i+1] = g->cropMeridians[i];   planes.glTriangles[i+2] = sqrtf(3)/2 - sqrtf(3)/4;
-        planes.glTriangles[i+3] = 1.0;  planes.glTriangles[i+4] = g->cropMeridians[i];   planes.glTriangles[i+5] = 0.0 - sqrtf(3)/4;
-        planes.glTriangles[i+6] =-1.0;  planes.glTriangles[i+7] = g->cropMeridians[i];   planes.glTriangles[i+8] = 0.0 - sqrtf(3)/4;
+        planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->cropMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
+        planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->cropMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
+        planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->cropMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
+    }
+    planes.glTriangleNormals = malloc(sizeof(float_)*3*3*g->numMeridians);
+    for(int i = 0; i < g->numMeridians; i++){
+        planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
+        planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;
+        planes.glTriangleNormals[i*9+6] = 0.0;  planes.glTriangleNormals[i*9+7] = 1.0;   planes.glTriangleNormals[i*9+8] = 0.0;
     }
     return planes;
 }
@@ -195,7 +200,6 @@ geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){
         mesh.glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
     }
     extrudeTriangles(&mesh, g, (1/shrink - 1));
-    
     
 // TRADITIONAL CURVED FACE NORMALS
 //    mesh.glTriangleNormals = malloc(sizeof(GLfloat)*g->numFaces*3*3);
@@ -251,6 +255,19 @@ void deleteMeshNormals(geomeshNormals *m){
     if(m->faceNormalsLines){
         free(m->faceNormalsLines);
         m->faceNormalsLines = NULL;
+    }
+//    free(m);
+}
+
+void deleteCropPlanes(geomeshCropPlanes *m){
+    m->numPlanes = 0;
+    if(m->glTriangles){
+        free(m->glTriangles);
+        m->glTriangles = NULL;
+    }
+    if(m->glTriangleNormals){
+        free(m->glTriangleNormals);
+        m->glTriangleNormals = NULL;
     }
 //    free(m);
 }

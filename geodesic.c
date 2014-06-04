@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include "geomesh.c"
-#include "geodiagram.c"
 
 #define phi (1 + sqrt(5)) / 2.0
 #define M_2PI 6.28318530717958647693528676655900576
@@ -238,15 +237,18 @@ void deleteGeodesic(geodesic *g){
         free(g->faceNormals);
         g->faceNormals = NULL;
     }
-    if(g->meridianFaceData){
-        free(g->meridianFaceData);
-        g->meridianFaceData = NULL;
+    if(g->faceAltitudes){
+        free(g->faceAltitudes);
+        g->faceAltitudes = NULL;
     }
-    if(g->cropMeridians){
-        free(g->cropMeridians);
-        g->cropMeridians = NULL;
+    if(g->faceMeridians){
+        free(g->faceMeridians);
+        g->faceMeridians = NULL;
     }
-//    free(g);
+    if(g->pointMeridians){
+        free(g->pointMeridians);
+        g->pointMeridians = NULL;
+    }
 }
 
 void _generate_geodesic_normals(geodesic *g){
@@ -512,7 +514,7 @@ void _divide_geodesic_faces(geodesic *g, int v){
         // without being aware of which faces are its neighbors.
         
         // an un-elegant fix is to heuristically merge points
-        // that haev the same coordinates into one point
+        // that have the same coordinates into one point
         // and update pointers in lines[] and faces[] arrays
         _remove_duplicate_points_lines(g);
     }
@@ -533,23 +535,22 @@ void _spherize_points(float_ *points, unsigned int numPoints){
         points[i*3+Z]*=difference;
     }
 }
-int _qsort_compare (const void * a, const void * b)
-{
-    if ( *(float_*)a <  *(float_*)b ) return -1;
-    if ( *(float_*)a >  *(float_*)b ) return 1;
+int _qsort_compare (const void * a, const void * b){
+    if (*(float_*)a < *(float_*)b) return -1;
+    if (*(float_*)a > *(float_*)b) return 1;
     return 0;
 }
 void _make_meridians(geodesic *g, int v){
-    g->meridianFaceData = malloc(sizeof(float_)*g->numFaces);
+    float_ meridianFaceData[g->numFaces];
     float_ lowest;
-    // only look at Y.
+    // sort faces by their lowest point (in the Y-axis)
     for(int i = 0; i < g->numFaces; i++){
         lowest = g->points[g->faces[i*3+0]*3+1];
         if(g->points[g->faces[i*3+1]*3+1] < lowest)
             lowest = g->points[g->faces[i*3+1]*3+1];
         if(g->points[g->faces[i*3+2]*3+1] < lowest)
             lowest = g->points[g->faces[i*3+2]*3+1];
-        g->meridianFaceData[i] = lowest;
+        meridianFaceData[i] = lowest;
     }
     /////////////////////
     g->numMeridians = 0;
@@ -559,49 +560,50 @@ void _make_meridians(geodesic *g, int v){
     for(int i = 0; i < g->numFaces; i++){
         bool alreadyEntered = false;
         for(int j = 0; j < g->numMeridians; j++){
-            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((g->meridianFaceData[i]+.00001)*1000.0))
+            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0))
                 alreadyEntered = true;
         }
         if(!alreadyEntered){
-            pointMeridians[g->numMeridians] = g->meridianFaceData[i];
+            pointMeridians[g->numMeridians] = meridianFaceData[i];
             g->numMeridians++;
         }
     }
     // add one last row
     pointMeridians[g->numMeridians] = 1.0;
-    g->numMeridians++;
-    // numMeridians is larger than what it will end up being
-    
+//    g->numMeridians++;  // don't increment so that it's relative to faces, not points
     qsort(pointMeridians, g->numMeridians, sizeof(float_), _qsort_compare);
-    //TODO will crash if no meridians are found
-    //
-    // THE FOLLOWING IS WEIRD CODE
-    // i need to separate the meridians which are false meridians due to points in the same meridians actually
-    // being at slightly different altitudes, from the spaces between actual meridians in the sphere
-    // THERE IS A BETTER WAY TO DO THIS
-    float_ *probableCropMeridians = malloc(sizeof(float_)*g->numMeridians);
-//    g->cropMeridians = malloc(sizeof(float_)*g->numMeridians);
-    unsigned int validCropMeridians = 0;
-    float shouldBeLargerThan = 1.0/3./v;  //TODO: here is where it is failing currently
-    for(int i = 0; i < g->numMeridians-1; i++){
-        if(pointMeridians[i+1] - pointMeridians[i] > shouldBeLargerThan){
-            probableCropMeridians[validCropMeridians] = (pointMeridians[i] + pointMeridians[i+1])*.5;
-            validCropMeridians++;
+    g->pointMeridians = malloc(sizeof(float_)*(g->numMeridians+1));
+    for(int i = 0; i < g->numMeridians+1; i++)
+        g->pointMeridians[i] = pointMeridians[i];
+    
+    //TODO: will crash if no meridians are found
+    
+    g->faceMeridians = malloc(sizeof(float_)*g->numMeridians);
+
+    for(int i = 0; i < g->numMeridians; i++)
+        g->faceMeridians[i] = (pointMeridians[i] + pointMeridians[i+1])*.5;
+
+    g->faceAltitudes = malloc(sizeof(unsigned short)*g->numFaces);
+    for(int i = 0; i < g->numFaces; i++)
+        g->faceAltitudes[i] = 99;
+    for(int i = 0; i < g->numFaces; i++){
+        for(unsigned short j = 0; j < g->numMeridians+1; j++){
+            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0)){
+                g->faceAltitudes[i] = j;
+                break;
+            }
         }
     }
-    
-    g->cropMeridians = malloc(sizeof(float_)*validCropMeridians);
-    g->numMeridians = validCropMeridians;
-    // now numMeridians is correct
-    for(int i = 0; i < validCropMeridians; i++)
-        g->cropMeridians[i] = probableCropMeridians[i];
-    
-    free(probableCropMeridians);
-    
+
 //    printf("NUM MERIDIANS: %d\n",g->numMeridians);
 //    for(int i = 0; i < g->numMeridians; i++){
-//        printf("%d: %f\n",i, pointMeridians[i]);
-//        printf(" -  %f\n", g->cropMeridians[i]);
+//        printf("%d: P:%f\n",i, g->pointMeridians[i]);
+//        printf(" -  F:%f\n", g->faceMeridians[i]);
+//    }
+//    printf("%d: P:%f\n",g->numMeridians, g->pointMeridians[g->numMeridians]);
+//    printf("FACES stacking order: %d\n",g->numMeridians);
+//    for(int i = 0; i < g->numFaces; i++){
+//        printf(":%d\n", g->faceAltitudes[i]);
 //    }
 }
 
@@ -615,7 +617,6 @@ geodesic tetrahedron(int v){
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _generate_geodesic_normals(&g);
-    printf("%dV geodesic tetrahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;
 }
 
@@ -623,9 +624,9 @@ geodesic octahedron(int v){
     geodesic g;
     _make_octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
+    _make_meridians(&g, v);
     _spherize_points(g.points, g.numPoints);
     _generate_geodesic_normals(&g);
-    printf("%dV geodesic octahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;
 }
 
@@ -633,10 +634,9 @@ geodesic icosahedron(int v){
     geodesic g;
     _make_icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
-    _spherize_points(g.points, g.numPoints);
     _make_meridians(&g, v);
+    _spherize_points(g.points, g.numPoints);
     _generate_geodesic_normals(&g);
-    printf("%dV geodesic icosahedron: %d points, %d lines, %d faces\n",v,g.numPoints,g.numLines,g.numFaces);
     return g;
 }
 

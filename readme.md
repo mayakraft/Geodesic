@@ -21,17 +21,15 @@ R. Buckminster Fuller method 1 spheres and domes from icosahedra, octahedra, and
 # methods
 
 ``` c
-// get a geodesic object
+ // geodesic sphere
 geodesic icosahedron(int v);
 geodesic octahedron(int v);
 geodesic tetrahedron(int v);
 
-geodesic tetrahedronDome(int v, float crop);
-geodesic octahedronDome(int v, float crop);
+ // geodesic dome
 geodesic icosahedronDome(int v, float crop);
-
-//
-//export OBJ file
+geodesic octahedronDome(int v, float crop);
+geodesic tetrahedronDome(int v, float crop);
 ```
 
 # usage
@@ -40,9 +38,9 @@ geodesic icosahedronDome(int v, float crop);
  // make
 geodesic icosphere = icosahedron(3)  // 3v icosahedron
 geodesic octahedron = octahedron(1)  // regular octahedron
-geodesic dome = icosahedronDome(3, 5/9.);  // 3v 5/9 dome
+geodesic dome = icosahedronDome(3, 5/9);  // 3v 5/9 dome
 
- // delete object from memory
+ // remember to delete
 deleteGeodesic(&dome);
 ```
 

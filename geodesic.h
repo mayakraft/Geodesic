@@ -5,16 +5,9 @@
 //  MIT License
 //
 
-//  Tetrahedra, Octahedra, Icosahedra
-//
-//  face subdivide
-//  spherize (geodecise)
-//  crop sphere
-
 #ifndef __geodesic__geometry__
 #define __geodesic__geometry__
 typedef struct geodesic geodesic;
-
 
 #define _float_precision 32  // 32:float, 64:double, 128:long double
 // using floats to match GLfloat in OpenGLES
@@ -38,6 +31,7 @@ typedef float float_;
 #else
 typedef float float_;
 #endif
+
 struct geodesic {
     
     unsigned int    numPoints;
@@ -52,9 +46,11 @@ struct geodesic {
     float_          *lineNormals;   // count: numLines * 3
     float_          *faceNormals;   // count: numFaces * 3
     
-    float_          *meridianFaceData;
-    float_          *cropMeridians;
     unsigned int    numMeridians;
+    unsigned short  *faceAltitudes;    // count: numFaces, each face is paired with its altitude (Y-axis) (index to faceMeridians)
+    float_          *pointMeridians;   // count: numMeridians + 1, the different Y-latitudes of points
+    float_          *faceMeridians;    // count: numMeridians, the different Y-latitudes of the center of faces
+    // NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 };
 
 #endif

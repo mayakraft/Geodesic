@@ -23,13 +23,13 @@ geodesic icosahedronDome(int v, float crop);
 void deleteGeodesic(geodesic *g);
 
 #if _float_precision==128
-typedef long double float_;
+typedef long double float_t;
 #elif _float_precision==64
-typedef double float_;
+typedef double float_t;
 #elif _float_precision==32
-typedef float float_;
+typedef float float_t;
 #else
-typedef float float_;
+typedef float float_t;
 #endif
 
 struct geodesic {
@@ -38,18 +38,20 @@ struct geodesic {
     unsigned int    numLines;
     unsigned int    numFaces;
     
-    float_          *points;  // count: numPoints * 3
+    float_t         *points;  // count: numPoints * 3
     unsigned short  *lines;   // count: numLines * 2
     unsigned short  *faces;   // count: numFaces * 3
     
-    float_          *pointNormals;  // count: numPoints * 3
-    float_          *lineNormals;   // count: numLines * 3
-    float_          *faceNormals;   // count: numFaces * 3
+    float_t         *pointNormals;  // count: numPoints * 3
+    float_t         *lineNormals;   // count: numLines * 3
+    float_t         *faceNormals;   // count: numFaces * 3
     
+    // eventually encapsulate this, inside another struct, inside a function, make into the .c file
+    // the following is useful for cropping into a dome
     unsigned int    numMeridians;
+    float_t         *pointMeridians;   // count: numMeridians + 1, the different Y-latitudes of points
+    float_t         *faceMeridians;    // count: numMeridians, the different Y-latitudes of the center of faces
     unsigned short  *faceAltitudes;    // count: numFaces, each face is paired with its altitude (Y-axis) (index to faceMeridians)
-    float_          *pointMeridians;   // count: numMeridians + 1, the different Y-latitudes of points
-    float_          *faceMeridians;    // count: numMeridians, the different Y-latitudes of the center of faces
     // NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 };
 

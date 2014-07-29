@@ -166,13 +166,13 @@ void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale){
 geomeshCropPlanes makeMeshCropPlanes(geodesic *g){
     geomeshCropPlanes planes;
     planes.numPlanes = g->numMeridians;
-    planes.glTriangles = malloc(sizeof(float_)*3*3*g->numMeridians);
+    planes.glTriangles = malloc(sizeof(float_t)*3*3*g->numMeridians);
     for(int i = 0; i < g->numMeridians-1; i++){
         planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->faceMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
         planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->faceMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
         planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->faceMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
     }
-    planes.glTriangleNormals = malloc(sizeof(float_)*3*3*g->numMeridians);
+    planes.glTriangleNormals = malloc(sizeof(float_t)*3*3*g->numMeridians);
     for(int i = 0; i < g->numMeridians; i++){
         planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
         planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;

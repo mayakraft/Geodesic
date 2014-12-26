@@ -1,6 +1,6 @@
 # geodesic geometry
 
-R. Buckminster Fuller method 1 spheres and domes from icosahedra, octahedra, and tetrahedra
+R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
 # properties
 

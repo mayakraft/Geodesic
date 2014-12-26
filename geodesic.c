@@ -1,8 +1,3 @@
-#define phi        1.61803398874989484820458683436563811   /* (1+sqrt(5))/2  */
-#define M_2PI      6.28318530717958647693528676655900576
-#define SQRT_p_5   0.707106781186547524400844362104849     /* sqrt(.5)  */
-#define SQRT_1_p_5 1.224744871391589049098642037352946     /* sqrt(1.5)  */
-
 #define X 0
 #define Y 1
 #define Z 2
@@ -102,15 +97,13 @@ void _apply_geodesic_sphere_normals(geodesic *g){
     // - all points lying on the surface of a sphere
     // - centered at the origin
     if(g->numPoints){
-        float_t length;
+//        float_t length = 1.0;  // shortcut
         g->pointNormals = malloc(sizeof(float_t)*g->numPoints*3);
         for(int i = 0; i < g->numPoints; i++){
-//            length = 1.0;  // we should already know the radius of the sphere
-            length = sqrtf( pow(g->points[X+3*i],2) + pow(g->points[Y+3*i],2) + pow(g->points[Z+3*i],2) );
-            printf("\n POINTS LENGTH: %f",length);
-            g->pointNormals[X+3*i] = g->points[X+3*i] / length;// * (i/12.0);
-            g->pointNormals[Y+3*i] = g->points[Y+3*i] / length;// * (i/12.0);
-            g->pointNormals[Z+3*i] = g->points[Z+3*i] / length;// * (i/12.0);
+//            length = sqrtf( pow(g->points[X+3*i],2) + pow(g->points[Y+3*i],2) + pow(g->points[Z+3*i],2) ); // shortcut: radius of the sphere
+            g->pointNormals[X+3*i] = g->points[X+3*i];//  / length;// * (i/12.0);
+            g->pointNormals[Y+3*i] = g->points[Y+3*i];//  / length;// * (i/12.0);
+            g->pointNormals[Z+3*i] = g->points[Z+3*i];//  / length;// * (i/12.0);
         }
     }
     if(g->numLines){
@@ -450,7 +443,10 @@ void _make_meridians(geodesic *g, int v){
 }
 
 void _crop_geodesic(geodesic *g, unsigned short crop){
-    for(int i = 0; i < g->numMeridians; i++){
+    if(crop >= g->numMeridians) return;
+    
+    float_t newPointsArray[g->numPoints];
+    for(int i = 0; i < g->numPoints; i++){
         
     }
 }

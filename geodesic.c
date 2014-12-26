@@ -2,12 +2,10 @@
 #define Y 1
 #define Z 2
 
-#include "geodesic.h"
 #include <stdlib.h>
 #include <math.h>
-
 #include "platonic.c"
-#include "geomesh.c"
+#include "geodesic.h"
 
 void _divide_geodesic_faces(geodesic *g, int v);
 void _remove_duplicate_points_lines(geodesic *g);
@@ -393,10 +391,10 @@ void _make_meridians(geodesic *g, int v){
     for(int i = 0; i < g->numFaces; i++)
         pointMeridians[i] = 0;
     for(int i = 0; i < g->numFaces; i++){
-        bool alreadyEntered = false;
+        unsigned short alreadyEntered = 0;
         for(int j = 0; j < g->numMeridians; j++){
             if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0))
-                alreadyEntered = true;
+                alreadyEntered = 1;
         }
         if(!alreadyEntered){
             pointMeridians[g->numMeridians] = meridianFaceData[i];

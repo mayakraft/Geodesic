@@ -7,7 +7,7 @@
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 //                                                                //
-//     flo_t : custom floating point size, double, long double    //
+//         flo_t : custom float size, double, long double         //
 //                                                                //
 //    also includes make functions to re-generate the geometry    //
 //                                                                //
@@ -82,12 +82,12 @@ unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	6, 9, 6, 3, 3, 2, 7, 3, 6, 2, 0, 4, 1, 0, 1, 5, 11, 4, 7, 11,
 	7, 2, 11, 2, 10, 11, 10, 1, 11, 1, 4, 10, 6, 5, 10, 5, 1, 10, 2, 6};
 
-void _make_tetrahedron(double **po, unsigned int *numPoints,
+void _make_tetrahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,
                   unsigned short **fa, unsigned int *numFaces);
-void _make_octahedron(double **po, unsigned int *numPoints,
+void _make_octahedron(flo_t **po, unsigned int *numPoints,
                  unsigned short **li, unsigned int *numLines,
                  unsigned short **fa, unsigned int *numFaces);
-void _make_icosahedron(double **po, unsigned int *numPoints,
+void _make_icosahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,
                   unsigned short **fa, unsigned int *numFaces);

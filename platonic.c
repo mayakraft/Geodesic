@@ -175,3 +175,73 @@ void _icosahedron(flo_t **po, unsigned int *numPoints,
     *li = lines;
     *fa = faces;
 }
+
+
+void _dodecahedron(flo_t **po, unsigned int *numPoints,
+                    unsigned short **li, unsigned int *numLines){
+                  // unsigned short **fa, unsigned int *numFaces){
+    flo_t SQRT3 = sqrt(3);
+    *numPoints = 20;
+    // *numLines = 30;
+    // *numFaces = 12;
+    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+
+    points[0+3*0] = 1/SQRT3;          points[1+3*0] = 1/SQRT3;            points[2+3*0] = 1/SQRT3;
+    points[0+3*1] = 1/SQRT3;          points[1+3*1] = 1/SQRT3;            points[2+3*1] = -1/SQRT3;
+    points[0+3*2] = 1/SQRT3;          points[1+3*2] = -1/SQRT3;           points[2+3*2] = 1/SQRT3;
+    points[0+3*3] = 1/SQRT3;          points[1+3*3] = -1/SQRT3;           points[2+3*3] = -1/SQRT3;
+    points[0+3*4] = -1/SQRT3;         points[1+3*4] = 1/SQRT3;            points[2+3*4] = 1/SQRT3;
+    points[0+3*5] = -1/SQRT3;         points[1+3*5] = 1/SQRT3;            points[2+3*5] = -1/SQRT3;
+    points[0+3*6] = -1/SQRT3;         points[1+3*6] = -1/SQRT3;           points[2+3*6] = 1/SQRT3;
+    points[0+3*7] = -1/SQRT3;         points[1+3*7] = -1/SQRT3;           points[2+3*7] = -1/SQRT3;      
+    points[0+3*8] = 0;                points[1+3*8] = 1/(PHI*SQRT3);      points[2+3*8] = PHI/SQRT3;
+    points[0+3*9] = 0;                points[1+3*9] = 1/(PHI*SQRT3);      points[2+3*9] = -PHI/SQRT3;
+    points[0+3*10] = 0;               points[1+3*10] = -1/(PHI*SQRT3);   points[2+3*10] = PHI/SQRT3;
+    points[0+3*11] = 0;               points[1+3*11] = -1/(PHI*SQRT3);   points[2+3*11] = -PHI/SQRT3;
+    points[0+3*12] = PHI/SQRT3;       points[1+3*12] = 0;                points[2+3*12] = 1/(PHI*SQRT3);
+    points[0+3*13] = PHI/SQRT3;       points[1+3*13] = 0;                points[2+3*13] = -1/(PHI*SQRT3);
+    points[0+3*14] = -PHI/SQRT3;      points[1+3*14] = 0;                points[2+3*14] = 1/(PHI*SQRT3);
+    points[0+3*15] = -PHI/SQRT3;      points[1+3*15] = 0;                points[2+3*15] = -1/(PHI*SQRT3);
+    points[0+3*16] = 1/(PHI*SQRT3);   points[1+3*16] = PHI/SQRT3;        points[2+3*16] = 0;
+    points[0+3*17] = 1/(PHI*SQRT3);   points[1+3*17] = -PHI/SQRT3;       points[2+3*17] = 0;
+    points[0+3*18] = -1/(PHI*SQRT3);  points[1+3*18] = PHI/SQRT3;        points[2+3*18] = 0;
+    points[0+3*19] = -1/(PHI*SQRT3);  points[1+3*19] = -PHI/SQRT3;       points[2+3*19] = 0;
+
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    lines[0+2*0] = 0  ;    lines[1+2*0] =  12 ;
+    lines[0+2*1] = 12 ;    lines[1+2*1] =  13 ;
+    lines[0+2*2] = 13 ;    lines[1+2*2] =  1  ;
+    lines[0+2*3] = 1  ;    lines[1+2*3] =  16 ;
+    lines[0+2*4] = 16 ;    lines[1+2*4] =  0  ;
+    lines[0+2*5] = 16 ;    lines[1+2*5] =  18 ;
+    lines[0+2*6] = 18 ;    lines[1+2*6] =  4  ;
+    lines[0+2*7] = 4  ;    lines[1+2*7] =  8  ;
+    lines[0+2*8] = 12 ;    lines[1+2*8] =  2  ;
+    lines[0+2*9] = 2  ;    lines[1+2*9] = 17 ;
+    lines[0+2*10] = 17 ;    lines[1+2*10] =  3 ;
+    lines[0+2*11] = 3  ;    lines[1+2*11] = 13 ;
+    lines[0+2*12] = 0  ;    lines[1+2*12] = 8  ;
+    lines[0+2*13] = 8  ;    lines[1+2*13] = 10 ;
+    lines[0+2*14] = 10 ;    lines[1+2*14] =  2 ;
+    lines[0+2*15] = 1  ;    lines[1+2*15] = 9  ;
+    lines[0+2*16] = 9  ;    lines[1+2*16] = 11 ;
+    lines[0+2*17] = 11 ;    lines[1+2*17] =  3 ;
+    lines[0+2*18] = 11 ;    lines[1+2*18] =  7 ;
+    lines[0+2*19] = 7  ;    lines[1+2*19] = 19 ;
+    lines[0+2*20] = 10 ;    lines[1+2*20] =  6 ;
+    lines[0+2*21] = 6  ;    lines[1+2*21] = 19 ;
+    lines[0+2*22] = 19 ;    lines[1+2*22] =  17;
+    lines[0+2*23] = 18 ;    lines[1+2*23] =  5 ;
+    lines[0+2*24] = 5  ;    lines[1+2*24] = 9  ;
+    lines[0+2*25] = 5  ;    lines[1+2*25] = 15 ;
+    lines[0+2*26] = 15 ;    lines[1+2*26] =  7 ;
+    lines[0+2*27] = 15 ;    lines[1+2*27] =  14;
+    lines[0+2*28] = 14 ;    lines[1+2*28] =  4 ;
+    lines[0+2*29] = 14 ;    lines[1+2*29] = 6  ;
+
+    // unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+
+    *po = points;
+    // *li = lines;
+    // *fa = faces;
+}

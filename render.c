@@ -14,8 +14,8 @@
 #include "geomesh.c"
 
 // SCREEN
-static int height = 400;
-static int width = 800;
+static int height = 600;
+static int width = 600;
 // KEYBOARD
 static unsigned int UP_PRESSED = 0;
 static unsigned int DOWN_PRESSED = 0;
@@ -35,21 +35,24 @@ static float xPos = 0.0f;
 static float yPos = 0.0f;
 
 geodesic g;
+geomeshTriangles m;
 
 void init(){
+	
 
-	g = icosahedron(2);
+	g = icosahedron(7);
+	m = makeMeshTriangles(&g, .8);
 
 	glutInitDisplayMode (GLUT_DEPTH);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glShadeModel(GL_FLAT);
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat mat_shininess[] = { 50.0 };
+	GLfloat mat_shininess[] = { 5.0 };
 	GLfloat light_position[] = { 5.0, 5.0, 5.0, 0.0 };
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	glShadeModel (GL_SMOOTH);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	// glShadeModel (GL_SMOOTH);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glEnable(GL_LIGHTING);
@@ -61,21 +64,31 @@ void init(){
 
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+	float dist = 2;
 	glPushMatrix();
-   		glRotatef(mouseRotationY, -1, 0, 0);
-	    glRotatef(mouseRotationX, 0, -1, 0);
-
-		glTranslatef(yPos, 0, -xPos);
+		float x, y, z;
+		x = cos(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
+		z = sin(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
+		y = sin(-mouseRotationY / 180);
+		gluLookAt(	x*dist, y*dist, z*dist,
+					0.0f, 0.0f, 0.0f,
+					0.0f, 1.0f, 0.0f);
 		glPushMatrix();
-			glTranslatef(0.0, 0.0, -3.0);
-			geodesicDrawTriangles(&g);
+			// glEnable(GL_LIGHTING);
+			// geodesicDrawTriangles(&g);
+			// glDisable(GL_LIGHTING);
+			// glColor4f(0.0, 0.0, 0.0);
+			// geodesicDrawLines(&g);
+			geodesicMeshDrawExtrudedTriangles(&m);
 
 			// glPushMatrix();
 			// 	glEnableClientState(GL_VERTEX_ARRAY);
-			// 	glColor3f(0.5f, 1.0f, 0.5f);
+			// 	glEnableClientState(GL_NORMAL_ARRAY);
+			// 	// glColor3f(0.5f, 1.0f, 0.5f);
 			// 	glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
+			// 	glNormalPointer(GL_FLOAT, 0, g.pointNormals);
 			// 	glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+			// 	glDisableClientState(GL_NORMAL_ARRAY);
 			// 	glDisableClientState(GL_VERTEX_ARRAY);
 			// glPopMatrix();
 
@@ -194,7 +207,7 @@ void reshape(int w, int h){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	// glOrtho(-40.0, 40.0, -40/a, 40/a, -100.0, 100.0);
-	glFrustum (-1.0, 1.0, -1.0/a, 1.0/a, 1.5, 2000.0);
+	glFrustum (-1.0, 1.0, -1.0/a, 1.0/a, 1, 100.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }

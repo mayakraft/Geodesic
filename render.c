@@ -37,8 +37,18 @@ static float yPos = 0.0f;
 geodesic g;
 geomeshTriangles m;
 
+#define frand() ((double) rand() / (RAND_MAX+1.0))
+#define NUM_SOLIDS 50
+float objcts[3*NUM_SOLIDS];
+unsigned short objctsType[NUM_SOLIDS];
+
 void init(){
-	
+	for(int i = 0; i < NUM_SOLIDS; i++){
+		objcts[0+i*3] = frand()*30-15;
+		objcts[1+i*3] = frand()*100-50;
+		objcts[2+i*3] = frand()*30-15;
+		objctsType[i] = rand()%3;
+	}
 
 	g = icosahedron(7);
 	m = makeMeshTriangles(&g, .8);
@@ -67,29 +77,60 @@ void display(){
 	float dist = 2;
 	glPushMatrix();
 		float x, y, z;
-		x = cos(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
-		z = sin(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
-		y = sin(-mouseRotationY / 180);
-		gluLookAt(	x*dist, y*dist, z*dist,
-					0.0f, 0.0f, 0.0f,
-					0.0f, 1.0f, 0.0f);
+		// x = cos(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
+		// z = sin(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
+		// y = sin(-mouseRotationY / 180);
+		// gluLookAt(	x*dist, y*dist, z*dist,
+		// 			0.0f, 0.0f, 0.0f,
+		// 			0.0f, 1.0f, 0.0f);
 		glPushMatrix();
+			
+			glTranslatef(0.0, 0.0, -3.0);
+   			glRotatef(mouseRotationY, -1, 0, 0);
+	    	glRotatef(mouseRotationX, 0, -1, 0);
 			// glEnable(GL_LIGHTING);
 			// geodesicDrawTriangles(&g);
 			// glDisable(GL_LIGHTING);
 			// glColor4f(0.0, 0.0, 0.0);
 			// geodesicDrawLines(&g);
+	for(int i = 0; i < NUM_SOLIDS; i++){
+		glPushMatrix();
+			glTranslatef(objcts[i*3+0], objcts[i*3+1], objcts[i*3+2]);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			// glColor3f(0.5f, 1.0f, 0.5f);
+			// glNormalPointer(GL_FLOAT, 0, g.pointNormals);
+			if(objctsType[i] == 0){
+				glVertexPointer(3, GL_FLOAT, 0, _tetrahedron_points);
+				glNormalPointer(GL_FLOAT, 0, _tetrahedron_points);
+				glDrawElements(GL_TRIANGLES, 3*TETRAHEDRON_FACES, GL_UNSIGNED_SHORT, _tetrahedron_faces);
+			}
+			else if(objctsType[i] == 1){
+				glVertexPointer(3, GL_FLOAT, 0, _octahedron_points);
+				glNormalPointer(GL_FLOAT, 0, _octahedron_points);
+				glDrawElements(GL_TRIANGLES, 3*OCTAHEDRON_FACES, GL_UNSIGNED_SHORT, _octahedron_faces);
+			}
+			if(objctsType[i] == 2){
+				glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
+				glNormalPointer(GL_FLOAT, 0, _icosahedron_points);
+				glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+			}
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		glPopMatrix();
+	}
+
 			geodesicMeshDrawExtrudedTriangles(&m);
 
 			// glPushMatrix();
-			// 	glEnableClientState(GL_VERTEX_ARRAY);
-			// 	glEnableClientState(GL_NORMAL_ARRAY);
-			// 	// glColor3f(0.5f, 1.0f, 0.5f);
-			// 	glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
-			// 	glNormalPointer(GL_FLOAT, 0, g.pointNormals);
-			// 	glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
-			// 	glDisableClientState(GL_NORMAL_ARRAY);
-			// 	glDisableClientState(GL_VERTEX_ARRAY);
+				// glEnableClientState(GL_VERTEX_ARRAY);
+				// glEnableClientState(GL_NORMAL_ARRAY);
+				// // glColor3f(0.5f, 1.0f, 0.5f);
+				// glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
+				// glNormalPointer(GL_FLOAT, 0, g.pointNormals);
+				// glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+				// glDisableClientState(GL_NORMAL_ARRAY);
+				// glDisableClientState(GL_VERTEX_ARRAY);
 			// glPopMatrix();
 
 		glPopMatrix();
@@ -108,6 +149,13 @@ void spinDisplay(void){
 }
 
 void update(){
+
+	for(int i = 0; i < NUM_SOLIDS; i++){
+		objcts[i*3+1] -= .33;
+		if(objcts[i*3+1] < -50.0)
+			objcts[i*3+1] += 100.0;
+	}
+
 	// if(UP_PRESSED) xPos += STEP;
 	// if(DOWN_PRESSED) xPos -= STEP;
 	// if(RIGHT_PRESSED) yPos += STEP;
@@ -179,8 +227,8 @@ void keyboard(unsigned char key, int x, int y){
 		case GLUT_KEY_LEFT:	 LEFT_PRESSED = 1;	break;
 		// case 't': 		 break;
 	}
-	if(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED)
-		glutIdleFunc(update);
+	// if(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED)
+	// 	glutIdleFunc(update);
 }
 
 void keyboardUp(unsigned char key,int x,int y){
@@ -197,8 +245,8 @@ void keyboardUp(unsigned char key,int x,int y){
 		case GLUT_KEY_LEFT:	 LEFT_PRESSED = 0;	break;
 		// case 't':		 break;
 	}
-	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED))
-		glutIdleFunc(NULL);
+	// if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED))
+	// 	glutIdleFunc(NULL);
 }
 
 void reshape(int w, int h){
@@ -223,6 +271,7 @@ int main(int argc, char **argv){
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
+	glutIdleFunc(update);
 	glutKeyboardUpFunc(keyboardUp); 
 	glutKeyboardFunc(keyboard);
 	glutPostRedisplay();

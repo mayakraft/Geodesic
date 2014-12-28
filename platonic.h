@@ -82,6 +82,7 @@ const flo_t _hexahedron_points[HEXAHEDRON_POINTS*3] = {
 const unsigned short _hexahedron_lines[HEXAHEDRON_LINES*2] = {
 	0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 1, 5, 2, 6, 3, 7, 4, 5, 5, 6, 6, 7, 7, 4};
 const unsigned short _hexahedron_faces[HEXAHEDRON_FACES*4] = {
+// these are being stored as squares, not triangles
 	0, 1, 2, 3,
 	0, 4, 5, 1,
 	1, 5, 6, 2,

@@ -34,6 +34,11 @@ static float startRotationY = 0.0f;
 static float xPos = 0.0f;
 static float yPos = 0.0f;
 
+// LIGHTING
+static GLfloat light_position1[] = { 5.0, 5.0, 5.0, 0.0 };
+static GLfloat light_position2[] = { -5.0, 5.0, -5.0, 0.0 };
+static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
+
 geodesic g;
 geomeshTriangles m;
 
@@ -50,26 +55,53 @@ void init(){
 		objctsType[i] = rand()%3;
 	}
 
+	// for(int i = 0; i < ICOSAHEDRON_FACES; i++){
+	// 	printf("(%.2f, %.2f, %.2f)\n",_icosahedron_points[i*3],_icosahedron_points[i*3+1],_icosahedron_points[i*3+2]);
+	// }
+	for(int i = 0; i < ICOSAHEDRON_FACES; i++){
+		printf("(%d %d %d)  (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f)\n",
+			_icosahedron_faces[i*3+0],
+			_icosahedron_faces[i*3+1],
+			_icosahedron_faces[i*3+2],
+
+			_icosahedron_points[_icosahedron_faces[i*3+0]*3+0],
+			_icosahedron_points[_icosahedron_faces[i*3+0]*3+1],
+			_icosahedron_points[_icosahedron_faces[i*3+0]*3+2],
+			_icosahedron_points[_icosahedron_faces[i*3+1]*3+0],
+			_icosahedron_points[_icosahedron_faces[i*3+1]*3+1],
+			_icosahedron_points[_icosahedron_faces[i*3+1]*3+2],
+			_icosahedron_points[_icosahedron_faces[i*3+2]*3+0],
+			_icosahedron_points[_icosahedron_faces[i*3+2]*3+1],
+			_icosahedron_points[_icosahedron_faces[i*3+2]*3+2]
+			);
+	}
+
 	g = icosahedron(7);
 	m = makeMeshTriangles(&g, .8);
 
 	glutInitDisplayMode (GLUT_DEPTH);
+	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glShadeModel(GL_FLAT);
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess[] = { 5.0 };
-	GLfloat light_position[] = { 5.0, 5.0, 5.0, 0.0 };
+	GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
+	GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
+	GLfloat blue[] = {0.0, 0.0, 1.0, 1.0};
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	// glShadeModel (GL_SMOOTH);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_specular);
+	// glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, red);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, blue);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, green);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
 	glCullFace(GL_FRONT);
 	glEnable(GL_CULL_FACE);
+	glShadeModel(GL_FLAT);
+	// glShadeModel (GL_SMOOTH);
 }
 
 void display(){
@@ -88,6 +120,14 @@ void display(){
 			glTranslatef(0.0, 0.0, -3.0);
    			glRotatef(mouseRotationY, -1, 0, 0);
 	    	glRotatef(mouseRotationX, 0, -1, 0);
+	    	glPushMatrix();
+	    		static float lightRotate = 0.0f;
+	    		lightRotate += 1.0;
+	    		glRotatef(lightRotate, 0.11111, 0.3, 1.0);
+				glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
+				glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
+				glLightfv(GL_LIGHT2, GL_POSITION, light_position3);
+			glPopMatrix();
 			// glEnable(GL_LIGHTING);
 			// geodesicDrawTriangles(&g);
 			// glDisable(GL_LIGHTING);
@@ -151,7 +191,7 @@ void spinDisplay(void){
 void update(){
 
 	for(int i = 0; i < NUM_SOLIDS; i++){
-		objcts[i*3+1] -= .33;
+		objcts[i*3+1] -= .05;//33;
 		if(objcts[i*3+1] < -50.0)
 			objcts[i*3+1] += 100.0;
 	}

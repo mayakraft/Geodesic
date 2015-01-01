@@ -13,9 +13,11 @@
 #include <math.h>
 #include "geomesh.c"
 
+#include "noise.c"
+
 // SCREEN
-static int height = 600;
-static int width = 600;
+static int height = 400;
+static int width = 400;
 // KEYBOARD
 static unsigned int UP_PRESSED = 0;
 static unsigned int DOWN_PRESSED = 0;
@@ -38,16 +40,17 @@ static float yPos = 0.0f;
 static GLfloat light_position1[] = { 5.0, 5.0, 5.0, 0.0 };
 static GLfloat light_position2[] = { -5.0, 5.0, -5.0, 0.0 };
 static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
+static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 
 geodesic g;
 geomeshTriangles m;
 
 #define frand() ((double) rand() / (RAND_MAX+1.0))
-#define NUM_SOLIDS 50
+#define NUM_SOLIDS 100
 float objcts[3*NUM_SOLIDS];
 unsigned short objctsType[NUM_SOLIDS];
 
-void init(){
+void initRender(){
 	for(int i = 0; i < NUM_SOLIDS; i++){
 		objcts[0+i*3] = frand()*30-15;
 		objcts[1+i*3] = frand()*100-50;
@@ -76,13 +79,15 @@ void init(){
 			);
 	}
 
-	g = icosahedron(7);
+	g = icosahedron(3);
 	m = makeMeshTriangles(&g, .8);
 
-	glutInitDisplayMode (GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glDepthMask(GL_TRUE);
+	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess[] = { 5.0 };
 	GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
@@ -100,13 +105,23 @@ void init(){
 	glEnable(GL_LIGHT2);
 	glCullFace(GL_FRONT);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_FLAT);
-	// glShadeModel (GL_SMOOTH);
+	// glShadeModel(GL_FLAT);
+	glShadeModel (GL_SMOOTH);
+
 }
 
 void display(){
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	float dist = 2;
+	static float step1, step2, step3, step4, step5, step6;
+	step1 += .0055;
+	step2 += .0045;
+	step3 += .00711;
+	step4 += .00666;
+	step5 += .0049;
+	step6 += .00821;
 	glPushMatrix();
 		float x, y, z;
 		// x = cos(-mouseRotationX / 180) * cos(-mouseRotationY / 180);
@@ -116,7 +131,9 @@ void display(){
 		// 			0.0f, 0.0f, 0.0f,
 		// 			0.0f, 1.0f, 0.0f);
 		glPushMatrix();
-			
+			mouseRotationX = noise1(step1*.75+10)*360;
+			mouseRotationY = noise1(step6*.75)*360;
+
 			glTranslatef(0.0, 0.0, -3.0);
    			glRotatef(mouseRotationY, -1, 0, 0);
 	    	glRotatef(mouseRotationX, 0, -1, 0);
@@ -124,9 +141,27 @@ void display(){
 	    		static float lightRotate = 0.0f;
 	    		lightRotate += 1.0;
 	    		glRotatef(lightRotate, 0.11111, 0.3, 1.0);
-				glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
-				glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
-				glLightfv(GL_LIGHT2, GL_POSITION, light_position3);
+	    		glPushMatrix();
+					glRotatef(360*noise1(step1), 0.0, 1.0, 0.0);
+					glRotatef(360*noise1(step2), 1.0, 0.0, 0.0);
+					glRotatef(360*noise1(step3), 0.0, 0.0, 1.0);
+					glLightfv(GL_LIGHT0, GL_POSITION, std_light_pos);
+	    		glPopMatrix();
+	    		glPushMatrix();
+					glRotatef(360*noise1(step2), 0.0, 1.0, 0.0);
+					glRotatef(360*noise1(step3), 1.0, 0.0, 0.0);
+					glRotatef(360*noise1(step4), 0.0, 0.0, 1.0);
+					glLightfv(GL_LIGHT1, GL_POSITION, std_light_pos);
+	    		glPopMatrix();
+	    		glPushMatrix();
+					glRotatef(360*noise1(step4), 0.0, 1.0, 0.0);
+					glRotatef(360*noise1(step5), 1.0, 0.0, 0.0);
+					glRotatef(360*noise1(step6), 0.0, 0.0, 1.0);
+					glLightfv(GL_LIGHT2, GL_POSITION, std_light_pos);
+	    		glPopMatrix();
+				// glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
+				// glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
+				// glLightfv(GL_LIGHT2, GL_POSITION, light_position3);
 			glPopMatrix();
 			// glEnable(GL_LIGHTING);
 			// geodesicDrawTriangles(&g);
@@ -160,6 +195,15 @@ void display(){
 		glPopMatrix();
 	}
 
+	glDisable(GL_LIGHTING);
+	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+	geodesicDrawTriangles(&g);
+	glEnable(GL_LIGHTING);
+
+	    	glRotatef(noise1(step1)*360, 0, 1, 0);
+	    	glRotatef(noise1(step3)*360, 1, 0, 0);
+	    	glRotatef(noise1(step5)*360, 0, 0, 1);
+
 			geodesicMeshDrawExtrudedTriangles(&m);
 
 			// glPushMatrix();
@@ -179,19 +223,10 @@ void display(){
 	// glFlush();
 }
 
-void spinDisplay(void){
-	static GLfloat spin = 0.0f;
-	spin = spin - 2.0;
-	if(spin > 360.0){
-		spin = spin - 360.0;
-	}
-	glutPostRedisplay();
-}
-
 void update(){
 
 	for(int i = 0; i < NUM_SOLIDS; i++){
-		objcts[i*3+1] -= .05;//33;
+		objcts[i*3+1] -= .45;//33;
 		if(objcts[i*3+1] < -50.0)
 			objcts[i*3+1] += 100.0;
 	}
@@ -306,7 +341,7 @@ int main(int argc, char **argv){
 	glutInitWindowPosition(10,10);
 	glutInitWindowSize(width,height);
 	glutCreateWindow(argv[0]);
-	init();
+	initRender();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);

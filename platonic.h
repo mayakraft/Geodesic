@@ -107,9 +107,26 @@ const unsigned short _icosahedron_lines[ICOSAHEDRON_LINES*2] = {
 	9, 6, 9, 5, 7, 4, 7, 3, 7, 2, 7, 11, 2, 10, 2, 11, 2, 3, 2, 6,
 	10, 11, 10, 5, 10, 6, 10, 1, 11, 1, 11, 4, 4, 1, 5, 1, 5, 6, 6, 3};
 const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = { 
-	8, 7, 4, 8, 3, 7, 8, 4, 0, 8, 0, 9, 9, 3, 8, 9, 0, 5, 9, 5,
-	6, 9, 6, 3, 3, 2, 7, 3, 6, 2, 0, 4, 1, 0, 1, 5, 11, 4, 7, 11,
-	7, 2, 11, 2, 10, 11, 10, 1, 11, 1, 4, 10, 6, 5, 10, 5, 1, 10, 2, 6};
+	8, 7, 4, 
+	7, 8, 3,    // pair 2 
+	8, 4, 0, 
+	8, 0, 9, 
+	9, 3, 8, 
+	9, 0, 5, 
+	9, 5, 6, 
+	9, 6, 3, 
+	3, 2, 7,   // pair 2
+	3, 6, 2, 
+	0, 4, 1, 
+	0, 1, 5, 
+	11, 4, 7, 
+	11, 7, 2, 
+	11, 2, 10, 
+	1, 11, 10,    // pair 1
+	11, 1, 4, 
+	10, 6, 5, 
+	10, 5, 1,     // pair 1
+	10, 2, 6};
 
 void _make_tetrahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,

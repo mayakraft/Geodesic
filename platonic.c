@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "platonic.h"
+#include <math.h>
 
 #define PHI        1.61803398874989484820458683436563811   /* (1+sqrt(5))/2  */
 #define M_2PI      6.28318530717958647693528676655900576

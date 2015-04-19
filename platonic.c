@@ -1,12 +1,18 @@
-#include <stdlib.h>
-#include "platonic.h"
 #include <math.h>
+
+#include "platonic.h"
 
 #define PHI        1.61803398874989484820458683436563811   /* (1+sqrt(5))/2  */
 #define M_2PI      6.28318530717958647693528676655900576
 #define SQRT_p_5   0.707106781186547524400844362104849     /* sqrt(.5)  */
 #define SQRT_1_p_5 1.224744871391589049098642037352946     /* sqrt(1.5)  */
 
+//
+// the following funtions assemble a unit polyhedra by classical
+// point calculations involving square roots and the golden ratio
+//
+// INCOMPLETE: the hexahedron, and the faces on the dodecahedron
+//
 void _tetrahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,
                   unsigned short **fa, unsigned int *numFaces){
@@ -183,7 +189,7 @@ void _dodecahedron(flo_t **po, unsigned int *numPoints,
                   // unsigned short **fa, unsigned int *numFaces){
     flo_t SQRT3 = sqrt(3);
     *numPoints = 20;
-    // *numLines = 30;
+    *numLines = 30;
     // *numFaces = 12;
     flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
 
@@ -243,6 +249,6 @@ void _dodecahedron(flo_t **po, unsigned int *numPoints,
     // unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
 
     *po = points;
-    // *li = lines;
+    *li = lines;
     // *fa = faces;
 }

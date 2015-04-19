@@ -1,18 +1,21 @@
+#include <math.h>
+#include "platonic.c"
+
 #define X 0
 #define Y 1
 #define Z 2
 
-#include <stdlib.h>
-#include <math.h>
-#include "platonic.c"
 #include "geodesic.h"
 
+// SPHERE
 void _divide_geodesic_faces(geodesic *g, int v);
 void _remove_duplicate_points_lines(geodesic *g);
-void _make_meridians(geodesic *g, int v);
 void _spherize_points(float_t *points, unsigned int numPoints);
 void _apply_geodesic_sphere_normals(geodesic *g);
-void _crop_geodesic(geodesic *g, unsigned short crop);
+
+// DOME
+void _make_meridians(geodesicDome *dome, int v);
+void _crop_geodesic(geodesicDome *dome, unsigned short crop);
 
 
 // TODO:
@@ -35,41 +38,52 @@ geodesic tetrahedron(int v){
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-
 geodesic octahedron(int v){
     geodesic g;
     _octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
-    _make_meridians(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-
 geodesic icosahedron(int v){
     geodesic g;
     _icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
-    _make_meridians(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
 
-geodesic tetrahedronDome(int v, float crop) {
-    geodesic g = tetrahedron(v);
-    _crop_geodesic(&g, crop*v);
-    return g;
+geodesicDome tetrahedronDome(int v, float crop) {
+    geodesicDome dome;
+    _tetrahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    _divide_geodesic_faces(&(dome.g), v);
+    // _make_meridians(&dome, v); // does not work with tetrahedron, I think
+    _spherize_points((dome.g).points, (dome.g).numPoints);
+    _apply_geodesic_sphere_normals(&(dome.g));
+    _crop_geodesic(&dome, crop*v);
+    return dome;
 }
-geodesic octahedronDome(int v, float crop) {
-    geodesic g = octahedron(v);
-    _crop_geodesic(&g, crop*v);
-    return g;
+geodesicDome octahedronDome(int v, float crop) {
+    geodesicDome dome;
+    _octahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    _divide_geodesic_faces(&(dome.g), v);
+    _make_meridians(&dome, v);
+    _spherize_points((dome.g).points, (dome.g).numPoints);
+    _apply_geodesic_sphere_normals(&(dome.g));
+    _crop_geodesic(&dome, crop*v);
+    return dome;
 }
-geodesic icosahedronDome(int v, float crop) {
-    geodesic g = icosahedron(v);
-    _crop_geodesic(&g, crop*v);
-    return g;
+geodesicDome icosahedronDome(int v, float crop) {
+    geodesicDome dome;
+    _icosahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    _divide_geodesic_faces(&(dome.g), v);
+    _make_meridians(&dome, v);
+    _spherize_points((dome.g).points, (dome.g).numPoints);
+    _apply_geodesic_sphere_normals(&(dome.g));
+    _crop_geodesic(&dome, crop*v);
+    return dome;
 }
 
 void deleteGeodesic(geodesic *g){
@@ -85,9 +99,14 @@ void deleteGeodesic(geodesic *g){
     if(g->pointNormals){    free(g->pointNormals);  g->pointNormals = NULL; }
     if(g->lineNormals){     free(g->lineNormals);   g->lineNormals = NULL; }
     if(g->faceNormals){     free(g->faceNormals);   g->faceNormals = NULL; }
-    if(g->faceAltitudes){   free(g->faceAltitudes); g->faceAltitudes = NULL; }
-    if(g->faceMeridians){   free(g->faceMeridians); g->faceMeridians = NULL; }
-    if(g->pointMeridians){  free(g->pointMeridians);g->pointMeridians = NULL; }
+}
+
+void deleteGeodesicDome(geodesicDome *d){
+    // same. be careful with this one
+    deleteGeodesic(&(d->g));
+    if(d->faceAltitudes){   free(d->faceAltitudes);   d->faceAltitudes = NULL;  }
+    if(d->faceMeridians){   free(d->faceMeridians);   d->faceMeridians = NULL;  }
+    if(d->pointMeridians){  free(d->pointMeridians);  d->pointMeridians = NULL; }
 }
 
 void _apply_geodesic_sphere_normals(geodesic *g){
@@ -368,12 +387,21 @@ void _spherize_points(float_t *points, unsigned int numPoints){
         points[i*3+Z]*=difference;
     }
 }
+
+
+////////////////////////////////////
+//
+//       DOME FUNCTIONS
+//
+////////////////////////////////////
+
 int _qsort_compare (const void * a, const void * b){
     if (*(float_t*)a < *(float_t*)b) return -1;
     if (*(float_t*)a > *(float_t*)b) return 1;
     return 0;
 }
-void _make_meridians(geodesic *g, int v){
+void _make_meridians(geodesicDome *d, int v){
+    geodesic *g = &(d->g);
     float_t meridianFaceData[g->numFaces];
     float_t lowest;
     // sort faces by their lowest point (in the Y-axis)
@@ -386,43 +414,43 @@ void _make_meridians(geodesic *g, int v){
         meridianFaceData[i] = lowest;
     }
     /////////////////////
-    g->numMeridians = 0;
+    d->numMeridians = 0;
     float_t pointMeridians[g->numFaces];
     for(int i = 0; i < g->numFaces; i++)
         pointMeridians[i] = 0;
     for(int i = 0; i < g->numFaces; i++){
         unsigned short alreadyEntered = 0;
-        for(int j = 0; j < g->numMeridians; j++){
+        for(int j = 0; j < d->numMeridians; j++){
             if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0))
                 alreadyEntered = 1;
         }
         if(!alreadyEntered){
-            pointMeridians[g->numMeridians] = meridianFaceData[i];
-            g->numMeridians++;
+            pointMeridians[d->numMeridians] = meridianFaceData[i];
+            d->numMeridians++;
         }
     }
     // add one last row
-    pointMeridians[g->numMeridians] = 1.0;
+    pointMeridians[d->numMeridians] = 1.0;
 //    g->numMeridians++;  // don't increment so that it's relative to faces, not points
-    qsort(pointMeridians, g->numMeridians, sizeof(float_t), _qsort_compare);
-    g->pointMeridians = malloc(sizeof(float_t)*(g->numMeridians+1));
-    for(int i = 0; i < g->numMeridians+1; i++)
-        g->pointMeridians[i] = pointMeridians[i];
+    qsort(pointMeridians, d->numMeridians, sizeof(float_t), _qsort_compare);
+    d->pointMeridians = malloc(sizeof(float_t)*(d->numMeridians+1));
+    for(int i = 0; i < d->numMeridians+1; i++)
+        d->pointMeridians[i] = pointMeridians[i];
     
     //TODO: will crash if no meridians are found
     
-    g->faceMeridians = malloc(sizeof(float_t)*g->numMeridians);
+    d->faceMeridians = malloc(sizeof(float_t)*d->numMeridians);
 
-    for(int i = 0; i < g->numMeridians; i++)
-        g->faceMeridians[i] = (pointMeridians[i] + pointMeridians[i+1])*.5;
+    for(int i = 0; i < d->numMeridians; i++)
+        d->faceMeridians[i] = (pointMeridians[i] + pointMeridians[i+1])*.5;
 
-    g->faceAltitudes = malloc(sizeof(unsigned short)*g->numFaces);
+    d->faceAltitudes = malloc(sizeof(unsigned short)*g->numFaces);
     for(int i = 0; i < g->numFaces; i++)
-        g->faceAltitudes[i] = 99;
+        d->faceAltitudes[i] = 99;
     for(int i = 0; i < g->numFaces; i++){
-        for(unsigned short j = 0; j < g->numMeridians+1; j++){
+        for(unsigned short j = 0; j < d->numMeridians+1; j++){
             if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0)){
-                g->faceAltitudes[i] = j;
+                d->faceAltitudes[i] = j;
                 break;
             }
         }
@@ -440,13 +468,13 @@ void _make_meridians(geodesic *g, int v){
 //    }
 }
 
-void _crop_geodesic(geodesic *g, unsigned short crop){
-    if(crop >= g->numMeridians) return;
+void _crop_geodesic(geodesicDome *d, unsigned short crop){
+    // if(crop >= g->numMeridians) return;
     
-    float_t newPointsArray[g->numPoints];
-    for(int i = 0; i < g->numPoints; i++){
+    // float_t newPointsArray[g->numPoints];
+    // for(int i = 0; i < g->numPoints; i++){
         
-    }
+    // }
 }
 
 /*

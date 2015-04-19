@@ -11,7 +11,7 @@
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 //                                                                //
-//         flo_t : custom type float, double, long double         //
+//      flo_t : type cast to float, double, or long double        //
 //                                                                //
 //   below, functions to re-generate the geometry functionally    //
 //                                                                //
@@ -29,6 +29,7 @@ typedef float flo_t;
 #else
 typedef float flo_t;
 #endif
+
 
 #define TETRAHEDRON_POINTS 4
 #define TETRAHEDRON_LINES 6
@@ -128,12 +129,18 @@ const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	10, 5, 1,     // pair 1
 	10, 2, 6};
 
-void _make_tetrahedron(flo_t **po, unsigned int *numPoints,
+//void tetrahedron();
+//void octahedron();
+//void icosahedron();
+
+void _tetrahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,
                   unsigned short **fa, unsigned int *numFaces);
-void _make_octahedron(flo_t **po, unsigned int *numPoints,
+void _octahedron(flo_t **po, unsigned int *numPoints,
                  unsigned short **li, unsigned int *numLines,
                  unsigned short **fa, unsigned int *numFaces);
-void _make_icosahedron(flo_t **po, unsigned int *numPoints,
+void _icosahedron(flo_t **po, unsigned int *numPoints,
                   unsigned short **li, unsigned int *numLines,
                   unsigned short **fa, unsigned int *numFaces);
+void _dodecahedron(flo_t **po, unsigned int *numPoints,
+                    unsigned short **li, unsigned int *numLines);

@@ -1,16 +1,18 @@
 #include "geodesic.c"
+// #import <OpenGLES/ES1/gl.h>
+
+//#ifdef __APPLE__
+//#  include <OpenGL/gl.h>
+//#  include <OpenGL/glu.h>
+//#  include <GLUT/glut.h>
+//#else
+//#  include <GL/gl.h>
+//#  include <GL/glu.h>
+//#  include <GL/glut.h>
+//#endif
+
+
 #include "geomesh.h"
-
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-#  include <GLUT/glut.h>
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#  include <GL/glut.h>
-#endif
-
 
 // geodesic
 
@@ -174,23 +176,23 @@ void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale){
     extrudeTriangles(m, g, (1/scale - 1));
 }
 
-geomeshCropPlanes makeMeshCropPlanes(geodesic *g){
-    geomeshCropPlanes planes;
-    planes.numPlanes = g->numMeridians;
-    planes.glTriangles = malloc(sizeof(float_t)*3*3*g->numMeridians);
-    for(int i = 0; i < g->numMeridians-1; i++){
-        planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->faceMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
-        planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->faceMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
-        planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->faceMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
-    }
-    planes.glTriangleNormals = malloc(sizeof(float_t)*3*3*g->numMeridians);
-    for(int i = 0; i < g->numMeridians; i++){
-        planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
-        planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;
-        planes.glTriangleNormals[i*9+6] = 0.0;  planes.glTriangleNormals[i*9+7] = 1.0;   planes.glTriangleNormals[i*9+8] = 0.0;
-    }
-    return planes;
-}
+// geomeshCropPlanes makeMeshCropPlanes(geodesic *g){
+//     geomeshCropPlanes planes;
+//     planes.numPlanes = g->numMeridians;
+//     planes.glTriangles = malloc(sizeof(float_t)*3*3*g->numMeridians);
+//     for(int i = 0; i < g->numMeridians-1; i++){
+//         planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->faceMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
+//         planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->faceMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
+//         planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->faceMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
+//     }
+//     planes.glTriangleNormals = malloc(sizeof(float_t)*3*3*g->numMeridians);
+//     for(int i = 0; i < g->numMeridians; i++){
+//         planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
+//         planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;
+//         planes.glTriangleNormals[i*9+6] = 0.0;  planes.glTriangleNormals[i*9+7] = 1.0;   planes.glTriangleNormals[i*9+8] = 0.0;
+//     }
+//     return planes;
+// }
 
 geomeshTriangles makeMeshTriangles(geodesic *g, float shrink){
     geomeshTriangles mesh;

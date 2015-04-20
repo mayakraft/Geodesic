@@ -2,34 +2,31 @@
 
 R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
-# properties
+# files
 
-``` c
- unsigned int    numPoints;
- unsigned int    numLines;
- unsigned int    numFaces;
+* `platonic.h/.c` static platonic solids geometry
+* `geodesic.h/.c` process a platonic solid into a geodesic dome or sphere
+* `geomesh.h/.c`  make an OpenGL ES mesh of a geodesic object
 
- double          *points;        // numPoints*3
- unsigned short  *lines;         // numLines*2
- unsigned short  *faces;         // numFaces*3, clockwise winding
-    
- double          *pointNormals;  // numPoints*3
- double          *lineNormals;   // numLines*3
- double          *faceNormals;   // numFaces*3
-```
+# data
+
+* points are stored (X, Y, Z) as `float` or `double`
+* lines/faces are pairs/trios of indices in point array `unsigned short`
+* you also get number of points, lines, and faces as an `unsigned int`
+* point, line, and face normals as (X, Y, Z) `float` or `double`
 
 # methods
 
 ``` c
  // geodesic sphere
-geodesic icosahedron(int v);
-geodesic octahedron(int v);
-geodesic tetrahedron(int v);
+geodesicSphere icosahedronSphere(int v);
+geodesicSphere octahedronSphere(int v);
+geodesicSphere tetrahedronSphere(int v);
 
  // geodesic dome
-geodesic icosahedronDome(int v, float crop);
-geodesic octahedronDome(int v, float crop);
-geodesic tetrahedronDome(int v, float crop);
+geodesicDome icosahedronDome(int v, float crop);
+geodesicDome octahedronDome(int v, float crop);
+geodesicDome tetrahedronDome(int v, float crop);
 ```
 
 # usage
@@ -37,11 +34,29 @@ geodesic tetrahedronDome(int v, float crop);
 ``` c
  // make
 geodesic icosphere = icosahedron(3)  // 3v icosahedron
-geodesic octahedron = octahedron(1)  // regular octahedron
-geodesic dome = icosahedronDome(3, 5/9);  // 3v 5/9 dome
+geodesicDome dome = icosahedronDome(3, 5/9);  // 3v 5/9 dome
+// draw
+geodesicDrawTriangles(&icosphere);
 
+// make
+geomeshTriangles mesh = makeMeshTriangles(&icosphere, .75){
+// draw
+geodesicMeshDrawExtrudedTriangles(&mesh);
+
+// make
+geomeshNormals normals = makeMeshNormals(&icosphere);
+// draw
+geodesicMeshDrawVertexNormalLines(&normals);
+geodesicMeshDrawFaceNormalLines(&normals);
+```
+
+``` c
  // remember to delete
-deleteGeodesic(&dome);
+deleteGeodesic(&geodesic);
+deleteGeodesicDome(&dome);
+
+deleteMeshNormals(&normals);
+deleteMeshTriangles(&mesh);
 ```
 
 ![picture](https://raw.github.com/robbykraft/Geodesic/master/picture.png)

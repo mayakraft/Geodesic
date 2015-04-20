@@ -1,21 +1,124 @@
-#include <math.h>
-
 #include "platonic.h"
+
+#include <math.h>
+#include <stdlib.h>
 
 #define PHI        1.61803398874989484820458683436563811   /* (1+sqrt(5))/2  */
 #define M_2PI      6.28318530717958647693528676655900576
 #define SQRT_p_5   0.707106781186547524400844362104849     /* sqrt(.5)  */
 #define SQRT_1_p_5 1.224744871391589049098642037352946     /* sqrt(1.5)  */
 
+
+void _tetrahedron(flo_t **po, unsigned int *numPoints,
+                  unsigned short **li, unsigned int *numLines,
+                  unsigned short **fa, unsigned int *numFaces){
+    *numPoints = TETRAHEDRON_POINTS;
+    *numLines = TETRAHEDRON_LINES;
+    *numFaces = TETRAHEDRON_FACES;
+    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);    
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _tetrahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _tetrahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _tetrahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void _octahedron(flo_t **po, unsigned int *numPoints,
+                 unsigned short **li, unsigned int *numLines,
+                 unsigned short **fa, unsigned int *numFaces){
+    *numPoints = OCTAHEDRON_POINTS;
+    *numLines = OCTAHEDRON_LINES;
+    *numFaces = OCTAHEDRON_FACES;
+    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);    
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _octahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _octahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _octahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void _hexahedron(flo_t **po, unsigned int *numPoints,
+                 unsigned short **li, unsigned int *numLines,
+                 unsigned short **fa, unsigned int *numFaces){
+    *numPoints = HEXAHEDRON_POINTS;
+    *numLines = HEXAHEDRON_LINES;
+    *numFaces = HEXAHEDRON_FACES;
+    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);    
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _hexahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _hexahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _hexahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void _icosahedron(flo_t **po, unsigned int *numPoints,
+                  unsigned short **li, unsigned int *numLines,
+                  unsigned short **fa, unsigned int *numFaces){
+    *numPoints = ICOSAHEDRON_POINTS;
+    *numLines = ICOSAHEDRON_LINES;
+    *numFaces = ICOSAHEDRON_FACES;
+    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);    
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _icosahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _icosahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _icosahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+// void _dodecahedron(flo_t **po, unsigned int *numPoints,
+//                    unsigned short **li, unsigned int *numLines,
+//                    unsigned short **fa, unsigned int *numFaces){
+//     *numPoints = DODECAHEDRON_POINTS;
+//     *numLines = DODECAHEDRON_LINES;
+//     *numFaces = DODECAHEDRON_FACES;
+//     flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);    
+//     unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+//     unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+//     for(int i = 0; i < (*numPoints)*3; i++)
+//         points[i] = _dodecahedron_points[i];
+//     for(int i = 0; i < (*numLines)*2; i++)
+//         lines[i] = _dodecahedron_lines[i];
+//     for(int i = 0; i < (*numFaces)*3; i++)
+//         faces[i] = _dodecahedron_faces[i];
+// }
+
+
 //
 // the following funtions assemble a unit polyhedra by classical
 // point calculations involving square roots and the golden ratio
 //
+// really only useful if you need to regenerate geometry with
+// a higher floating point precision
+//
 // INCOMPLETE: the hexahedron, and the faces on the dodecahedron
 //
-void _tetrahedron(flo_t **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces){
+void _generate_tetrahedron(flo_t **po, unsigned int *numPoints,
+                           unsigned short **li, unsigned int *numLines,
+                           unsigned short **fa, unsigned int *numFaces){
     flo_t side = SQRT_p_5;
     flo_t f = SQRT_1_p_5;
     *numPoints = 4;
@@ -53,9 +156,9 @@ void _tetrahedron(flo_t **po, unsigned int *numPoints,
     *fa = faces;
 }
 
-void _octahedron(flo_t **po, unsigned int *numPoints,
-                 unsigned short **li, unsigned int *numLines,
-                 unsigned short **fa, unsigned int *numFaces){
+void _generate_octahedron(flo_t **po, unsigned int *numPoints,
+                          unsigned short **li, unsigned int *numLines,
+                          unsigned short **fa, unsigned int *numFaces){
     *numPoints = 6;
     *numLines = 12;
     *numFaces = 8;
@@ -93,9 +196,9 @@ void _octahedron(flo_t **po, unsigned int *numPoints,
     *fa = faces;
 }
 
-void _icosahedron(flo_t **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces){
+void _generate_icosahedron(flo_t **po, unsigned int *numPoints,
+                           unsigned short **li, unsigned int *numLines,
+                           unsigned short **fa, unsigned int *numFaces){
     flo_t f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
     *numPoints = 12;
     *numLines = 30;
@@ -184,9 +287,9 @@ void _icosahedron(flo_t **po, unsigned int *numPoints,
 }
 
 
-void _dodecahedron(flo_t **po, unsigned int *numPoints,
-                    unsigned short **li, unsigned int *numLines){
-                  // unsigned short **fa, unsigned int *numFaces){
+void _generate_dodecahedron(flo_t **po, unsigned int *numPoints,
+                            unsigned short **li, unsigned int *numLines){
+                         // unsigned short **fa, unsigned int *numFaces){
     flo_t SQRT3 = sqrt(3);
     *numPoints = 20;
     *numLines = 30;

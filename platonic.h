@@ -51,6 +51,7 @@ typedef float flo_t;
 #define DODECAHEDRON_LINES 30
 #define DODECAHEDRON_FACES 12
 
+
 const flo_t _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
 	-0.333333333333333, 0.816496580927726,  0.471404520791032,
 	-0.333333333333333, -0.816496580927726, 0.471404520791032,
@@ -128,19 +129,3 @@ const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	10, 6, 5, 
 	10, 5, 1,     // pair 1
 	10, 2, 6};
-
-//void tetrahedron();
-//void octahedron();
-//void icosahedron();
-
-void _tetrahedron(flo_t **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces);
-void _octahedron(flo_t **po, unsigned int *numPoints,
-                 unsigned short **li, unsigned int *numLines,
-                 unsigned short **fa, unsigned int *numFaces);
-void _icosahedron(flo_t **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces);
-void _dodecahedron(flo_t **po, unsigned int *numPoints,
-                    unsigned short **li, unsigned int *numLines);

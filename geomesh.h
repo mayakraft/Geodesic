@@ -12,9 +12,9 @@
 
 // geodesic
 
-void geodesicDrawTriangles(geodesic *g);
-void geodesicDrawLines(geodesic *g);
-void geodesicDrawPoints(geodesic *g);
+void geodesicDrawTriangles(geodesicSphere *g);
+void geodesicDrawLines(geodesicSphere *g);
+void geodesicDrawPoints(geodesicSphere *g);
 
 
 
@@ -51,13 +51,13 @@ void geodesicMeshDrawLineNormalLines(geomeshNormals *m);
 void geodesicMeshDrawFaceNormalLines(geomeshNormals *m);
 void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh);
 
-geomeshNormals makeMeshNormals(geodesic *g);
-geomeshTriangles makeMeshTriangles(geodesic *g, float scale);
-geomeshCropPlanes makeMeshCropPlanes(geodesic *g);
+geomeshNormals makeMeshNormals(geodesicSphere *g);
+geomeshTriangles makeMeshTriangles(geodesicSphere *g, float scale);
+geomeshCropPlanes makeMeshCropPlanes(geodesicSphere *g);
 
 void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m);
 
-void shrinkMeshFaces(geomeshTriangles *m, geodesic *g, float scale);
+void shrinkMeshFaces(geomeshTriangles *m, geodesicSphere *g, float scale);
 
 void deleteMeshNormals(geomeshNormals *m);
 void deleteMeshTriangles(geomeshTriangles *m);

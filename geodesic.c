@@ -1,5 +1,7 @@
-#include <math.h>
 #include "platonic.c"
+
+#include <math.h>
+#include <stdlib.h>
 
 #define X 0
 #define Y 1
@@ -8,10 +10,10 @@
 #include "geodesic.h"
 
 // SPHERE
-void _divide_geodesic_faces(geodesic *g, int v);
-void _remove_duplicate_points_lines(geodesic *g);
+void _divide_geodesic_faces(geodesicSphere *g, int v);
+void _remove_duplicate_points_lines(geodesicSphere *g);
 void _spherize_points(float_t *points, unsigned int numPoints);
-void _apply_geodesic_sphere_normals(geodesic *g);
+void _apply_geodesic_sphere_normals(geodesicSphere *g);
 
 // DOME
 void _make_meridians(geodesicDome *dome, int v);
@@ -30,24 +32,24 @@ void _crop_geodesic(geodesicDome *dome, unsigned short crop);
 //
 
 
-geodesic tetrahedron(int v){
-    geodesic g;
+geodesicSphere tetrahedronSphere(int v){
+    geodesicSphere g;
     _tetrahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-geodesic octahedron(int v){
-    geodesic g;
+geodesicSphere octahedronSphere(int v){
+    geodesicSphere g;
     _octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-geodesic icosahedron(int v){
-    geodesic g;
+geodesicSphere icosahedronSphere(int v){
+    geodesicSphere g;
     _icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
@@ -86,7 +88,7 @@ geodesicDome icosahedronDome(int v, float crop) {
     return dome;
 }
 
-void deleteGeodesic(geodesic *g){
+void deleteGeodesic(geodesicSphere *g){
     // be careful with this one:
     // an initially unallocated geodesic will still register
     // TRUE on the if()s and call free() and crash
@@ -109,7 +111,7 @@ void deleteGeodesicDome(geodesicDome *d){
     if(d->pointMeridians){  free(d->pointMeridians);  d->pointMeridians = NULL; }
 }
 
-void _apply_geodesic_sphere_normals(geodesic *g){
+void _apply_geodesic_sphere_normals(geodesicSphere *g){
     // shortcuts are made possible due to
     // - all points lying on the surface of a sphere
     // - centered at the origin
@@ -204,7 +206,7 @@ void _apply_geodesic_sphere_normals(geodesic *g){
 //      p/____\/c        p->a  i-row
 //                       p->b  i-row-1
 
-void _divide_geodesic_faces(geodesic *g, int v){
+void _divide_geodesic_faces(geodesicSphere *g, int v){
     if(v > 1){
         // calculate new points per face
         // V0: 1           +2 =
@@ -401,7 +403,7 @@ int _qsort_compare (const void * a, const void * b){
     return 0;
 }
 void _make_meridians(geodesicDome *d, int v){
-    geodesic *g = &(d->g);
+    geodesicSphere *g = &(d->g);
     float_t meridianFaceData[g->numFaces];
     float_t lowest;
     // sort faces by their lowest point (in the Y-axis)
@@ -517,7 +519,7 @@ void Geodesic::crop(float latitude){
 // for the algorithm to work on many objects, but requires more work:
 // for each set of joined faces duplicate points will be generated along their shared line
 
-void _remove_duplicate_points_lines(geodesic *g){
+void _remove_duplicate_points_lines(geodesicSphere *g){
     
     // make array of size numPoints which looks like this:
     // -1  -1  -1  -1   3  -1  -1  -1  -1  -1  5   5  -1  -1  -1

@@ -8,10 +8,11 @@
 #  include <GL/glut.h>
 #endif
 
+#include "geomesh.c"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "geomesh.c"
 
 #include "noise.c"
 
@@ -64,8 +65,10 @@ static GLfloat light_position2[] = { -5.0, 5.0, -5.0, 0.0 };
 static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
 static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 
-geodesic g;
+geodesicSphere g;
 geomeshTriangles m;
+
+float noiseRotateX, noiseRotateY;
 
 #define frand() ((double) rand() / (RAND_MAX+1.0))
 #define NUM_SOLIDS 100
@@ -80,28 +83,7 @@ void initRender(){
 		objctsType[i] = rand()%3;
 	}
 
-	// for(int i = 0; i < ICOSAHEDRON_FACES; i++){
-	// 	printf("(%.2f, %.2f, %.2f)\n",_icosahedron_points[i*3],_icosahedron_points[i*3+1],_icosahedron_points[i*3+2]);
-	// }
-	for(int i = 0; i < ICOSAHEDRON_FACES; i++){
-		printf("(%d %d %d)  (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f)\n",
-			_icosahedron_faces[i*3+0],
-			_icosahedron_faces[i*3+1],
-			_icosahedron_faces[i*3+2],
-
-			_icosahedron_points[_icosahedron_faces[i*3+0]*3+0],
-			_icosahedron_points[_icosahedron_faces[i*3+0]*3+1],
-			_icosahedron_points[_icosahedron_faces[i*3+0]*3+2],
-			_icosahedron_points[_icosahedron_faces[i*3+1]*3+0],
-			_icosahedron_points[_icosahedron_faces[i*3+1]*3+1],
-			_icosahedron_points[_icosahedron_faces[i*3+1]*3+2],
-			_icosahedron_points[_icosahedron_faces[i*3+2]*3+0],
-			_icosahedron_points[_icosahedron_faces[i*3+2]*3+1],
-			_icosahedron_points[_icosahedron_faces[i*3+2]*3+2]
-			);
-	}
-
-	g = icosahedron(3);
+	g = icosahedronSphere(3);
 	m = makeMeshTriangles(&g, .8);
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -110,12 +92,12 @@ void initRender(){
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat mat_shininess[] = { 5.0 };
-	GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
-	GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
-	GLfloat blue[] = {0.0, 0.0, 1.0, 1.0};
-	glClearColor (0.0, 0.0, 0.0, 0.0);
+	GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat mat_shininess[] = { 5.0f };
+	GLfloat red[] = {1.0f, 0.0f, 0.0f, 1.0f};
+	GLfloat green[] = {0.0f, 1.0f, 0.0f, 1.0f};
+	GLfloat blue[] = {0.0f, 0.0f, 1.0f, 1.0f};
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_specular);
 	// glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, red);
@@ -132,23 +114,17 @@ void initRender(){
 
 }
 
-
-// void init(){
-// 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-// 	glShadeModel(GL_FLAT);
-// }
-
 void reshape(int w, int h){
 	float a = (float)windowWidth / windowHeight;
 	glViewport(0,0,(GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if(PERSPECTIVE == 0 || PERSPECTIVE == 1)
-		glFrustum (-.1, .1, -.1/a, .1/a, .1, 100.0);
+		glFrustum (-.1f, .1f, -.1f/a, .1f/a, .1f, 100.0f);
 	else if (PERSPECTIVE == 2)
 		glOrtho(-20.0f, 20.0f, 
 				-20.0f/a, 20.0f/a, 
-				-100.0, 100.0);
+				-100.0f, 100.0f);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -170,6 +146,7 @@ void unitSquare(float x, float y, float width, float height){
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 }
+
 
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -194,27 +171,27 @@ void display(){
 		// perspective has been established
 		// draw stuff below
 
-		glPushMatrix();
-			glTranslatef(0.0f, 0.0f, -1.0f);
-			int XOffset = 0;
-			int ZOffset = 0;
-			if(PERSPECTIVE == 0){
-				XOffset = walkX;  // math.floor
-				ZOffset = walkY;
-			}
-			for(int i = -8; i <= 8; i++){
-				for(int j = -8; j <= 8; j++){
-					int b = abs(((i+j+XOffset+ZOffset)%2));
-					if(b) glColor3f(0.0, 0.0, 0.0);
-					else glColor3f(1.0, 1.0, 1.0);
-					unitSquare(i-XOffset, j-ZOffset, 1, 1);
-				}
-			}
-		glPopMatrix();
+		// glPushMatrix();
+		// 	glTranslatef(0.0f, 0.0f, -1.0f);
+		// 	int XOffset = 0;
+		// 	int ZOffset = 0;
+		// 	if(PERSPECTIVE == 0){
+		// 		XOffset = walkX;  // math.floor
+		// 		ZOffset = walkY;
+		// 	}
+		// 	for(int i = -8; i <= 8; i++){
+		// 		for(int j = -8; j <= 8; j++){
+		// 			int b = abs(((i+j+XOffset+ZOffset)%2));
+		// 			if(b) glColor3f(0.0, 0.0, 0.0);
+		// 			else glColor3f(1.0, 1.0, 1.0);
+		// 			unitSquare(i-XOffset, j-ZOffset, 1, 1);
+		// 		}
+		// 	}
+		// glPopMatrix();
 
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClearDepth(1.0);
+	// glClearColor(0.0, 0.0, 0.0, 0.0);
+	// glClearDepth(1.0);
 	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	float dist = 2;
 	static float step1, step2, step3, step4, step5, step6;
@@ -233,12 +210,12 @@ void display(){
 		// 			0.0f, 0.0f, 0.0f,
 		// 			0.0f, 1.0f, 0.0f);
 		glPushMatrix();
-			mouseTotalOffsetX = noise1(step1*.75+10)*360;
-			mouseTotalOffsetY = noise1(step6*.75)*360;
+			noiseRotateX = noise1(step1*.75+10)*360;
+			noiseRotateY = noise1(step6*.75)*360;
 
 			glTranslatef(0.0, 0.0, -3.0);
-   			glRotatef(mouseTotalOffsetY, -1, 0, 0);
-	    	glRotatef(mouseTotalOffsetX, 0, -1, 0);
+   			glRotatef(noiseRotateX, -1, 0, 0);
+	    	glRotatef(noiseRotateY, 0, -1, 0);
 	    	glPushMatrix();
 	    		static float lightRotate = 0.0f;
 	    		lightRotate += 1.0;
@@ -487,7 +464,7 @@ void keyboardUp(unsigned char key,int x,int y){
 			break;
 	}
 	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED))
-		glutIdleFunc(NULL);
+		glutIdleFunc(updateFirstPerson);
 }
 
 int main(int argc, char **argv){

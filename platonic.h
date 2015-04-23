@@ -102,11 +102,10 @@ const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACES*3] = {
 	1, 6, 2,
 	2, 6, 7,
 	2, 7, 3,
-	3, 7, 0,   // something up
-	3, 0, 1,
+	3, 7, 0,
+	4, 0, 7,
 	7, 6, 5,
-	7, 5, 4
-};
+	7, 5, 4 };
 const flo_t _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
 	0.447213595499958, -0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, 0.850650808352040,
@@ -244,5 +243,4 @@ const unsigned short _dodecahedron_triangle_faces[DODECAHEDRON_TRIANGLE_FACES * 
 
  	4, 7,  19,
 	19, 7, 10,
-	6, 10,7
-};
+	6, 10, 7 };

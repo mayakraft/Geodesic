@@ -90,7 +90,7 @@ void initRender(){
 		objcts[0+i*3] = frand()*30-15;
 		objcts[1+i*3] = frand()*100-50;
 		objcts[2+i*3] = frand()*30-15;
-		objctsType[i] = rand()%3;
+		objctsType[i] = rand()%5;
 	}
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -309,52 +309,24 @@ void display(){
 	    	glRotatef(noise1(step3)*360, 1, 0, 0);
 	    	glRotatef(noise1(step5)*360, 0, 0, 1);
 
-			// glEnableClientState(GL_VERTEX_ARRAY);
-		 //    glEnableClientState(GL_NORMAL_ARRAY);
-		 //    glVertexPointer(3, GL_FLOAT, 0, _dodecahedron_points);
-		 //    glNormalPointer(GL_FLOAT, 0, _dodecahedron_points);
-		 //    glDrawElements(GL_LINES, DODECAHEDRON_LINES*2, GL_UNSIGNED_SHORT, _dodecahedron_lines);
-		 //    glDisableClientState(GL_NORMAL_ARRAY);
-		 //    glDisableClientState(GL_VERTEX_ARRAY);
 
-			// glEnableClientState(GL_VERTEX_ARRAY);
-			// glEnableClientState(GL_NORMAL_ARRAY);
-			// glVertexPointer(3, GL_FLOAT, 0, _dodecahedron_points);
-			// glNormalPointer(GL_FLOAT, 0, _dodecahedron_points);
-			// glDrawElements(GL_TRIANGLES, 3*DODECAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _dodecahedron_triangle_faces);
-			// glDisableClientState(GL_NORMAL_ARRAY);
-			// glDisableClientState(GL_VERTEX_ARRAY);
+			glPushMatrix();
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_NORMAL_ARRAY);
+				// glColor3f(0.5f, 1.0f, 0.5f);
+				glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
+				glNormalPointer(GL_FLOAT, 0, g.pointNormals);
+				glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+				glDisableClientState(GL_NORMAL_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
+			glPopMatrix();
+	
+	geodesicDrawTriangles(&g);
 
-			glEnableClientState(GL_VERTEX_ARRAY);
-		    glEnableClientState(GL_NORMAL_ARRAY);
-		    glVertexPointer(3, GL_FLOAT, 0, _hexahedron_points);
-		    glNormalPointer(GL_FLOAT, 0, _hexahedron_points);
-		    glDrawElements(GL_LINES, HEXAHEDRON_LINES*2, GL_UNSIGNED_SHORT, _hexahedron_lines);
-		    glDisableClientState(GL_NORMAL_ARRAY);
-		    glDisableClientState(GL_VERTEX_ARRAY);
-
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glVertexPointer(3, GL_FLOAT, 0, _hexahedron_points);
-			glNormalPointer(GL_FLOAT, 0, _hexahedron_points);
-			glDrawElements(GL_TRIANGLES, 3*HEXAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _hexahedron_triangle_faces);
-			glDisableClientState(GL_NORMAL_ARRAY);
-			glDisableClientState(GL_VERTEX_ARRAY);
-
-
+	glShadeModel(GL_FLAT);
 	// geodesicDrawTriangles(&g);
-			// geodesicMeshDrawExtrudedTriangles(&m);
-
-			// glPushMatrix();
-				// glEnableClientState(GL_VERTEX_ARRAY);
-				// glEnableClientState(GL_NORMAL_ARRAY);
-				// // glColor3f(0.5f, 1.0f, 0.5f);
-				// glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
-				// glNormalPointer(GL_FLOAT, 0, g.pointNormals);
-				// glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
-				// glDisableClientState(GL_NORMAL_ARRAY);
-				// glDisableClientState(GL_VERTEX_ARRAY);
-			// glPopMatrix();
+			geodesicMeshDrawExtrudedTriangles(&m);
+	glShadeModel (GL_SMOOTH);
 
 		glPopMatrix();
 	glPopMatrix();
@@ -381,18 +353,18 @@ void display(){
 	static int count = 0;
 	count++;
 
-	if(count % 10 == 0){
-		tween += deltaTween;
-		if(tween > 1.0){
-			tween = 1.0;
-			deltaTween = -DELTA_TWEEN;
-		}
-		else if(tween < 0.0){
-			tween = 0.0;
-			deltaTween = DELTA_TWEEN;
-		}
-		updateTween(&g, tween);
-	}
+	// if(count % 10 == 0){
+	// 	tween += deltaTween;
+	// 	if(tween > 1.0){
+	// 		tween = 1.0;
+	// 		deltaTween = -DELTA_TWEEN;
+	// 	}
+	// 	else if(tween < 0.0){
+	// 		tween = 0.0;
+	// 		deltaTween = DELTA_TWEEN;
+	// 	}
+	// 	updateTween(&g, tween);
+	// }
 
 
 }

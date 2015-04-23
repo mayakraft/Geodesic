@@ -62,7 +62,8 @@ void _hexahedron(flo_t **po, unsigned int *numPoints,
         points[i] = _hexahedron_points[i];
     for(int i = 0; i < (*numLines)*2; i++)
         lines[i] = _hexahedron_lines[i];
-    for(int i = 0; i < (*numFaces)*3; i++)
+    // hexahedron faces are squares, not triangles
+    for(int i = 0; i < (*numFaces)*4; i++)
         faces[i] = _hexahedron_faces[i];
     *po = points;
     *li = lines;

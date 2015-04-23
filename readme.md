@@ -2,6 +2,10 @@
 
 R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
+# try it out
+
+`make` then `./world`
+
 # files
 
 * `platonic.h/.c` static platonic solids geometry
@@ -33,7 +37,7 @@ geodesicDome tetrahedronDome(int v, float crop);
 
 ``` c
  // make
-geodesic icosphere = icosahedron(3)  // 3v icosahedron
+geodesicSphere icosphere = icosahedron(3)  // 3v icosahedron
 geodesicDome dome = icosahedronDome(3, 5/9);  // 3v 5/9 dome
 // draw
 geodesicDrawTriangles(&icosphere);
@@ -52,7 +56,7 @@ geodesicMeshDrawFaceNormalLines(&normals);
 
 ``` c
  // remember to delete
-deleteGeodesic(&geodesic);
+deleteGeodesicSphere(&geodesic);
 deleteGeodesicDome(&dome);
 
 deleteMeshNormals(&normals);

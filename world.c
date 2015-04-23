@@ -45,8 +45,12 @@ static int mouseDragStartY = 0;
 static int mouseTotalOffsetStartX = 0;
 static int mouseTotalOffsetStartY = 0;
 
+static unsigned char PAUSE = 0;
+
 
 #define STEP .10f  // WALKING SPEED. @60fps, walk speed = 6 units/second
+
+#define DELTA_TWEEN .05
 
 // PERSPECTIVES
 // FIRST PERSON PERSPECTIVE USING KEYBOARD (WASD), MOUSE (LOOK)
@@ -76,15 +80,18 @@ float objcts[3*NUM_SOLIDS];
 unsigned short objctsType[NUM_SOLIDS];
 
 void initRender(){
+
+	g = icosahedronSphere(4);
+	m = makeMeshTriangles(&g, .8);
+
+	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
+
 	for(int i = 0; i < NUM_SOLIDS; i++){
 		objcts[0+i*3] = frand()*30-15;
 		objcts[1+i*3] = frand()*100-50;
 		objcts[2+i*3] = frand()*30-15;
 		objctsType[i] = rand()%3;
 	}
-
-	g = icosahedronSphere(3);
-	m = makeMeshTriangles(&g, .8);
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glDepthMask(GL_TRUE);
@@ -114,7 +121,16 @@ void initRender(){
 
 }
 
+void updateTween(geodesicSphere *g, float tween){
+
+   for(int i = 0; i < g->numPoints * 3; i++)
+   		g->pointsTween[i] = g->pointsNotSpherized[i] + g->pointVectors[i] * tween;
+
+}
+
 void reshape(int w, int h){
+	windowWidth = w;
+	windowHeight = h;
 	float a = (float)windowWidth / windowHeight;
 	glViewport(0,0,(GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
@@ -264,10 +280,20 @@ void display(){
 				glNormalPointer(GL_FLOAT, 0, _octahedron_points);
 				glDrawElements(GL_TRIANGLES, 3*OCTAHEDRON_FACES, GL_UNSIGNED_SHORT, _octahedron_faces);
 			}
-			if(objctsType[i] == 2){
+			else if(objctsType[i] == 2){
 				glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
 				glNormalPointer(GL_FLOAT, 0, _icosahedron_points);
 				glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+			}
+			else if(objctsType[i] == 3){
+				glVertexPointer(3, GL_FLOAT, 0, _hexahedron_points);
+				glNormalPointer(GL_FLOAT, 0, _hexahedron_points);
+				glDrawElements(GL_TRIANGLES, 3*HEXAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _hexahedron_triangle_faces);
+			}
+			else if(objctsType[i] == 4){
+				glVertexPointer(3, GL_FLOAT, 0, _dodecahedron_points);
+				glNormalPointer(GL_FLOAT, 0, _dodecahedron_points);
+				glDrawElements(GL_TRIANGLES, 3*DODECAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _dodecahedron_triangle_faces);
 			}
 			glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
@@ -283,7 +309,41 @@ void display(){
 	    	glRotatef(noise1(step3)*360, 1, 0, 0);
 	    	glRotatef(noise1(step5)*360, 0, 0, 1);
 
-			geodesicMeshDrawExtrudedTriangles(&m);
+			// glEnableClientState(GL_VERTEX_ARRAY);
+		 //    glEnableClientState(GL_NORMAL_ARRAY);
+		 //    glVertexPointer(3, GL_FLOAT, 0, _dodecahedron_points);
+		 //    glNormalPointer(GL_FLOAT, 0, _dodecahedron_points);
+		 //    glDrawElements(GL_LINES, DODECAHEDRON_LINES*2, GL_UNSIGNED_SHORT, _dodecahedron_lines);
+		 //    glDisableClientState(GL_NORMAL_ARRAY);
+		 //    glDisableClientState(GL_VERTEX_ARRAY);
+
+			// glEnableClientState(GL_VERTEX_ARRAY);
+			// glEnableClientState(GL_NORMAL_ARRAY);
+			// glVertexPointer(3, GL_FLOAT, 0, _dodecahedron_points);
+			// glNormalPointer(GL_FLOAT, 0, _dodecahedron_points);
+			// glDrawElements(GL_TRIANGLES, 3*DODECAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _dodecahedron_triangle_faces);
+			// glDisableClientState(GL_NORMAL_ARRAY);
+			// glDisableClientState(GL_VERTEX_ARRAY);
+
+			glEnableClientState(GL_VERTEX_ARRAY);
+		    glEnableClientState(GL_NORMAL_ARRAY);
+		    glVertexPointer(3, GL_FLOAT, 0, _hexahedron_points);
+		    glNormalPointer(GL_FLOAT, 0, _hexahedron_points);
+		    glDrawElements(GL_LINES, HEXAHEDRON_LINES*2, GL_UNSIGNED_SHORT, _hexahedron_lines);
+		    glDisableClientState(GL_NORMAL_ARRAY);
+		    glDisableClientState(GL_VERTEX_ARRAY);
+
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glVertexPointer(3, GL_FLOAT, 0, _hexahedron_points);
+			glNormalPointer(GL_FLOAT, 0, _hexahedron_points);
+			glDrawElements(GL_TRIANGLES, 3*HEXAHEDRON_TRIANGLE_FACES, GL_UNSIGNED_SHORT, _hexahedron_triangle_faces);
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+
+
+	// geodesicDrawTriangles(&g);
+			// geodesicMeshDrawExtrudedTriangles(&m);
 
 			// glPushMatrix();
 				// glEnableClientState(GL_VERTEX_ARRAY);
@@ -313,6 +373,27 @@ void display(){
 		if(objcts[i*3+1] < -50.0)
 			objcts[i*3+1] += 100.0;
 	}
+
+
+	static float tween = 1.0f;
+	static float deltaTween = -DELTA_TWEEN;
+
+	static int count = 0;
+	count++;
+
+	if(count % 10 == 0){
+		tween += deltaTween;
+		if(tween > 1.0){
+			tween = 1.0;
+			deltaTween = -DELTA_TWEEN;
+		}
+		else if(tween < 0.0){
+			tween = 0.0;
+			deltaTween = DELTA_TWEEN;
+		}
+		updateTween(&g, tween);
+	}
+
 
 }
 
@@ -399,42 +480,45 @@ void mouseMotion(int x, int y){
 }
 
 void keyboardDown(unsigned char key, int x, int y){
-	switch (key){
-		case 27:  // ESCAPE key
-			exit (0);
-			break;
-
-		// W A S D
-		case 119:  // W
-			UP_PRESSED = 1;
-			break;
-		case 115:  // S
-			DOWN_PRESSED = 1;
-			break;
-		case 97:   // A
-			RIGHT_PRESSED = 1;
-			break;
-		case 100:  // D
-			LEFT_PRESSED = 1;
-			break;
-		case '1':
-			PERSPECTIVE = 0;
-			// mouseTotalOffsetX = mouseTotalOffsetY = 0;
-			reshape(windowWidth, windowHeight);
-			glutPostRedisplay();
-			break;
-		case '2':
-			PERSPECTIVE = 1;
-			// mouseTotalOffsetX = mouseTotalOffsetY = 0;
-			reshape(windowWidth, windowHeight);
-			glutPostRedisplay();
-			break;
-		case '3':
-			PERSPECTIVE = 2;
-			mouseTotalOffsetX = mouseTotalOffsetY = 0;
-			reshape(windowWidth, windowHeight);
-			glutPostRedisplay();
-			break;
+	if(key == 27)  // ESCAPE key
+		exit (0);
+	// W A S D
+	else if(key == 119) // W
+		UP_PRESSED = 1;
+	else if(key == 115) // S
+		DOWN_PRESSED = 1;
+	else if(key == 97) // A
+		RIGHT_PRESSED = 1;
+	else if(key == 100)  // D
+		LEFT_PRESSED = 1;
+	else if(key == 'p'){  // SPACE BAR
+		if(PAUSE){
+			glutIdleFunc(NULL);;;//glutIdleFunc(updateFirstPerson);
+			PAUSE = 0;
+		}
+		else{
+			glutIdleFunc(NULL);
+			PAUSE = 1;
+		}
+	}
+	else if(key == '1'){
+		PERSPECTIVE = 0;
+		// mouseTotalOffsetX = mouseTotalOffsetY = 0;
+		reshape(windowWidth, windowHeight);
+		glutPostRedisplay();
+	}
+	else if(key == '2'){
+		PERSPECTIVE = 1;
+		// mouseTotalOffsetX = mouseTotalOffsetY = 0;
+		reshape(windowWidth, windowHeight);
+		glutPostRedisplay();
+	}
+	else if(key == '3'){
+		PERSPECTIVE = 2;
+		mouseTotalOffsetX = mouseTotalOffsetY = 0;
+		reshape(windowWidth, windowHeight);
+		glutPostRedisplay();
+	
 	}
 	// anything that affects the screen and requires a redisplay
 	// put it in this if statement
@@ -480,6 +564,7 @@ int main(int argc, char **argv){
 	glutMotionFunc(mouseMotion);
 	glutKeyboardUpFunc(keyboardUp); 
 	glutKeyboardFunc(keyboardDown);
+	glutIdleFunc(updateFirstPerson);
 	glutPostRedisplay();
 	glutMainLoop();
 	return 0;

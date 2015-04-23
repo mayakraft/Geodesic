@@ -11,6 +11,7 @@
 typedef struct geodesicSphere geodesicSphere;
 typedef struct geodesicDome geodesicDome;
 
+
 geodesicSphere icosahedronSphere(int v);
 geodesicSphere octahedronSphere(int v);
 geodesicSphere tetrahedronSphere(int v);
@@ -21,7 +22,7 @@ geodesicDome octahedronDome(int v, float crop);
 geodesicDome icosahedronDome(int v, float crop);
 
 
-void deleteGeodesic(geodesicSphere *g);
+void deleteGeodesicSphere(geodesicSphere *g);
 void deleteGeodesicDome(geodesicDome *d);
 
 // flo_t type is cast to float, double, or long double
@@ -38,7 +39,14 @@ struct geodesicSphere {
 
     flo_t           *pointNormals;  // count: numPoints * 3
     flo_t           *lineNormals;   // count: numLines * 3
-    flo_t           *faceNormals;   // count: numFaces * 3    
+    flo_t           *faceNormals;   // count: numFaces * 3  
+
+    unsigned int frequency;  
+
+    // legacy data. get creative
+    flo_t           *pointsNotSpherized;
+    flo_t           *pointsTween;
+    flo_t           *pointVectors;  // basically point normals, but scaled to the distance between original and point on the sphere
 };
 
 struct geodesicDome {

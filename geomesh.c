@@ -1,15 +1,15 @@
 #include "geodesic.c"
 // #import <OpenGLES/ES1/gl.h>
 
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-#  include <GLUT/glut.h>
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#  include <GL/glut.h>
-#endif
+//#ifdef __APPLE__
+//#  include <OpenGL/gl.h>
+//#  include <OpenGL/glu.h>
+//#  include <GLUT/glut.h>
+//#else
+//#  include <GL/gl.h>
+//#  include <GL/glu.h>
+//#  include <GL/glut.h>
+//#endif
 
 
 #include "geomesh.h"
@@ -20,7 +20,7 @@ void geodesicDrawTriangles(geodesicSphere *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     
-    glVertexPointer(3, GL_FLOAT, 0, g->points);
+    glVertexPointer(3, GL_FLOAT, 0, g->pointsTween);
     glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawElements(GL_TRIANGLES, g->numFaces*3, GL_UNSIGNED_SHORT, g->faces);
     
@@ -101,6 +101,11 @@ void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glPopMatrix();
+}
+
+void updateTweenPoints(geodesicSphere *g){
+    flo_t *inbetweenPoints = malloc(sizeof(flo_t)*g->numPoints*3);
+
 }
 
 geomeshNormals makeMeshNormals(geodesicSphere *g){

@@ -2,6 +2,8 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define X 0
 #define Y 1
@@ -34,6 +36,7 @@ void _crop_geodesic(geodesicDome *dome, unsigned short crop);
 
 geodesicSphere tetrahedronSphere(int v){
     geodesicSphere g;
+    g.frequency = v;
     _tetrahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
@@ -42,6 +45,7 @@ geodesicSphere tetrahedronSphere(int v){
 }
 geodesicSphere octahedronSphere(int v){
     geodesicSphere g;
+    g.frequency = v;
     _octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
@@ -50,15 +54,29 @@ geodesicSphere octahedronSphere(int v){
 }
 geodesicSphere icosahedronSphere(int v){
     geodesicSphere g;
+    g.frequency = v;
     _icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
+
+    g.pointsNotSpherized = malloc(sizeof(flo_t) * g.numPoints * 3);
+    memcpy(g.pointsNotSpherized, g.points, sizeof(flo_t) * g.numPoints * 3);
+
     _spherize_points(g.points, g.numPoints);
+
+    g.pointVectors = malloc(sizeof(flo_t) * g.numPoints * 3);
+    for(int i = 0; i < g.numPoints * 3; i++)
+        g.pointVectors[i] = g.points[i] - g.pointsNotSpherized[i];
+
+    g.pointsTween = malloc(sizeof(flo_t) * g.numPoints * 3);
+    memcpy(g.pointsTween, g.points, sizeof(flo_t) * g.numPoints * 3);
+
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
 
 geodesicDome tetrahedronDome(int v, float crop) {
     geodesicDome dome;
+    dome.g.frequency = v;
     _tetrahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     // _make_meridians(&dome, v); // does not work with tetrahedron, I think
@@ -69,6 +87,7 @@ geodesicDome tetrahedronDome(int v, float crop) {
 }
 geodesicDome octahedronDome(int v, float crop) {
     geodesicDome dome;
+    dome.g.frequency = v;
     _octahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
@@ -79,6 +98,7 @@ geodesicDome octahedronDome(int v, float crop) {
 }
 geodesicDome icosahedronDome(int v, float crop) {
     geodesicDome dome;
+    dome.g.frequency = v;
     _icosahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
@@ -88,10 +108,11 @@ geodesicDome icosahedronDome(int v, float crop) {
     return dome;
 }
 
-void deleteGeodesic(geodesicSphere *g){
+void deleteGeodesicSphere(geodesicSphere *g){
     // be careful with this one:
     // an initially unallocated geodesic will still register
     // TRUE on the if()s and call free() and crash
+    g->frequency = 0;
     g->numPoints = 0;
     g->numLines = 0;
     g->numFaces = 0;
@@ -105,7 +126,7 @@ void deleteGeodesic(geodesicSphere *g){
 
 void deleteGeodesicDome(geodesicDome *d){
     // same. be careful with this one
-    deleteGeodesic(&(d->g));
+    deleteGeodesicSphere(&(d->g));
     if(d->faceAltitudes){   free(d->faceAltitudes);   d->faceAltitudes = NULL;  }
     if(d->faceMeridians){   free(d->faceMeridians);   d->faceMeridians = NULL;  }
     if(d->pointMeridians){  free(d->pointMeridians);  d->pointMeridians = NULL; }
@@ -206,6 +227,7 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g){
 //      p/____\/c        p->a  i-row
 //                       p->b  i-row-1
 
+// fills data into geodesic.points, and geodesic.pointsNotSpherized
 void _divide_geodesic_faces(geodesicSphere *g, int v){
     if(v > 1){
         // calculate new points per face
@@ -523,7 +545,7 @@ void _remove_duplicate_points_lines(geodesicSphere *g){
     
     // make array of size numPoints which looks like this:
     // -1  -1  -1  -1   3  -1  -1  -1  -1  -1  5   5  -1  -1  -1
-    // mostly -1s, except at duplicate points, store the index of the first instance of duplication
+    // mostly -1s, except at duplicate points, store the number of the index of the first instance of duplication
     int duplicateIndexes[g->numPoints];
     for(int i = 0; i < g->numPoints; i++)
         duplicateIndexes[i] = -1;

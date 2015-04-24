@@ -31,6 +31,12 @@ tween makeTween(flo_t *dataNaught, flo_t *dataVector, unsigned int count){
 	// }
 }
 
+void deleteTween(tween *t){
+	free(t->dataVector);
+	free(t->dataNaught);
+	free(t->data);
+}
+
 // frame: tween progress, traditionally 0.0 - 1.0
 void updateTween(tween *t, float frame){
 	for(int i = 0; i < t->count; i++){

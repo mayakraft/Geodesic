@@ -73,6 +73,7 @@ static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 geodesicSphere g;
 geomeshTriangles m;
 tween t;
+tween ext;
 
 float noiseRotateX, noiseRotateY;
 
@@ -86,6 +87,9 @@ void initRender(){
 	g = icosahedronSphere(4);
 	m = makeMeshTriangles(&g, .8);
 	t = makeTween(g.pointsNotSpherized, g.pointsDeltaSpherized, g.numPoints*3);
+	// ext = makeTween(m.glTriangles, )
+ //    unsigned int    numTriangles;
+ //    float           *;
 
 	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
 
@@ -318,7 +322,11 @@ void display(){
 			// glPopMatrix();
 
 
+
+
 	glShadeModel(GL_FLAT);
+
+
 
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -376,6 +384,10 @@ void display(){
 		else if(tween < 0.0){
 			tween = 0.0;
 			deltaTween = 0;
+			deleteGeodesicSphere(&g);
+			g = icosahedronSphere(  ((int)pow(rand()%4+1,1.25))+ 1  );
+			deleteTween(&t);
+			t = makeTween(g.pointsNotSpherized, g.pointsDeltaSpherized, g.numPoints*3);
 		}
 		updateTween(&t, tween);
 	}

@@ -43,10 +43,9 @@ struct geodesicSphere {
 
     unsigned int frequency;  
 
-    // legacy data. get creative
+    // legacy data. get creative!
     flo_t           *pointsNotSpherized;
-    flo_t           *pointsTween;
-    flo_t           *pointVectors;  // basically point normals, but scaled to the distance between original and point on the sphere
+    flo_t           *pointsDeltaSpherized;  // difference between spherized point and original
 };
 
 struct geodesicDome {

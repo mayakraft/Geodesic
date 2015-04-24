@@ -21,6 +21,8 @@ R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
 # methods
 
+### undergoing lots of development right now. features being added, functions changing, this will be updated in the end
+
 ``` c
  // geodesic sphere
 geodesicSphere icosahedronSphere(int v);

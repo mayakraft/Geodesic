@@ -20,7 +20,7 @@ void geodesicDrawTriangles(geodesicSphere *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     
-    glVertexPointer(3, GL_FLOAT, 0, g->pointsTween);
+    glVertexPointer(3, GL_FLOAT, 0, g->points);
     glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawElements(GL_TRIANGLES, g->numFaces*3, GL_UNSIGNED_SHORT, g->faces);
     
@@ -101,11 +101,6 @@ void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glPopMatrix();
-}
-
-void updateTweenPoints(geodesicSphere *g){
-    flo_t *inbetweenPoints = malloc(sizeof(flo_t)*g->numPoints*3);
-
 }
 
 geomeshNormals makeMeshNormals(geodesicSphere *g){
@@ -203,6 +198,8 @@ geomeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
     geomeshTriangles mesh;
     mesh.shrink = shrink;
     mesh.glTriangles = malloc(sizeof(GLfloat)*g->numFaces*3*3);
+    // legacy memory
+        mesh.pointReferences = malloc(sizeof(GLfloat)*g->numFaces*3);
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
         mesh.glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + X ];
@@ -216,6 +213,10 @@ geomeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
         mesh.glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + X ];
         mesh.glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + Y ];
         mesh.glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
+        // legacy
+            mesh.pointReferences[i*3 + 0] = g->faces[0+i*3];
+            mesh.pointReferences[i*3 + 1] = g->faces[1+i*3];
+            mesh.pointReferences[i*3 + 2] = g->faces[2+i*3];
     }
     extrudeTriangles(&mesh, g, (1/shrink - 1));
     

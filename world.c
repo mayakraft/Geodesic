@@ -15,6 +15,7 @@
 #include <math.h>
 
 #include "noise.c"
+#include "tween.c"
 
 
 // CHOOSE YOUR OWN PERSPECTIVE
@@ -71,6 +72,7 @@ static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 
 geodesicSphere g;
 geomeshTriangles m;
+tween t;
 
 float noiseRotateX, noiseRotateY;
 
@@ -83,6 +85,7 @@ void initRender(){
 
 	g = icosahedronSphere(4);
 	m = makeMeshTriangles(&g, .8);
+	t = makeTween(g.pointsNotSpherized, g.pointsDeltaSpherized, g.numPoints*3);
 
 	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
 
@@ -118,13 +121,6 @@ void initRender(){
 	glEnable(GL_CULL_FACE);
 	// glShadeModel(GL_FLAT);
 	glShadeModel (GL_SMOOTH);
-
-}
-
-void updateTween(geodesicSphere *g, float tween){
-
-   for(int i = 0; i < g->numPoints * 3; i++)
-   		g->pointsTween[i] = g->pointsNotSpherized[i] + g->pointVectors[i] * tween;
 
 }
 
@@ -302,7 +298,7 @@ void display(){
 
 	glDisable(GL_LIGHTING);
 	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-	geodesicDrawTriangles(&g);
+	// geodesicDrawTriangles(&g);
 	glEnable(GL_LIGHTING);
 
 	    	glRotatef(noise1(step1)*360, 0, 1, 0);
@@ -310,22 +306,36 @@ void display(){
 	    	glRotatef(noise1(step5)*360, 0, 0, 1);
 
 
-			glPushMatrix();
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glEnableClientState(GL_NORMAL_ARRAY);
-				// glColor3f(0.5f, 1.0f, 0.5f);
-				glVertexPointer(3, GL_FLOAT, 0, _icosahedron_points);
-				glNormalPointer(GL_FLOAT, 0, g.pointNormals);
-				glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
-			glPopMatrix();
-	
-	geodesicDrawTriangles(&g);
+			// glPushMatrix();
+			// 	glEnableClientState(GL_VERTEX_ARRAY);
+			// 	glEnableClientState(GL_NORMAL_ARRAY);
+			// 	// glColor3f(0.5f, 1.0f, 0.5f);
+			// 	glVertexPointer(3, GL_FLOAT, 0, t.data);
+			// 	glNormalPointer(GL_FLOAT, 0, g.pointNormals);
+			// 	glDrawElements(GL_TRIANGLES, 3*ICOSAHEDRON_FACES, GL_UNSIGNED_SHORT, _icosahedron_faces);
+			// 	glDisableClientState(GL_NORMAL_ARRAY);
+			// 	glDisableClientState(GL_VERTEX_ARRAY);
+			// glPopMatrix();
+
+
+	glShadeModel(GL_FLAT);
+
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    
+    glVertexPointer(3, GL_FLOAT, 0, t.data);
+    glNormalPointer(GL_FLOAT, 0, g.pointNormals);
+    glDrawElements(GL_TRIANGLES, g.numFaces*3, GL_UNSIGNED_SHORT, g.faces);
+    
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+	// geodesicDrawTriangles(&g);
 
 	glShadeModel(GL_FLAT);
 	// geodesicDrawTriangles(&g);
-			geodesicMeshDrawExtrudedTriangles(&m);
+			// geodesicMeshDrawExtrudedTriangles(&m);
 	glShadeModel (GL_SMOOTH);
 
 		glPopMatrix();
@@ -347,29 +357,31 @@ void display(){
 	}
 
 
-	static float tween = 1.0f;
-	static float deltaTween = -DELTA_TWEEN;
+	static float tween = 0.0f;
+	static float deltaTween = 0.0;
 
 	static int count = 0;
 	count++;
 
-	// if(count % 10 == 0){
-	// 	tween += deltaTween;
-	// 	if(tween > 1.0){
-	// 		tween = 1.0;
-	// 		deltaTween = -DELTA_TWEEN;
-	// 	}
-	// 	else if(tween < 0.0){
-	// 		tween = 0.0;
-	// 		deltaTween = DELTA_TWEEN;
-	// 	}
-	// 	updateTween(&g, tween);
-	// }
-
-
+	if(count % 120 == 0){
+		if(tween == 1.0) deltaTween = -DELTA_TWEEN;
+		else if(tween == 0.0) deltaTween = DELTA_TWEEN;
+	}
+	if(deltaTween != 0.0){
+		tween += deltaTween;
+		if(tween > 1.0){
+			tween = 1.0;
+			deltaTween = 0;
+		}
+		else if(tween < 0.0){
+			tween = 0.0;
+			deltaTween = 0;
+		}
+		updateTween(&t, tween);
+	}
 }
 
-// process input devices if in polar perspective mode
+// process input devices if in orthographic
 void updateOrthographic(){
 	if(UP_PRESSED)
 		panY -= STEP;
@@ -489,8 +501,7 @@ void keyboardDown(unsigned char key, int x, int y){
 		PERSPECTIVE = 2;
 		mouseTotalOffsetX = mouseTotalOffsetY = 0;
 		reshape(windowWidth, windowHeight);
-		glutPostRedisplay();
-	
+		glutPostRedisplay();	
 	}
 	// anything that affects the screen and requires a redisplay
 	// put it in this if statement

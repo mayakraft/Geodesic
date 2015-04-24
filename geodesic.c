@@ -63,12 +63,9 @@ geodesicSphere icosahedronSphere(int v){
 
     _spherize_points(g.points, g.numPoints);
 
-    g.pointVectors = malloc(sizeof(flo_t) * g.numPoints * 3);
+    g.pointsDeltaSpherized = malloc(sizeof(flo_t) * g.numPoints * 3);
     for(int i = 0; i < g.numPoints * 3; i++)
-        g.pointVectors[i] = g.points[i] - g.pointsNotSpherized[i];
-
-    g.pointsTween = malloc(sizeof(flo_t) * g.numPoints * 3);
-    memcpy(g.pointsTween, g.points, sizeof(flo_t) * g.numPoints * 3);
+        g.pointsDeltaSpherized[i] = g.points[i] - g.pointsNotSpherized[i];
 
     _apply_geodesic_sphere_normals(&g);
     return g;

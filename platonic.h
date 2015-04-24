@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////
 //                        PLATONIC SOLIDS                         //
-//                    the 3 made of triangles                     //
-//              centered at origin       radius = 1               //
+//           centered at origin          radius = 1               //
 //                                                                //
 //         TETRA               OCTA              ICOSA            //
 //             one point aligned along the +X axis                //
 //                                                                //
 //                   HEXA                DODECA                   //
 //          one face normal aligned along the +X axis             //
+//       or, aligned as duals to the octa / icosahedron           //
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 //                                                                //

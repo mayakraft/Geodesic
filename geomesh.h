@@ -37,6 +37,9 @@ struct geomeshTriangles{
     float           *glTriangleNormals;
 
     float           shrink;  // shrink face
+
+    // legacy data, get creative!
+    unsigned short *pointReferences;  // length of glTriangles / 3 (not storing X,Y,Z), each pointing to original indices
 };
 
 typedef struct geomeshCropPlanes geomeshCropPlanes;

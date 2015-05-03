@@ -8,9 +8,9 @@ R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
 # files
 
-* `platonic.h/.c` static platonic solids geometry
-* `geodesic.h/.c` process a platonic solid into a geodesic dome or sphere
-* `geomesh.h/.c`  make an OpenGL ES mesh of a geodesic object
+* `platonic.h + .c` static platonic solids geometry
+* `geodesic.h + .c` process a platonic solid into a geodesic dome or sphere
+* `OpenGL/mesh.h + .c`  make an OpenGL ES mesh of a geodesic object
 
 # data
 

@@ -8,7 +8,7 @@
 #  include <GL/glut.h>
 #endif
 
-#include "geomesh.c"
+#include "OpenGL/mesh.c"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,7 +71,7 @@ static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
 static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 
 geodesicSphere g;
-geomeshTriangles m;
+geodesicMeshTriangles m;
 tween t;
 tween ext;
 
@@ -386,6 +386,14 @@ void display(){
 			deltaTween = 0;
 			deleteGeodesicSphere(&g);
 			g = icosahedronSphere(  ((int)pow(rand()%4+1,1.25))+ 1  );
+			for(int i = 0; i < g.numPoints; i++){
+				if(g.parentFace[i] >= 0){
+					// printf("%d (%d) %f\n", i, g.parentFace[i], g.faceNormals[g.parentFace[i]]);
+					g.pointNormals[i*3+0] = _dodecahedron_points[g.parentFace[i]*3+0];
+					g.pointNormals[i*3+1] = _dodecahedron_points[g.parentFace[i]*3+1];
+					g.pointNormals[i*3+2] = _dodecahedron_points[g.parentFace[i]*3+2];
+				}
+			}
 			deleteTween(&t);
 			t = makeTween(g.pointsNotSpherized, g.pointsDeltaSpherized, g.numPoints*3);
 		}

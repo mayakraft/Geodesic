@@ -8,6 +8,13 @@
 #ifndef __geodesic__geometry__
 #define __geodesic__geometry__
 
+// geometry data can be as precise as you allow
+// make sure Platonic solid seeds are as precise
+typedef float flo_t;
+// typedef double flo_t;
+// typedef long double flo_t;
+
+
 typedef struct geodesicSphere geodesicSphere;
 typedef struct geodesicDome geodesicDome;
 
@@ -46,6 +53,7 @@ struct geodesicSphere {
     // legacy data. get creative!
     flo_t           *pointsNotSpherized;
     flo_t           *pointsDeltaSpherized;  // difference between spherized point and original
+    unsigned short  *parentFace; // of the original platonic solid faces, from which did the point originate? size of numPoints
 };
 
 struct geodesicDome {

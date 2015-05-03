@@ -1,4 +1,4 @@
-#include "geodesic.c"
+#include "../geodesic.c"
 // #import <OpenGLES/ES1/gl.h>
 
 //#ifdef __APPLE__
@@ -12,18 +12,41 @@
 //#endif
 
 
-#include "geomesh.h"
+#include "mesh.h"
+
+// generic draw functions
+
+void drawTriangles(GLfloat *vertices, GLfloat *normals, unsigned short *faces, unsigned int numFaces){
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glDrawElements(GL_TRIANGLES, numFaces*3, GL_UNSIGNED_SHORT, faces);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void drawUniqueTriangles(GLfloat *vertices, GLfloat *normals, unsigned int numTriangles){
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glDrawArrays(GL_TRIANGLES, 0, numTriangles*3);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
 
 // geodesic
 
 void geodesicDrawTriangles(geodesicSphere *g){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
-    
+
     glVertexPointer(3, GL_FLOAT, 0, g->points);
     glNormalPointer(GL_FLOAT, 0, g->pointNormals);
     glDrawElements(GL_TRIANGLES, g->numFaces*3, GL_UNSIGNED_SHORT, g->faces);
-    
+
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
@@ -57,28 +80,28 @@ void geodesicDrawPoints(geodesicSphere *g){
 // normal line indicators: vertices, lines, faces
 // extruded triangle faces and normals
 
-void geodesicMeshDrawVertexNormalLines(geomeshNormals *m){
+void geodesicMeshDrawVertexNormalLines(geodesicMeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->vertexNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numVertexNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicMeshDrawLineNormalLines(geomeshNormals *m){
+void geodesicMeshDrawLineNormalLines(geodesicMeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->lineNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numLineNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicMeshDrawFaceNormalLines(geomeshNormals *m){
+void geodesicMeshDrawFaceNormalLines(geodesicMeshNormals *m){
 	glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->faceNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numFaceNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh){
+void geodesicMeshDrawExtrudedTriangles(geodesicMeshTriangles *mesh){
     glPushMatrix();
     glScalef(mesh->shrink, mesh->shrink, mesh->shrink);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -91,7 +114,7 @@ void geodesicMeshDrawExtrudedTriangles(geomeshTriangles *mesh){
     glPopMatrix();
 }
 
-void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
+void geodesicMeshDrawCropPlanes(geodesicMeshCropPlanes *m){
     glPushMatrix();
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
@@ -103,8 +126,8 @@ void geodesicMeshDrawCropPlanes(geomeshCropPlanes *m){
     glPopMatrix();
 }
 
-geomeshNormals makeMeshNormals(geodesicSphere *g){
-    geomeshNormals mesh;
+geodesicMeshNormals makeMeshNormals(geodesicSphere *g){
+    geodesicMeshNormals mesh;
     mesh.vertexNormalsLines = malloc(sizeof(GLfloat)*(g->numPoints)*3*2);
     for(int i = 0; i < g->numPoints; i++){
         mesh.vertexNormalsLines[i*6+0+X] = g->pointNormals[i*3+X];
@@ -140,7 +163,7 @@ geomeshNormals makeMeshNormals(geodesicSphere *g){
     return mesh;
 }
 
-void extrudeTriangles(geomeshTriangles *mesh, geodesicSphere *g, float distance){
+void extrudeTriangles(geodesicMeshTriangles *mesh, geodesicSphere *g, float distance){
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
         mesh->glTriangles[i*9 + 0*3 + 0] += g->faceNormals[0+i*3] * distance;
@@ -157,7 +180,7 @@ void extrudeTriangles(geomeshTriangles *mesh, geodesicSphere *g, float distance)
     }
 }
 
-void shrinkMeshFaces(geomeshTriangles *m, geodesicSphere *g, float scale){
+void shrinkMeshFaces(geodesicMeshTriangles *m, geodesicSphere *g, float scale){
     m->shrink = scale;
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
@@ -194,8 +217,8 @@ void shrinkMeshFaces(geomeshTriangles *m, geodesicSphere *g, float scale){
 //     return planes;
 // }
 
-geomeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
-    geomeshTriangles mesh;
+geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
+    geodesicMeshTriangles mesh;
     mesh.shrink = shrink;
     mesh.glTriangles = malloc(sizeof(GLfloat)*g->numFaces*3*3);
     // legacy memory
@@ -259,7 +282,7 @@ geomeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
     return mesh;
 }
 
-void deleteMeshNormals(geomeshNormals *m){
+void deleteMeshNormals(geodesicMeshNormals *m){
     m->numVertexNormals = 0;
     m->numLineNormals = 0;
     m->numFaceNormals = 0;
@@ -278,7 +301,7 @@ void deleteMeshNormals(geomeshNormals *m){
 //    free(m);
 }
 
-void deleteCropPlanes(geomeshCropPlanes *m){
+void deleteCropPlanes(geodesicMeshCropPlanes *m){
     m->numPlanes = 0;
     if(m->glTriangles){
         free(m->glTriangles);
@@ -291,7 +314,7 @@ void deleteCropPlanes(geomeshCropPlanes *m){
 //    free(m);
 }
 
-void deleteMeshTriangles(geomeshTriangles *m){
+void deleteMeshTriangles(geodesicMeshTriangles *m){
     m->numTriangles = 0;
     if(m->glTriangles){
         free(m->glTriangles);

@@ -249,17 +249,22 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
         }
         // new Points, Faces arrays, and their sizes
         float_t newPointsArray[g->numFaces * pointsPerFace * 3 + g->numPoints];
+            // legacy data
+            g->parentFace = malloc(sizeof(unsigned short) * g->numFaces * pointsPerFace + g->numPoints);
+
         unsigned short newFacesArray[v*(v+1)*g->numFaces*3*3];   // data overflow problem. TODO: correctly approximate array size
         unsigned short newLinesArray[linesPerFace*g->numFaces*2];
         // incrementers for the new arrays as we increment and add to them
         unsigned int newPI = 0;
         unsigned int newLI = 0;
         unsigned int newFI = 0;
-        // original points in their original indeces
+        // original points in their original indices
         for(int i = 0; i < g->numPoints; i++){
             newPointsArray[i*3+X] = g->points[i*3+X];
             newPointsArray[i*3+Y] = g->points[i*3+Y];
             newPointsArray[i*3+Z] = g->points[i*3+Z];
+                // legacy
+                g->parentFace[newPI] = -1; // edge vertices aren't a member of only one face
             newPI++;
         }
         // bring along the parent polyhedra's faces too
@@ -303,6 +308,8 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
                 for(k = 0; k <= j; k++){
                     // skip the 3 original vertices
                     if(!((j == 0 && k == 0) || (j == v & k == 0) || (j == v && k == v))){  //ignore 3 points of the triangle
+                            // LEGACY
+                            g->parentFace[newPI] = i;
                         // POINTS
                         newPointsArray[newPI*3+X] = edgePointA[X] + j * dAB[X] + k * dBC[X];
                         newPointsArray[newPI*3+Y] = edgePointA[Y] + j * dAB[Y] + k * dBC[Y];
@@ -367,21 +374,25 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
         g->numPoints = newPI;
         free(g->points);
         g->points = malloc(sizeof(float_t)*g->numPoints*3);
-        for(int i = 0; i < g->numPoints*3; i++)
-            g->points[i] = newPointsArray[i];
+        memcpy(g->points, newPointsArray, sizeof(float_t)*g->numPoints*3);
+        // for(int i = 0; i < g->numPoints*3; i++)
+        //     g->points[i] = newPointsArray[i];
 
         g->numLines = newLI;
         free(g->lines);
         g->lines = malloc(sizeof(unsigned short)*g->numLines*2);
-        for(int i = 0; i < g->numLines*2; i++)
-            g->lines[i] = newLinesArray[i];
+        memcpy(g->lines, newLinesArray, sizeof(unsigned short)*g->numLines*2);
+        // for(int i = 0; i < g->numLines*2; i++)
+        //     g->lines[i] = newLinesArray[i];
 
         g->numFaces = newFI;
         free(g->faces);
         g->faces = malloc(sizeof(unsigned short)*g->numFaces*3);
-        for(int i = 0; i < g->numFaces*3; i++)
-            g->faces[i] = newFacesArray[i];
-        
+        memcpy(g->faces, newFacesArray, sizeof(unsigned short)*g->numFaces*3);
+        // for(int i = 0; i < g->numFaces*3; i++)
+            // g->faces[i] = newFacesArray[i];
+
+
         // what is left missing, is there are duplicate points along the original
         // face edge lines, due to subdividing each original triangle face
         // without being aware of which faces are its neighbors.

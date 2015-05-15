@@ -63,9 +63,10 @@ struct geodesicDome {
     flo_t           numSlicePoints;
     // stuff for cropping a sphere into a dome
     unsigned int    numMeridians;
-    flo_t           *pointMeridians;   // count: numMeridians + 1, the different Y-latitudes of points
-    flo_t           *faceMeridians;    // count: numMeridians, the different Y-latitudes of the center of faces
-    unsigned short  *faceAltitudes;    // count: numFaces, each face is paired with its altitude (Y-axis) (index to faceMeridians)
+    flo_t           *pointMeridians;   // count: numMeridians + 1, the different major-axis-latitudes of points
+    flo_t           *faceMeridians;    // count: numMeridians, the different major-axis-latitudes of the center of faces
+    unsigned short  *faceAltitudes;    // count: numFaces, each face is paired with its altitude (major-axis-axis) (index to faceMeridians)
+    unsigned int    *faceAltitudeCounts; // count: number of unique entries in faceAltitudes (numMeridians), how many triangles in each tier
     // NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 };
 

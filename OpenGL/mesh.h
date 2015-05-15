@@ -30,7 +30,6 @@ struct geodesicMeshNormals {
     unsigned int     numVertexNormals,       numLineNormals,       numFaceNormals;
 }; typedef struct geodesicMeshNormals geodesicMeshNormals;
 
-
 struct geodesicMeshTriangles{
     unsigned int    numTriangles;
     float           *glTriangles,   *glTriangleNormals;
@@ -38,7 +37,6 @@ struct geodesicMeshTriangles{
     // legacy data, get creative!
     unsigned short *pointReferences;  // length of glTriangles / 3 (not storing X,Y,Z), each pointing to original indices
 }; typedef struct geodesicMeshTriangles geodesicMeshTriangles;
-
 
 struct geodesicMeshSlicePoints{
     unsigned int    numPoints;

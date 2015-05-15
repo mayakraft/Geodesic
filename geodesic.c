@@ -15,7 +15,7 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g);
 
 // DOME
 void _make_meridians(geodesicDome *dome, int v);
-void _crop_geodesic(geodesicDome *dome, unsigned short crop);
+void _sort_faces_by_meridian(geodesicDome *dome);
 
 
 // TODO:
@@ -75,7 +75,7 @@ geodesicDome tetrahedronDome(unsigned int v, float crop) {
     // _make_meridians(&dome, v); // does not work with tetrahedron, I think
     _spherize_points((dome.g).points, (dome.g).numPoints);
     _apply_geodesic_sphere_normals(&(dome.g));
-    _crop_geodesic(&dome, crop*v);
+    _sort_faces_by_meridian(&dome);
     return dome;
 }
 geodesicDome octahedronDome(unsigned int v, float crop) {
@@ -85,8 +85,8 @@ geodesicDome octahedronDome(unsigned int v, float crop) {
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
     _spherize_points((dome.g).points, (dome.g).numPoints);
+    _sort_faces_by_meridian(&dome);
     _apply_geodesic_sphere_normals(&(dome.g));
-    _crop_geodesic(&dome, crop*v);
     dome.slicePoints = malloc(sizeof(flo_t)*dome.numMeridians);
     for(int i = 0; i < dome.numMeridians; i++)
         dome.slicePoints[i] = sinf( .5 * M_PI * (dome.pointMeridians[i] + dome.pointMeridians[i+1]) * .5);
@@ -99,8 +99,8 @@ geodesicDome icosahedronDome(unsigned int v, float crop) {
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
     _spherize_points((dome.g).points, (dome.g).numPoints);
+    _sort_faces_by_meridian(&dome);
     _apply_geodesic_sphere_normals(&(dome.g));
-    _crop_geodesic(&dome, crop*v);
     dome.numSlicePoints = dome.numMeridians;
     dome.slicePoints = malloc(sizeof(flo_t)*dome.numSlicePoints);
     for(int i = 0; i < dome.numMeridians; i++)
@@ -494,6 +494,9 @@ void _make_meridians(geodesicDome *d, int v){
             }
         }
     }
+    d->faceAltitudeCounts = calloc(d->numMeridians, sizeof(unsigned int));
+    for(int i = 0; i < g->numFaces; i++)
+        d->faceAltitudeCounts[ d->faceAltitudes[i] ]++;
 
     printf("NUM MERIDIANS: %d\n",d->numMeridians);
     for(int i = 0; i < d->numMeridians; i++){
@@ -502,12 +505,58 @@ void _make_meridians(geodesicDome *d, int v){
     }
     printf("%d: P:%f\n",d->numMeridians, d->pointMeridians[d->numMeridians]);
     printf("FACES stacking order: %d\n",d->numMeridians);
-    for(int i = 0; i < d->g.numFaces; i++){
-        printf(":%d\n", d->faceAltitudes[i]);
-    }
+    for(int i = 0; i < d->numMeridians; i++)
+        printf("(%d):%d\n", i, d->faceAltitudeCounts[i]);
+//    for(int i = 0; i < d->g.numFaces; i++)
+//        printf(":%d\n", d->faceAltitudes[i]);
 }
 
-void _crop_geodesic(geodesicDome *d, unsigned short crop){
+void _sort_faces_by_meridian(geodesicDome *d){
+    
+// reorder process
+//    printf("NUM MERIDIANS: %d\n",d->numMeridians);
+//    for(int i = 0; i < d->numMeridians; i++){
+//        printf("%d: P:%f\n",i, d->pointMeridians[i]);
+//        printf(" -  F:%f\n", d->faceMeridians[i]);
+//    }
+//    printf("%d: P:%f\n",d->numMeridians, d->pointMeridians[d->numMeridians]);
+//    printf("FACES stacking order: %d\n",d->numMeridians);
+//    for(int i = 0; i < d->numMeridians; i++)
+//        printf("(%d):%d\n", i, d->faceAltitudeCounts[i]);
+//    //    for(int i = 0; i < d->g.numFaces; i++)
+//    //        printf(":%d\n", d->faceAltitudes[i]);
+    
+    unsigned int foundSoFar[d->numMeridians];
+    for(int i = 0; i < d->numMeridians; i++)
+        foundSoFar[i] = 0;
+    unsigned short  tempFaces[d->g.numFaces * 3];
+    unsigned int offsetForIndex[d->numMeridians];
+    int cumulative = 0;
+    for(int i = 0; i < d->numMeridians; i++){
+        offsetForIndex[i] = cumulative;
+        cumulative += d->faceAltitudeCounts[i];
+    }
+
+    for(int i = 0; i < d->g.numFaces; i++){
+        unsigned int index = offsetForIndex[d->faceAltitudes[i]] + foundSoFar[d->faceAltitudes[i]];
+        tempFaces[index*3 + 0] = d->g.faces[i*3 + 0];
+        tempFaces[index*3 + 1] = d->g.faces[i*3 + 1];
+        tempFaces[index*3 + 2] = d->g.faces[i*3 + 2];
+        foundSoFar[d->faceAltitudes[i]]++;
+    }
+    
+    printf("OKAY FACES\n");
+    for(int i = 0; i < d->g.numFaces; i++){
+        printf("(%d, %d, %d)  ::  (%d, %d, %d)\n",
+               d->g.faces[i*3 + 0], d->g.faces[i*3 + 1], d->g.faces[i*3 + 2],
+               tempFaces[i*3 + 0], tempFaces[i*3 + 1], tempFaces[i*3 + 2]);
+    }
+    
+    for(int i = 0; i < d->g.numFaces * 3; i++){
+        d->g.faces[i] = tempFaces[i];
+    }
+    
+    
     // if(crop >= g->numMeridians) return;
     
     // float_t newPointsArray[g->numPoints];

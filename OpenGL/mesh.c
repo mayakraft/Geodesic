@@ -130,30 +130,30 @@ geodesicMeshNormals makeMeshNormals(geodesicSphere *g){
     geodesicMeshNormals mesh;
     mesh.vertexNormalsLines = malloc(sizeof(GLfloat)*(g->numPoints)*3*2);
     for(int i = 0; i < g->numPoints; i++){
-        mesh.vertexNormalsLines[i*6+0+X] = g->pointNormals[i*3+X];
-        mesh.vertexNormalsLines[i*6+0+Y] = g->pointNormals[i*3+Y];
-        mesh.vertexNormalsLines[i*6+0+Z] = g->pointNormals[i*3+Z];
-        mesh.vertexNormalsLines[i*6+3+X] = g->pointNormals[i*3+X]*1.1;
-        mesh.vertexNormalsLines[i*6+3+Y] = g->pointNormals[i*3+Y]*1.1;
-        mesh.vertexNormalsLines[i*6+3+Z] = g->pointNormals[i*3+Z]*1.1;
+        mesh.vertexNormalsLines[i*6+0+0] = g->pointNormals[i*3+0];
+        mesh.vertexNormalsLines[i*6+0+1] = g->pointNormals[i*3+1];
+        mesh.vertexNormalsLines[i*6+0+2] = g->pointNormals[i*3+2];
+        mesh.vertexNormalsLines[i*6+3+0] = g->pointNormals[i*3+0]*1.1;
+        mesh.vertexNormalsLines[i*6+3+1] = g->pointNormals[i*3+1]*1.1;
+        mesh.vertexNormalsLines[i*6+3+2] = g->pointNormals[i*3+2]*1.1;
     }
     mesh.lineNormalsLines = malloc(sizeof(GLfloat)*g->numLines*3*2);
     for(int i = 0; i < g->numLines; i++){
-        mesh.lineNormalsLines[i*6+0+X] = g->lineNormals[i*3+X];
-        mesh.lineNormalsLines[i*6+0+Y] = g->lineNormals[i*3+Y];
-        mesh.lineNormalsLines[i*6+0+Z] = g->lineNormals[i*3+Z];
-        mesh.lineNormalsLines[i*6+3+X] = g->lineNormals[i*3+X]*1.05;
-        mesh.lineNormalsLines[i*6+3+Y] = g->lineNormals[i*3+Y]*1.05;
-        mesh.lineNormalsLines[i*6+3+Z] = g->lineNormals[i*3+Z]*1.05;
+        mesh.lineNormalsLines[i*6+0+0] = g->lineNormals[i*3+0];
+        mesh.lineNormalsLines[i*6+0+1] = g->lineNormals[i*3+1];
+        mesh.lineNormalsLines[i*6+0+2] = g->lineNormals[i*3+2];
+        mesh.lineNormalsLines[i*6+3+0] = g->lineNormals[i*3+0]*1.05;
+        mesh.lineNormalsLines[i*6+3+1] = g->lineNormals[i*3+1]*1.05;
+        mesh.lineNormalsLines[i*6+3+2] = g->lineNormals[i*3+2]*1.05;
     }
     mesh.faceNormalsLines = malloc(sizeof(GLfloat)*g->numFaces*3*2);
     for(int i = 0; i < g->numFaces; i++){
-        mesh.faceNormalsLines[i*6+0+X] = g->faceNormals[i*3+X];
-        mesh.faceNormalsLines[i*6+0+Y] = g->faceNormals[i*3+Y];
-        mesh.faceNormalsLines[i*6+0+Z] = g->faceNormals[i*3+Z];
-        mesh.faceNormalsLines[i*6+3+X] = g->faceNormals[i*3+X]*1.025;
-        mesh.faceNormalsLines[i*6+3+Y] = g->faceNormals[i*3+Y]*1.025;
-        mesh.faceNormalsLines[i*6+3+Z] = g->faceNormals[i*3+Z]*1.025;
+        mesh.faceNormalsLines[i*6+0+0] = g->faceNormals[i*3+0];
+        mesh.faceNormalsLines[i*6+0+1] = g->faceNormals[i*3+1];
+        mesh.faceNormalsLines[i*6+0+2] = g->faceNormals[i*3+2];
+        mesh.faceNormalsLines[i*6+3+0] = g->faceNormals[i*3+0]*1.025;
+        mesh.faceNormalsLines[i*6+3+1] = g->faceNormals[i*3+1]*1.025;
+        mesh.faceNormalsLines[i*6+3+2] = g->faceNormals[i*3+2]*1.025;
     }
 
     mesh.numVertexNormals = g->numPoints;
@@ -184,38 +184,54 @@ void shrinkMeshFaces(geodesicMeshTriangles *m, geodesicSphere *g, float scale){
     m->shrink = scale;
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
-        m->glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + X ];
-        m->glTriangles[i*9 + 0*3 + 1] = g->points[ g->faces[0+i*3]*3 + Y ];
-        m->glTriangles[i*9 + 0*3 + 2] = g->points[ g->faces[0+i*3]*3 + Z ];
+        m->glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + 0 ];
+        m->glTriangles[i*9 + 0*3 + 1] = g->points[ g->faces[0+i*3]*3 + 1 ];
+        m->glTriangles[i*9 + 0*3 + 2] = g->points[ g->faces[0+i*3]*3 + 2 ];
         // triangle vertex 2: X Y and Z
-        m->glTriangles[i*9 + 1*3 + 0] = g->points[ g->faces[1+i*3]*3 + X ];
-        m->glTriangles[i*9 + 1*3 + 1] = g->points[ g->faces[1+i*3]*3 + Y ];
-        m->glTriangles[i*9 + 1*3 + 2] = g->points[ g->faces[1+i*3]*3 + Z ];
+        m->glTriangles[i*9 + 1*3 + 0] = g->points[ g->faces[1+i*3]*3 + 0 ];
+        m->glTriangles[i*9 + 1*3 + 1] = g->points[ g->faces[1+i*3]*3 + 1 ];
+        m->glTriangles[i*9 + 1*3 + 2] = g->points[ g->faces[1+i*3]*3 + 2 ];
         // triangle vertex 3: X Y and Z
-        m->glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + X ];
-        m->glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + Y ];
-        m->glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
+        m->glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + 0 ];
+        m->glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + 1 ];
+        m->glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + 2 ];
     }
     extrudeTriangles(m, g, (1/scale - 1));
 }
 
-// geomeshCropPlanes makeMeshCropPlanes(geodesicSphere *g){
-//     geomeshCropPlanes planes;
-//     planes.numPlanes = g->numMeridians;
-//     planes.glTriangles = malloc(sizeof(float_t)*3*3*g->numMeridians);
-//     for(int i = 0; i < g->numMeridians-1; i++){
+
+geodesicMeshSlicePoints makeMeshSlicePoints(geodesicDome *g){
+    geodesicMeshSlicePoints slices;
+    slices.numPoints = g->numMeridians;
+    slices.points = malloc(sizeof(float_t)*3*(g->numMeridians));
+    for(int i = 0; i < g->numMeridians; i++){
+        slices.points[i*3+0] = g->slicePoints[i];
+        slices.points[i*3+1] = 0.0;
+        slices.points[i*3+2] = 0.0;
+    }
+    return slices;
+}
+
+geodesicMeshCropPlanes makeMeshCropPlanes(geodesicDome *g){
+     geodesicMeshCropPlanes planes;
+     planes.numPlanes = g->numMeridians+1;
+     planes.glTriangles = malloc(sizeof(float_t)*3*3*(g->numMeridians+1));
+     for(int i = 0; i < g->numMeridians+1; i++){
+         planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->pointMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
+         planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->pointMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
+         planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->pointMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
 //         planes.glTriangles[i*9+0] = 0.0;  planes.glTriangles[i*9+1] = g->faceMeridians[i];   planes.glTriangles[i*9+2] = sqrtf(3)/2 + sqrtf(3)/4;
 //         planes.glTriangles[i*9+3] =-1.0;  planes.glTriangles[i*9+4] = g->faceMeridians[i];   planes.glTriangles[i*9+5] = 0.0 - sqrtf(3)/4;
 //         planes.glTriangles[i*9+6] = 1.0;  planes.glTriangles[i*9+7] = g->faceMeridians[i];   planes.glTriangles[i*9+8] = 0.0 - sqrtf(3)/4;
-//     }
-//     planes.glTriangleNormals = malloc(sizeof(float_t)*3*3*g->numMeridians);
-//     for(int i = 0; i < g->numMeridians; i++){
-//         planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
-//         planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;
-//         planes.glTriangleNormals[i*9+6] = 0.0;  planes.glTriangleNormals[i*9+7] = 1.0;   planes.glTriangleNormals[i*9+8] = 0.0;
-//     }
-//     return planes;
-// }
+     }
+     planes.glTriangleNormals = malloc(sizeof(float_t)*3*3*(g->numMeridians+1));
+     for(int i = 0; i < g->numMeridians+1; i++){
+         planes.glTriangleNormals[i*9+0] = 0.0;  planes.glTriangleNormals[i*9+1] = 1.0;   planes.glTriangleNormals[i*9+2] = 0.0;
+         planes.glTriangleNormals[i*9+3] = 0.0;  planes.glTriangleNormals[i*9+4] = 1.0;   planes.glTriangleNormals[i*9+5] = 0.0;
+         planes.glTriangleNormals[i*9+6] = 0.0;  planes.glTriangleNormals[i*9+7] = 1.0;   planes.glTriangleNormals[i*9+8] = 0.0;
+     }
+     return planes;
+ }
 
 geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
     geodesicMeshTriangles mesh;
@@ -225,17 +241,17 @@ geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
         mesh.pointReferences = malloc(sizeof(GLfloat)*g->numFaces*3);
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
-        mesh.glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + X ];
-        mesh.glTriangles[i*9 + 0*3 + 1] = g->points[ g->faces[0+i*3]*3 + Y ];
-        mesh.glTriangles[i*9 + 0*3 + 2] = g->points[ g->faces[0+i*3]*3 + Z ];
+        mesh.glTriangles[i*9 + 0*3 + 0] = g->points[ g->faces[0+i*3]*3 + 0 ];
+        mesh.glTriangles[i*9 + 0*3 + 1] = g->points[ g->faces[0+i*3]*3 + 1 ];
+        mesh.glTriangles[i*9 + 0*3 + 2] = g->points[ g->faces[0+i*3]*3 + 2 ];
         // triangle vertex 2: X Y and Z
-        mesh.glTriangles[i*9 + 1*3 + 0] = g->points[ g->faces[1+i*3]*3 + X ];
-        mesh.glTriangles[i*9 + 1*3 + 1] = g->points[ g->faces[1+i*3]*3 + Y ];
-        mesh.glTriangles[i*9 + 1*3 + 2] = g->points[ g->faces[1+i*3]*3 + Z ];
+        mesh.glTriangles[i*9 + 1*3 + 0] = g->points[ g->faces[1+i*3]*3 + 0 ];
+        mesh.glTriangles[i*9 + 1*3 + 1] = g->points[ g->faces[1+i*3]*3 + 1 ];
+        mesh.glTriangles[i*9 + 1*3 + 2] = g->points[ g->faces[1+i*3]*3 + 2 ];
         // triangle vertex 3: X Y and Z
-        mesh.glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + X ];
-        mesh.glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + Y ];
-        mesh.glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + Z ];
+        mesh.glTriangles[i*9 + 2*3 + 0] = g->points[ g->faces[2+i*3]*3 + 0 ];
+        mesh.glTriangles[i*9 + 2*3 + 1] = g->points[ g->faces[2+i*3]*3 + 1 ];
+        mesh.glTriangles[i*9 + 2*3 + 2] = g->points[ g->faces[2+i*3]*3 + 2 ];
         // legacy
             mesh.pointReferences[i*3 + 0] = g->faces[0+i*3];
             mesh.pointReferences[i*3 + 1] = g->faces[1+i*3];
@@ -247,34 +263,34 @@ geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float shrink){
 //    mesh.glTriangleNormals = malloc(sizeof(GLfloat)*g->numFaces*3*3);
 //    for(int i = 0; i < g->numFaces; i++){
 //        // triangle vertex 1: X Y and Z
-//        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->pointNormals[ g->faces[0+i*3]*3 + X ];
-//        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->pointNormals[ g->faces[0+i*3]*3 + Y ];
-//        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->pointNormals[ g->faces[0+i*3]*3 + Z ];
+//        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->pointNormals[ g->faces[0+i*3]*3 + 0 ];
+//        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->pointNormals[ g->faces[0+i*3]*3 + 1 ];
+//        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->pointNormals[ g->faces[0+i*3]*3 + 2 ];
 //        // triangle vertex 2: X Y and Z
-//        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->pointNormals[ g->faces[1+i*3]*3 + X ];
-//        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->pointNormals[ g->faces[1+i*3]*3 + Y ];
-//        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->pointNormals[ g->faces[1+i*3]*3 + Z ];
+//        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->pointNormals[ g->faces[1+i*3]*3 + 0 ];
+//        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->pointNormals[ g->faces[1+i*3]*3 + 1 ];
+//        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->pointNormals[ g->faces[1+i*3]*3 + 2 ];
 //        // triangle vertex 3: X Y and Z
-//        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->pointNormals[ g->faces[2+i*3]*3 + X ];
-//        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->pointNormals[ g->faces[2+i*3]*3 + Y ];
-//        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->pointNormals[ g->faces[2+i*3]*3 + Z ];
+//        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->pointNormals[ g->faces[2+i*3]*3 + 0 ];
+//        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->pointNormals[ g->faces[2+i*3]*3 + 1 ];
+//        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->pointNormals[ g->faces[2+i*3]*3 + 2 ];
 //    }
     
     // DISCO BALL MIRROR NORMALS
     mesh.glTriangleNormals = malloc(sizeof(GLfloat)*g->numFaces*3*3);
     for(int i = 0; i < g->numFaces; i++){
         // triangle vertex 1: X Y and Z
-        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->faceNormals[ i*3 + X ];
-        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->faceNormals[ i*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->faceNormals[ i*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 0] = g->faceNormals[ i*3 + 0 ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 1] = g->faceNormals[ i*3 + 1 ];
+        mesh.glTriangleNormals[i*9 + 0*3 + 2] = g->faceNormals[ i*3 + 2 ];
         // triangle vertex 2: X Y and Z
-        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->faceNormals[ i*3 + X ];
-        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->faceNormals[ i*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->faceNormals[ i*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 0] = g->faceNormals[ i*3 + 0 ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 1] = g->faceNormals[ i*3 + 1 ];
+        mesh.glTriangleNormals[i*9 + 1*3 + 2] = g->faceNormals[ i*3 + 2 ];
         // triangle vertex 3: X Y and Z
-        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->faceNormals[ i*3 + X ];
-        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->faceNormals[ i*3 + Y ];
-        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->faceNormals[ i*3 + Z ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 0] = g->faceNormals[ i*3 + 0 ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 1] = g->faceNormals[ i*3 + 1 ];
+        mesh.glTriangleNormals[i*9 + 2*3 + 2] = g->faceNormals[ i*3 + 2 ];
     }
     
     mesh.numTriangles = g->numFaces;
@@ -300,6 +316,15 @@ void deleteMeshNormals(geodesicMeshNormals *m){
     }
 //    free(m);
 }
+
+void deleteSlicePoints(geodesicMeshSlicePoints *m){
+        m->numPoints = 0;
+        if(m->points){
+            free(m->points);
+            m->points = NULL;
+        }
+//    free(m);
+    }
 
 void deleteCropPlanes(geodesicMeshCropPlanes *m){
     m->numPlanes = 0;

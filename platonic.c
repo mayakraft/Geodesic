@@ -1,14 +1,116 @@
 #include "platonic.h"
 
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-#  include <GLUT/glut.h>
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#  include <GL/glut.h>
-#endif
+//#ifdef __APPLE__
+//#  include <OpenGL/gl.h>
+//#  include <OpenGL/glu.h>
+//#  include <GLUT/glut.h>
+//#else
+//#  include <GL/gl.h>
+//#  include <GL/glu.h>
+//#  include <GL/glut.h>
+//#endif
+
+#import <OpenGLES/ES1/gl.h>
+
+#include <stdlib.h>
+
+void tetrahedronMesh(GLfloat **po, unsigned int *numPoints,
+                  unsigned short **li, unsigned int *numLines,
+                  unsigned short **fa, unsigned int *numFaces){
+    *numPoints = TETRAHEDRON_POINTS;
+    *numLines = TETRAHEDRON_LINES;
+    *numFaces = TETRAHEDRON_FACES;
+    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _tetrahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _tetrahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _tetrahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void octahedronMesh(GLfloat **po, unsigned int *numPoints,
+                 unsigned short **li, unsigned int *numLines,
+                 unsigned short **fa, unsigned int *numFaces){
+    *numPoints = OCTAHEDRON_POINTS;
+    *numLines = OCTAHEDRON_LINES;
+    *numFaces = OCTAHEDRON_FACES;
+    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _octahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _octahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _octahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void hexahedronMesh(GLfloat **po, unsigned int *numPoints,
+                 unsigned short **li, unsigned int *numLines,
+                 unsigned short **fa, unsigned int *numFaces){
+    *numPoints = HEXAHEDRON_POINTS;
+    *numLines = HEXAHEDRON_LINES;
+    *numFaces = HEXAHEDRON_TRIANGLE_FACES;
+    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _hexahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _hexahedron_lines[i];
+    // hexahedron faces are squares, not triangles
+    for(int i = 0; i < (*numFaces)*4; i++)
+        faces[i] = _hexahedron_triangle_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void icosahedronMesh(GLfloat **po, unsigned int *numPoints,
+                  unsigned short **li, unsigned int *numLines,
+                  unsigned short **fa, unsigned int *numFaces){
+    *numPoints = ICOSAHEDRON_POINTS;
+    *numLines = ICOSAHEDRON_LINES;
+    *numFaces = ICOSAHEDRON_FACES;
+    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _icosahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _icosahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _icosahedron_faces[i];
+    *po = points;
+    *li = lines;
+    *fa = faces;
+}
+
+void _dodecahedron(GLfloat **po, unsigned int *numPoints,
+                   unsigned short **li, unsigned int *numLines,
+                   unsigned short **fa, unsigned int *numFaces){
+    *numPoints = DODECAHEDRON_POINTS;
+    *numLines = DODECAHEDRON_LINES;
+    *numFaces = DODECAHEDRON_TRIANGLE_FACES;
+    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
+    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+    for(int i = 0; i < (*numPoints)*3; i++)
+        points[i] = _dodecahedron_points[i];
+    for(int i = 0; i < (*numLines)*2; i++)
+        lines[i] = _dodecahedron_lines[i];
+    for(int i = 0; i < (*numFaces)*3; i++)
+        faces[i] = _dodecahedron_triangle_faces[i];
+}
 
 ////////////////////////////////////////////////////////
 //    OpenGL ES convenience functions for platonic.h

@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define X 0
-#define Y 1
-#define Z 2
-
 #include "geodesic.h"
 
 // SPHERE
@@ -34,28 +30,28 @@ void _crop_geodesic(geodesicDome *dome, unsigned short crop);
 //
 
 
-geodesicSphere tetrahedronSphere(int v){
+geodesicSphere tetrahedronSphere(unsigned int v){
     geodesicSphere g;
     g.frequency = v;
-    _tetrahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+    tetrahedronMesh(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-geodesicSphere octahedronSphere(int v){
+geodesicSphere octahedronSphere(unsigned int v){
     geodesicSphere g;
     g.frequency = v;
-    _octahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+    octahedronMesh(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
     _spherize_points(g.points, g.numPoints);
     _apply_geodesic_sphere_normals(&g);
     return g;
 }
-geodesicSphere icosahedronSphere(int v){
+geodesicSphere icosahedronSphere(unsigned int v){
     geodesicSphere g;
     g.frequency = v;
-    _icosahedron(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
+    icosahedronMesh(&g.points, &g.numPoints, &g.lines, &g.numLines, &g.faces, &g.numFaces);
     _divide_geodesic_faces(&g, v);
 
     g.pointsNotSpherized = malloc(sizeof(flo_t) * g.numPoints * 3);
@@ -71,10 +67,10 @@ geodesicSphere icosahedronSphere(int v){
     return g;
 }
 
-geodesicDome tetrahedronDome(int v, float crop) {
+geodesicDome tetrahedronDome(unsigned int v, float crop) {
     geodesicDome dome;
     dome.g.frequency = v;
-    _tetrahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    tetrahedronMesh(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     // _make_meridians(&dome, v); // does not work with tetrahedron, I think
     _spherize_points((dome.g).points, (dome.g).numPoints);
@@ -82,26 +78,33 @@ geodesicDome tetrahedronDome(int v, float crop) {
     _crop_geodesic(&dome, crop*v);
     return dome;
 }
-geodesicDome octahedronDome(int v, float crop) {
+geodesicDome octahedronDome(unsigned int v, float crop) {
     geodesicDome dome;
     dome.g.frequency = v;
-    _octahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    octahedronMesh(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
     _spherize_points((dome.g).points, (dome.g).numPoints);
     _apply_geodesic_sphere_normals(&(dome.g));
     _crop_geodesic(&dome, crop*v);
+    dome.slicePoints = malloc(sizeof(flo_t)*dome.numMeridians);
+    for(int i = 0; i < dome.numMeridians; i++)
+        dome.slicePoints[i] = sinf( .5 * M_PI * (dome.pointMeridians[i] + dome.pointMeridians[i+1]) * .5);
     return dome;
 }
-geodesicDome icosahedronDome(int v, float crop) {
+geodesicDome icosahedronDome(unsigned int v, float crop) {
     geodesicDome dome;
     dome.g.frequency = v;
-    _icosahedron(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
+    icosahedronMesh(&(dome.g).points, &(dome.g).numPoints, &(dome.g).lines, &(dome.g).numLines, &(dome.g).faces, &(dome.g).numFaces);
     _divide_geodesic_faces(&(dome.g), v);
     _make_meridians(&dome, v);
     _spherize_points((dome.g).points, (dome.g).numPoints);
     _apply_geodesic_sphere_normals(&(dome.g));
     _crop_geodesic(&dome, crop*v);
+    dome.numSlicePoints = dome.numMeridians;
+    dome.slicePoints = malloc(sizeof(flo_t)*dome.numSlicePoints);
+    for(int i = 0; i < dome.numMeridians; i++)
+        dome.slicePoints[i] = sinf( .5 * M_PI * (dome.pointMeridians[i] + dome.pointMeridians[i+1]) * .5);
     return dome;
 }
 
@@ -137,35 +140,35 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g){
 //        float_t length = 1.0;  // shortcut
         g->pointNormals = malloc(sizeof(float_t)*g->numPoints*3);
         for(int i = 0; i < g->numPoints; i++){
-//            length = sqrtf( pow(g->points[X+3*i],2) + pow(g->points[Y+3*i],2) + pow(g->points[Z+3*i],2) ); // shortcut: radius of the sphere
-            g->pointNormals[X+3*i] = g->points[X+3*i];//  / length;// * (i/12.0);
-            g->pointNormals[Y+3*i] = g->points[Y+3*i];//  / length;// * (i/12.0);
-            g->pointNormals[Z+3*i] = g->points[Z+3*i];//  / length;// * (i/12.0);
+//            length = sqrtf( pow(g->points[0+3*i],2) + pow(g->points[1+3*i],2) + pow(g->points[2+3*i],2) ); // shortcut: radius of the sphere
+            g->pointNormals[0+3*i] = g->points[0+3*i];//  / length;// * (i/12.0);
+            g->pointNormals[1+3*i] = g->points[1+3*i];//  / length;// * (i/12.0);
+            g->pointNormals[2+3*i] = g->points[2+3*i];//  / length;// * (i/12.0);
         }
     }
     if(g->numLines){
         g->lineNormals = malloc(sizeof(float_t)*g->numLines*3);
         for(int i = 0; i < g->numLines; i++){
-            g->lineNormals[i*3+X] = ( g->pointNormals[g->lines[i*2+0]*3+X] +
-                                      g->pointNormals[g->lines[i*2+1]*3+X] ) / 2.0;
-            g->lineNormals[i*3+Y] = ( g->pointNormals[g->lines[i*2+0]*3+Y] +
-                                      g->pointNormals[g->lines[i*2+1]*3+Y] ) / 2.0;
-            g->lineNormals[i*3+Z] = ( g->pointNormals[g->lines[i*2+0]*3+Z] +
-                                      g->pointNormals[g->lines[i*2+1]*3+Z] ) / 2.0;
+            g->lineNormals[i*3+0] = ( g->pointNormals[g->lines[i*2+0]*3+0] +
+                                      g->pointNormals[g->lines[i*2+1]*3+0] ) / 2.0;
+            g->lineNormals[i*3+1] = ( g->pointNormals[g->lines[i*2+0]*3+1] +
+                                      g->pointNormals[g->lines[i*2+1]*3+1] ) / 2.0;
+            g->lineNormals[i*3+2] = ( g->pointNormals[g->lines[i*2+0]*3+2] +
+                                      g->pointNormals[g->lines[i*2+1]*3+2] ) / 2.0;
         }
     }
     if(g->numFaces){
         g->faceNormals = malloc(sizeof(float_t)*g->numFaces*3);
         for(int i = 0; i < g->numFaces; i++){
-            g->faceNormals[i*3+X] = ( g->pointNormals[g->faces[i*3+0]*3+X] +
-                                      g->pointNormals[g->faces[i*3+1]*3+X] +
-                                      g->pointNormals[g->faces[i*3+2]*3+X] ) / 3.0;
-            g->faceNormals[i*3+Y] = ( g->pointNormals[g->faces[i*3+0]*3+Y] +
-                                      g->pointNormals[g->faces[i*3+1]*3+Y] +
-                                      g->pointNormals[g->faces[i*3+2]*3+Y] ) / 3.0;
-            g->faceNormals[i*3+Z] = ( g->pointNormals[g->faces[i*3+0]*3+Z] +
-                                      g->pointNormals[g->faces[i*3+1]*3+Z] +
-                                      g->pointNormals[g->faces[i*3+2]*3+Z] ) / 3.0;
+            g->faceNormals[i*3+0] = ( g->pointNormals[g->faces[i*3+0]*3+0] +
+                                      g->pointNormals[g->faces[i*3+1]*3+0] +
+                                      g->pointNormals[g->faces[i*3+2]*3+0] ) / 3.0;
+            g->faceNormals[i*3+1] = ( g->pointNormals[g->faces[i*3+0]*3+1] +
+                                      g->pointNormals[g->faces[i*3+1]*3+1] +
+                                      g->pointNormals[g->faces[i*3+2]*3+1] ) / 3.0;
+            g->faceNormals[i*3+2] = ( g->pointNormals[g->faces[i*3+0]*3+2] +
+                                      g->pointNormals[g->faces[i*3+1]*3+2] +
+                                      g->pointNormals[g->faces[i*3+2]*3+2] ) / 3.0;
         }
     }
 }
@@ -219,7 +222,7 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g){
 //     first face        each step
 //    of each row     an up and a down
 //          ______
-//       a /\    / b    INDEX SHORTCUTS (row = row # from A)
+//       a /\    / b    INDE0 SHORTCUTS (row = row # from A)
 //        /  \  /        p->c  i-1
 //      p/____\/c        p->a  i-row
 //                       p->b  i-row-1
@@ -260,9 +263,9 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
         unsigned int newFI = 0;
         // original points in their original indices
         for(int i = 0; i < g->numPoints; i++){
-            newPointsArray[i*3+X] = g->points[i*3+X];
-            newPointsArray[i*3+Y] = g->points[i*3+Y];
-            newPointsArray[i*3+Z] = g->points[i*3+Z];
+            newPointsArray[i*3+0] = g->points[i*3+0];
+            newPointsArray[i*3+1] = g->points[i*3+1];
+            newPointsArray[i*3+2] = g->points[i*3+2];
                 // legacy
                 g->parentFace[newPI] = -1; // edge vertices aren't a member of only one face
             newPI++;
@@ -295,12 +298,12 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
             edgePointC = &g->points[faceEdgeC*3];
             // calculate the vector quantity from line segment A to B divided by frequency
             // same with B to C
-            dAB[X] = ( edgePointB[X] - edgePointA[X] ) / segments;
-            dAB[Y] = ( edgePointB[Y] - edgePointA[Y] ) / segments;
-            dAB[Z] = ( edgePointB[Z] - edgePointA[Z] ) / segments;
-            dBC[X] = ( edgePointC[X] - edgePointB[X] ) / segments;
-            dBC[Y] = ( edgePointC[Y] - edgePointB[Y] ) / segments;
-            dBC[Z] = ( edgePointC[Z] - edgePointB[Z] ) / segments;
+            dAB[0] = ( edgePointB[0] - edgePointA[0] ) / segments;
+            dAB[1] = ( edgePointB[1] - edgePointA[1] ) / segments;
+            dAB[2] = ( edgePointB[2] - edgePointA[2] ) / segments;
+            dBC[0] = ( edgePointC[0] - edgePointB[0] ) / segments;
+            dBC[1] = ( edgePointC[1] - edgePointB[1] ) / segments;
+            dBC[2] = ( edgePointC[2] - edgePointB[2] ) / segments;
             // starting at point A, begin generating points one row at a time
             // incrementing towards line segment BC
             // iterate 1, 12, 123, 1234, 12345, 123456...
@@ -311,9 +314,9 @@ void _divide_geodesic_faces(geodesicSphere *g, int v){
                             // LEGACY
                             g->parentFace[newPI] = i;
                         // POINTS
-                        newPointsArray[newPI*3+X] = edgePointA[X] + j * dAB[X] + k * dBC[X];
-                        newPointsArray[newPI*3+Y] = edgePointA[Y] + j * dAB[Y] + k * dBC[Y];
-                        newPointsArray[newPI*3+Z] = edgePointA[Z] + j * dAB[Z] + k * dBC[Z];
+                        newPointsArray[newPI*3+0] = edgePointA[0] + j * dAB[0] + k * dBC[0];
+                        newPointsArray[newPI*3+1] = edgePointA[1] + j * dAB[1] + k * dBC[1];
+                        newPointsArray[newPI*3+2] = edgePointA[2] + j * dAB[2] + k * dBC[2];
                         newPI++;
                     }
                     // FACES and LINES
@@ -410,13 +413,13 @@ void _spherize_points(float_t *points, unsigned int numPoints){
     float_t maxdistance = 1.0;//sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
     for(i = 0; i < numPoints; i++)
     {
-        distance = sqrt(pow(points[i*3+X], 2) +
-                        pow(points[i*3+Y], 2) +
-                        pow(points[i*3+Z], 2) );
+        distance = sqrt(pow(points[i*3+0], 2) +
+                        pow(points[i*3+1], 2) +
+                        pow(points[i*3+2], 2) );
         difference = maxdistance / distance;
-        points[i*3+X]*=difference;
-        points[i*3+Y]*=difference;
-        points[i*3+Z]*=difference;
+        points[i*3+0]*=difference;
+        points[i*3+1]*=difference;
+        points[i*3+2]*=difference;
     }
 }
 
@@ -433,19 +436,23 @@ int _qsort_compare (const void * a, const void * b){
     return 0;
 }
 void _make_meridians(geodesicDome *d, int v){
+    unsigned short AX = 0; // which axis to sort along, X:0 Y:1 Z:2
+    float NUDGE = .00001;
+    float PLACES = 1000.0;
     geodesicSphere *g = &(d->g);
     float_t meridianFaceData[g->numFaces];
     float_t lowest;
     // sort faces by their lowest point (in the Y-axis)
     for(int i = 0; i < g->numFaces; i++){
-        lowest = g->points[g->faces[i*3+0]*3+1];
-        if(g->points[g->faces[i*3+1]*3+1] < lowest)
-            lowest = g->points[g->faces[i*3+1]*3+1];
-        if(g->points[g->faces[i*3+2]*3+1] < lowest)
-            lowest = g->points[g->faces[i*3+2]*3+1];
+        lowest = g->points[g->faces[i*3+0]*3+AX];
+        if(g->points[g->faces[i*3+1]*3+AX] < lowest)
+            lowest = g->points[g->faces[i*3+1]*3+AX];
+        if(g->points[g->faces[i*3+2]*3+AX] < lowest)
+            lowest = g->points[g->faces[i*3+2]*3+AX];
         meridianFaceData[i] = lowest;
     }
     /////////////////////
+    // build a list of uique meridians
     d->numMeridians = 0;
     float_t pointMeridians[g->numFaces];
     for(int i = 0; i < g->numFaces; i++)
@@ -453,7 +460,7 @@ void _make_meridians(geodesicDome *d, int v){
     for(int i = 0; i < g->numFaces; i++){
         unsigned short alreadyEntered = 0;
         for(int j = 0; j < d->numMeridians; j++){
-            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0))
+            if(floorf((pointMeridians[j]+NUDGE)*PLACES) == floorf((meridianFaceData[i]+NUDGE)*PLACES))
                 alreadyEntered = 1;
         }
         if(!alreadyEntered){
@@ -463,7 +470,7 @@ void _make_meridians(geodesicDome *d, int v){
     }
     // add one last row
     pointMeridians[d->numMeridians] = 1.0;
-//    g->numMeridians++;  // don't increment so that it's relative to faces, not points
+//    g->numMeridians++;  // don't increment so that it correlates to faces inbetween points, not points themselves
     qsort(pointMeridians, d->numMeridians, sizeof(float_t), _qsort_compare);
     d->pointMeridians = malloc(sizeof(float_t)*(d->numMeridians+1));
     for(int i = 0; i < d->numMeridians+1; i++)
@@ -481,23 +488,23 @@ void _make_meridians(geodesicDome *d, int v){
         d->faceAltitudes[i] = 99;
     for(int i = 0; i < g->numFaces; i++){
         for(unsigned short j = 0; j < d->numMeridians+1; j++){
-            if(floorf((pointMeridians[j]+.00001)*1000.0) == floorf((meridianFaceData[i]+.00001)*1000.0)){
+            if(floorf((pointMeridians[j]+NUDGE)*PLACES) == floorf((meridianFaceData[i]+NUDGE)*PLACES)){
                 d->faceAltitudes[i] = j;
                 break;
             }
         }
     }
 
-//    printf("NUM MERIDIANS: %d\n",g->numMeridians);
-//    for(int i = 0; i < g->numMeridians; i++){
-//        printf("%d: P:%f\n",i, g->pointMeridians[i]);
-//        printf(" -  F:%f\n", g->faceMeridians[i]);
-//    }
-//    printf("%d: P:%f\n",g->numMeridians, g->pointMeridians[g->numMeridians]);
-//    printf("FACES stacking order: %d\n",g->numMeridians);
-//    for(int i = 0; i < g->numFaces; i++){
-//        printf(":%d\n", g->faceAltitudes[i]);
-//    }
+    printf("NUM MERIDIANS: %d\n",d->numMeridians);
+    for(int i = 0; i < d->numMeridians; i++){
+        printf("%d: P:%f\n",i, d->pointMeridians[i]);
+        printf(" -  F:%f\n", d->faceMeridians[i]);
+    }
+    printf("%d: P:%f\n",d->numMeridians, d->pointMeridians[d->numMeridians]);
+    printf("FACES stacking order: %d\n",d->numMeridians);
+    for(int i = 0; i < d->g.numFaces; i++){
+        printf(":%d\n", d->faceAltitudes[i]);
+    }
 }
 
 void _crop_geodesic(geodesicDome *d, unsigned short crop){
@@ -521,13 +528,13 @@ void Geodesic::crop(float latitude){
     visibleLines = (bool*)calloc(numLines,sizeof(bool));
     visibleFaces = (bool*)calloc(numFaces,sizeof(bool));
     for(int i = 0; i < numPoints; i++)
-        if(points[i*3+Y] > c)
+        if(points[i*3+1] > c)
             visiblePoints[i] = true;
     for(int i = 0; i < numLines; i++)
-        if(points[lines[i*2+0]*3+Y] > c && points[lines[i*2+1]*3+Y] > c)
+        if(points[lines[i*2+0]*3+1] > c && points[lines[i*2+1]*3+1] > c)
             visibleLines[i] = true;
     for(int i = 0; i < numFaces; i++)
-        if(points[faces[i*3+0]*3+Y] > c && points[faces[i*3+1]*3+Y] > c && points[faces[i*3+2]*3+Y] > c)
+        if(points[faces[i*3+0]*3+1] > c && points[faces[i*3+1]*3+1] > c && points[faces[i*3+2]*3+1] > c)
             visibleFaces[i] = true;
 }
 */
@@ -559,9 +566,9 @@ void _remove_duplicate_points_lines(geodesicSphere *g){
         duplicateIndexes[i] = -1;
     for(int i = 0; i < g->numPoints - 1; i++){
         for(int j = i+1; j < g->numPoints; j++){
-            if (g->points[X+i*3] - ELBOW < g->points[X+j*3] && g->points[X+i*3] + ELBOW > g->points[X+j*3] &&
-                g->points[Y+i*3] - ELBOW < g->points[Y+j*3] && g->points[Y+i*3] + ELBOW > g->points[Y+j*3] &&
-                g->points[Z+i*3] - ELBOW < g->points[Z+j*3] && g->points[Z+i*3] + ELBOW > g->points[Z+j*3] )
+            if (g->points[0+i*3] - ELBOW < g->points[0+j*3] && g->points[0+i*3] + ELBOW > g->points[0+j*3] &&
+                g->points[1+i*3] - ELBOW < g->points[1+j*3] && g->points[1+i*3] + ELBOW > g->points[1+j*3] &&
+                g->points[2+i*3] - ELBOW < g->points[2+j*3] && g->points[2+i*3] + ELBOW > g->points[2+j*3] )
             {
                 duplicateIndexes[j] = i;
             }
@@ -661,9 +668,9 @@ void _remove_duplicate_points_lines(geodesicSphere *g){
     float_t *newPointsArray = malloc(sizeof(float_t)*newNumPoints*3);
     for(int i = 0; i < g->numPoints; i++){
         if(duplicateIndexes[i] != -1){
-            newPointsArray[duplicateIndexes[i]*3+X] = g->points[i*3+X];
-            newPointsArray[duplicateIndexes[i]*3+Y] = g->points[i*3+Y];
-            newPointsArray[duplicateIndexes[i]*3+Z] = g->points[i*3+Z];
+            newPointsArray[duplicateIndexes[i]*3+0] = g->points[i*3+0];
+            newPointsArray[duplicateIndexes[i]*3+1] = g->points[i*3+1];
+            newPointsArray[duplicateIndexes[i]*3+2] = g->points[i*3+2];
         }
     }
 

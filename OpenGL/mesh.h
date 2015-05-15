@@ -10,6 +10,9 @@
 
 // generic draw functions
 
+#include "geodesic.h"
+#import <OpenGLES/ES1/gl.h>
+
 void drawTriangles(GLfloat *vertices, GLfloat *normals, unsigned short *faces, unsigned int numFaces);
 void drawUniqueTriangles(GLfloat *vertices, GLfloat *normals, unsigned int numTriangles);
 
@@ -37,6 +40,12 @@ struct geodesicMeshTriangles{
 }; typedef struct geodesicMeshTriangles geodesicMeshTriangles;
 
 
+struct geodesicMeshSlicePoints{
+    unsigned int    numPoints;
+    float           *points;
+}; typedef struct geodesicMeshSlicePoints geodesicMeshSlicePoints;
+
+
 struct geodesicMeshCropPlanes{
     unsigned int    numPlanes;
     float           *glTriangles,   *glTriangleNormals;
@@ -46,9 +55,12 @@ struct geodesicMeshCropPlanes{
 // fill structs, delete structs
 geodesicMeshNormals makeMeshNormals(geodesicSphere *g);
 geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float scale);
-geodesicMeshCropPlanes makeMeshCropPlanes(geodesicSphere *g);
+geodesicMeshSlicePoints makeMeshSlicePoints(geodesicDome *g);
+geodesicMeshCropPlanes makeMeshCropPlanes(geodesicDome *g);
 void deleteMeshNormals(geodesicMeshNormals *m);
 void deleteMeshTriangles(geodesicMeshTriangles *m);
+void deleteSlicePoints(geodesicMeshSlicePoints *m);
+void deleteCropPlanes(geodesicMeshCropPlanes *m);
 
 // visually expose the geometry normals: (1) vertex, (2) line, (3) face normals
 void geodesicMeshDrawVertexNormalLines(geodesicMeshNormals *m);

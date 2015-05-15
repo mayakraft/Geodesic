@@ -19,14 +19,14 @@ typedef struct geodesicSphere geodesicSphere;
 typedef struct geodesicDome geodesicDome;
 
 
-geodesicSphere icosahedronSphere(int v);
-geodesicSphere octahedronSphere(int v);
-geodesicSphere tetrahedronSphere(int v);
+geodesicSphere icosahedronSphere(unsigned int v);
+geodesicSphere octahedronSphere(unsigned int v);
+geodesicSphere tetrahedronSphere(unsigned int v);
 
 // these are not yet implemented. the cropping algorithm is still needed
-geodesicDome tetrahedronDome(int v, float crop);
-geodesicDome octahedronDome(int v, float crop);
-geodesicDome icosahedronDome(int v, float crop);
+geodesicDome tetrahedronDome(unsigned int v, float crop);
+geodesicDome octahedronDome(unsigned int v, float crop);
+geodesicDome icosahedronDome(unsigned int v, float crop);
 
 
 void deleteGeodesicSphere(geodesicSphere *g);
@@ -59,6 +59,8 @@ struct geodesicSphere {
 struct geodesicDome {
 
     geodesicSphere g;
+    flo_t           *slicePoints;
+    flo_t           numSlicePoints;
     // stuff for cropping a sphere into a dome
     unsigned int    numMeridians;
     flo_t           *pointMeridians;   // count: numMeridians + 1, the different Y-latitudes of points

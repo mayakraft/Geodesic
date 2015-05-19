@@ -7,6 +7,93 @@
 
 #include "geodesic.h"
 
+// LENGTH ANALYSIS
+
+geodesicAnalysis classifyLines(geodesicSphere *g)
+{
+    geodesicAnalysis a;
+    int i, j;
+    unsigned int rounded;
+    double distance;
+    unsigned int found; // (bool)
+//    unsigned int elbow = 100000000;     // for doubles
+//    double nudge = .00000000001;        //
+    unsigned int elbow = 100000;     // for floats
+    double nudge = .00000001;        //
+    unsigned int lengths[g->numLines];
+    int lineClass[g->numLines];
+    double originalLengths[g->numLines];
+    
+    unsigned int indexLengths = 0;
+    unsigned int indexLineClass = 0;
+    unsigned int indexOriginalLengths = 0;
+    
+    for(i = 0; i < g->numLines; i++)
+    {
+        
+        distance = sqrt(pow(g->points[ g->lines[i*2+0] *3+0] - g->points[ g->lines[i*2+1] *3+0],2)
+                        + pow(g->points[ g->lines[i*2+0] *3+1] - g->points[ g->lines[i*2+1] *3+1],2)
+                        + pow(g->points[ g->lines[i*2+0] *3+2] - g->points[ g->lines[i*2+1] *3+2],2));
+        rounded = floor((distance+nudge)*elbow);
+        if(i == 0){
+            lineClass[indexLineClass] = i;
+            indexLineClass++;
+            lengths[indexLengths] = rounded;
+            indexLengths++;
+            originalLengths[indexOriginalLengths] = distance;
+            indexOriginalLengths++;
+//            [lineClass addObject:[[NSNumber alloc] initWithInt:i]];
+//            [lengths addObject:[[NSNumber alloc] initWithUnsignedInt:rounded]];
+//            [originalLengths addObject:[[NSNumber alloc] initWithDouble:distance]];
+            //NSLog(@"O:%.21g ->%d",distance,i);
+        }
+        else{
+            found = 0;//false;
+            for(j = 0; j < indexLengths; j++)
+            {
+                if(!found && rounded == lengths[j]){
+                    found = true;
+                    lineClass[indexLineClass] = j;
+                    indexLineClass++;
+//                    [lineClass addObject:[[NSNumber alloc] initWithInt:j]];
+                    //NSLog(@"O:%.21g ->%d",distance,j);
+                }
+            }
+            if(!found){
+                lineClass[indexLineClass] = j;
+                indexLineClass++;
+                lengths[indexLengths] = rounded;
+                indexLengths++;
+                originalLengths[indexOriginalLengths] = distance;
+                indexOriginalLengths++;
+//                [lineClass addObject:[[NSNumber alloc] initWithInt:j]];
+//                [lengths addObject:[[NSNumber alloc] initWithUnsignedInt:rounded]];
+//                [originalLengths addObject:[[NSNumber alloc] initWithDouble:distance]];
+                //NSLog(@"O:%.21g ->%d",distance,j);
+            }
+        }
+    }
+    //    NSLog(@"%d, %d", lineClass.count, lines_.count);
+    a.lineLengthValues = malloc(sizeof(double)*indexOriginalLengths);
+    for(int i = 0; i < indexOriginalLengths; i++)
+        a.lineLengthValues[i] = originalLengths[i];
+    a.lineLengthTypes = malloc(sizeof(unsigned int) * indexLineClass);
+    for(int i = 0; i < indexLineClass; i++)
+        a.lineLengthTypes[i] = lineClass[i];
+//    lineClass_ = [[NSArray alloc] initWithArray:lineClass];
+//    lineClassLengths_ = [[NSArray alloc] initWithArray:originalLengths];
+
+    //for(i=0; i < lineClass_.count; i++) NSLog(@"%d", [lineClass_[i] integerValue]);
+    //NSLog(@"%d, %d, %d", lines_.count, lineClass_.count, lineClassLengths_.count);
+    //NSLog(@"*****************");
+    //for(i=0; i < lineClassLengths_.count; i++) NSLog(@"Strut %d: %f", i, [lineClassLengths_[i] floatValue]);
+    
+    a.numLineLengths = indexOriginalLengths;
+
+    return a;
+}
+
+
 // SPHERE
 void _divide_geodesic_faces(geodesicSphere *g, int v);
 void _remove_duplicate_points_lines(geodesicSphere *g);
@@ -16,18 +103,6 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g);
 // DOME
 void _make_meridians(geodesicDome *dome, int v);
 void _sort_faces_by_meridian(geodesicDome *dome);
-
-
-// TODO:
-// for cropping
-// introduce this idea of rows
-// each triangle is a member of a row
-// starting from the top, 5 triangles in row 1
-// 10 in row 2
-// 15 in row 3
-// ...
-// rows will be encoded into the platonic solids
-//
 
 
 geodesicSphere tetrahedronSphere(unsigned int v){

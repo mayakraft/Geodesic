@@ -70,5 +70,14 @@ struct geodesicDome {
     // NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 };
 
+typedef struct geodesicAnalysis geodesicAnalysis;
+
+geodesicAnalysis classifyLines(geodesicSphere *g);
+
+struct geodesicAnalysis {
+    double           *lineLengthValues;
+    unsigned int    numLineLengths;      // the above array size
+    unsigned int    *lineLengthTypes;    // count: numLines, pointers to indices in lineLengthValues
+};
 
 #endif

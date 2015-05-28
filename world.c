@@ -91,7 +91,7 @@ void initRender(){
  //    unsigned int    numTriangles;
  //    float           *;
 
-	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
+//	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
 
 	for(int i = 0; i < NUM_SOLIDS; i++){
 		objcts[0+i*3] = frand()*30-15;

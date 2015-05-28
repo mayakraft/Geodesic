@@ -52,7 +52,7 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
             for(j = 0; j < indexLengths; j++)
             {
                 if(!found && rounded == lengths[j]){
-                    found = true;
+                    found = 1;
                     lineClass[indexLineClass] = j;
                     indexLineClass++;
 //                    [lineClass addObject:[[NSNumber alloc] initWithInt:j]];
@@ -80,6 +80,11 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
     a.lineLengthTypes = malloc(sizeof(unsigned int) * indexLineClass);
     for(int i = 0; i < indexLineClass; i++)
         a.lineLengthTypes[i] = lineClass[i];
+    
+    a.lineTypesQuantities = calloc(sizeof(unsigned int), indexOriginalLengths);
+    for(int i = 0; i < indexLineClass; i++){
+        a.lineTypesQuantities[lineClass[i]]++;
+    }
 //    lineClass_ = [[NSArray alloc] initWithArray:lineClass];
 //    lineClassLengths_ = [[NSArray alloc] initWithArray:originalLengths];
 
@@ -573,17 +578,18 @@ void _make_meridians(geodesicDome *d, int v){
     for(int i = 0; i < g->numFaces; i++)
         d->faceAltitudeCounts[ d->faceAltitudes[i] ]++;
 
-    printf("NUM MERIDIANS: %d\n",d->numMeridians);
-    for(int i = 0; i < d->numMeridians; i++){
-        printf("%d: P:%f\n",i, d->pointMeridians[i]);
-        printf(" -  F:%f\n", d->faceMeridians[i]);
-    }
-    printf("%d: P:%f\n",d->numMeridians, d->pointMeridians[d->numMeridians]);
-    printf("FACES stacking order: %d\n",d->numMeridians);
-    for(int i = 0; i < d->numMeridians; i++)
-        printf("(%d):%d\n", i, d->faceAltitudeCounts[i]);
+//    printf("NUM MERIDIANS: %d\n",d->numMeridians);
+//    for(int i = 0; i < d->numMeridians; i++){
+//        printf("%d: P:%f\n",i, d->pointMeridians[i]);
+//        printf(" -  F:%f\n", d->faceMeridians[i]);
+//    }
+//    printf("%d: P:%f\n",d->numMeridians, d->pointMeridians[d->numMeridians]);
+//    printf("FACES stacking order: %d\n",d->numMeridians);
+//    for(int i = 0; i < d->numMeridians; i++)
+//        printf("(%d):%d\n", i, d->faceAltitudeCounts[i]);
 //    for(int i = 0; i < d->g.numFaces; i++)
 //        printf(":%d\n", d->faceAltitudes[i]);
+    
 }
 
 void _sort_faces_by_meridian(geodesicDome *d){
@@ -620,12 +626,12 @@ void _sort_faces_by_meridian(geodesicDome *d){
         foundSoFar[d->faceAltitudes[i]]++;
     }
     
-    printf("OKAY FACES\n");
-    for(int i = 0; i < d->g.numFaces; i++){
-        printf("(%d, %d, %d)  ::  (%d, %d, %d)\n",
-               d->g.faces[i*3 + 0], d->g.faces[i*3 + 1], d->g.faces[i*3 + 2],
-               tempFaces[i*3 + 0], tempFaces[i*3 + 1], tempFaces[i*3 + 2]);
-    }
+//    printf("OKAY FACES\n");
+//    for(int i = 0; i < d->g.numFaces; i++){
+//        printf("(%d, %d, %d)  ::  (%d, %d, %d)\n",
+//               d->g.faces[i*3 + 0], d->g.faces[i*3 + 1], d->g.faces[i*3 + 2],
+//               tempFaces[i*3 + 0], tempFaces[i*3 + 1], tempFaces[i*3 + 2]);
+//    }
     
     for(int i = 0; i < d->g.numFaces * 3; i++){
         d->g.faces[i] = tempFaces[i];

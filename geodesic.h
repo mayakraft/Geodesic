@@ -61,6 +61,7 @@ struct geodesicDome {
     geodesicSphere g;
     flo_t           *slicePoints;
     flo_t           numSlicePoints;
+    unsigned int    *sliceSizes;  // count: number of slices. contains number of faces within each slice
     // stuff for cropping a sphere into a dome
     unsigned int    numMeridians;
     flo_t           *pointMeridians;   // count: numMeridians + 1, the different major-axis-latitudes of points
@@ -78,6 +79,7 @@ struct geodesicAnalysis {
     double           *lineLengthValues;
     unsigned int    numLineLengths;      // the above array size
     unsigned int    *lineLengthTypes;    // count: numLines, pointers to indices in lineLengthValues
+    unsigned int    *lineTypesQuantities;
 };
 
 #endif

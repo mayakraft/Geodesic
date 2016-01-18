@@ -1,16 +1,20 @@
 #include "platonic.h"
 
 #ifdef __APPLE__
+# if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
+#  import <OpenGLES/ES1/gl.h>
+# elif TARGET_OS_IPHONE
+#  import <OpenGLES/ES1/gl.h>
+# else
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
+# endif
 #else
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #  include <GL/glut.h>
 #endif
-
-// #import <OpenGLES/ES1/gl.h>
 
 #include <stdlib.h>
 

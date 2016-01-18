@@ -10,9 +10,6 @@
 
 // generic draw functions
 
-// #include "geodesic.h"
-// #import <OpenGLES/ES1/gl.h>
-
 void drawTriangles(GLfloat *vertices, GLfloat *normals, unsigned short *faces, unsigned int numFaces);
 void drawUniqueTriangles(GLfloat *vertices, GLfloat *normals, unsigned int numTriangles);
 

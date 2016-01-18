@@ -1,16 +1,20 @@
 #include "../geodesic.c"
-// #import <OpenGLES/ES1/gl.h>
 
 #ifdef __APPLE__
+# if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
+#  import <OpenGLES/ES1/gl.h>
+# elif TARGET_OS_IPHONE
+#  import <OpenGLES/ES1/gl.h>
+# else
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
+# endif
 #else
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #  include <GL/glut.h>
 #endif
-
 
 #include "mesh.h"
 
@@ -40,7 +44,7 @@ void drawUniqueTriangles(GLfloat *vertices, GLfloat *normals, unsigned int numTr
 // geodesic
 
 void geodesicDrawTriangles(geodesicSphere *g){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
     glVertexPointer(3, GL_FLOAT, 0, g->points);
@@ -52,7 +56,7 @@ void geodesicDrawTriangles(geodesicSphere *g){
 }
 
 void geodesicDrawLines(geodesicSphere *g){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     
     glVertexPointer(3, GL_FLOAT, 0, g->points);
@@ -64,7 +68,7 @@ void geodesicDrawLines(geodesicSphere *g){
 }
 
 void geodesicDrawPoints(geodesicSphere *g){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     
     glVertexPointer(3, GL_FLOAT, 0, g->points);
@@ -81,21 +85,21 @@ void geodesicDrawPoints(geodesicSphere *g){
 // extruded triangle faces and normals
 
 void geodesicMeshDrawVertexNormalLines(geodesicMeshNormals *m){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->vertexNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numVertexNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void geodesicMeshDrawLineNormalLines(geodesicMeshNormals *m){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->lineNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numLineNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void geodesicMeshDrawFaceNormalLines(geodesicMeshNormals *m){
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, m->faceNormalsLines);
     glDrawArrays(GL_LINES, 0, m->numFaceNormals*2);
     glDisableClientState(GL_VERTEX_ARRAY);

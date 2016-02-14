@@ -16,14 +16,14 @@
 //                                                                //
 //  eg:                                                           //
 //   octa's 6 point indices correlate to hexa's 6 face indices    //
-//      and octa's point[0] is along hexa's face[0] normal        //
+//       and octa's point[0] is along hexa's face[0] normal       //
 //                                                                //
-//  this implies:                                                 //
-//  you can find a solid's face normals in its dual's points      //
+//      this means: a solid's face normal is that same index      //
+//                  in its dual's point array                     //
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 
-// for higher precision, replace all "float" with "double" or "long double"
+// for higher precision replace occurrences of "float" with "double" or "long double"
 
 #define TETRAHEDRON_POINTS 4
 #define TETRAHEDRON_LINES 6
@@ -55,13 +55,18 @@
 #define ICOSAHEDRON_DIHEDRAL_ANGLE  138.189685104221401934142083269
 #define DODECAHEDRON_DIHEDRAL_ANGLE 116.56505117707798935157219372
 
-// inradius is the radius of the inscribed sphere
-// or the distance from center to midpoint of a face
+// inradius, the inscribed sphere, distance from center to midpoint of a face
 #define TETRAHEDRON_INRADIUS    0.333333333333333333333333333333
 #define OCTAHEDRON_INRADIUS     0.577350269189625764509148780502
 #define HEXAHEDRON_INRADIUS     0.5773502691896257645091487805
 #define ICOSAHEDRON_INRADIUS    0.794654472291766122955530928331
 #define DODECAHEDRON_INRADIUS   0.794654472291766122955530928327
+
+#define TETRAHEDRON_MIDRADIUS   0.577350269189625764509148780501
+#define OCTAHEDRON_MIDRADIUS    0.707106781186547524400844362104
+#define HEXAHEDRON_MIDRADIUS    0.816496580927726032732428024901
+#define ICOSAHEDRON_MIDRADIUS   0.8506508083520399321815404970630
+#define DODECAHEDRON_MIDRADIUS  0.9341723589627156964511186235480
 
 #define TETRAHEDRON_SIDE_LENGTH   1.6329931618554520654648560498
 #define OCTAHEDRON_SIDE_LENGTH    1.41421356237309504880168872421
@@ -75,11 +80,6 @@
 #define ICOSAHEDRON_VOLUME    2.53615071012040952564383822238
 #define DODECAHEDRON_VOLUME   2.78516386312262296729255491273
 
-const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
-	-1.0,               0.0,               0.0,               
-	0.333333333333333,  0.942809041582063, 0.0,               
-	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
-	0.333333333333333,  -0.471404520791032, -0.816496580927726};
 const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
 	1.0,                 0.0,               0.0,               
 	-0.333333333333333, -0.942809041582063, 0.0,               
@@ -88,9 +88,21 @@ const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = {
 const unsigned short _tetrahedron_lines[TETRAHEDRON_LINES*2] = {
 	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
 const unsigned short _tetrahedron_faces[TETRAHEDRON_FACES*3] = {
-	2, 0, 1,  
 	2, 1, 3,  
 	2, 3, 0,  
+	2, 0, 1,  
+	3, 1, 0};
+const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
+	-1.0,               0.0,               0.0,               
+	0.333333333333333,  0.942809041582063, 0.0,               
+	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
+	0.333333333333333,  -0.471404520791032, -0.816496580927726};
+const unsigned short _tetrahedron_dual_lines[TETRAHEDRON_LINES*2] = {
+	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
+const unsigned short _tetrahedron_dual_faces[TETRAHEDRON_FACES*3] = {
+	2, 1, 3,  
+	2, 3, 0,  
+	2, 0, 1,  
 	3, 1, 0};
 const float _octahedron_points[OCTAHEDRON_POINTS*3] = {
 	1.0, 0.0, 0.0,
@@ -131,17 +143,17 @@ const unsigned short _hexahedron_faces[HEXAHEDRON_FACES*4] = {
 	1, 5, 6, 2};
 const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACES*3] = {
 	0, 2, 3,
-	 2, 0, 1,
+	2, 0, 1,
 	4, 1, 0,
-	 1, 4, 5,
+	1, 4, 5,
 	0, 3, 7,
-	 7, 4, 0,	
+	7, 4, 0,
 	7, 5, 4,
-	 5, 7, 6,
+	5, 7, 6,
 	3, 6, 7,
-	 6, 3, 2,
+	6, 3, 2,
 	1, 5, 6,
-	 6, 2, 1};
+	6, 2, 1};
 const float _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
 	0.447213595499958, -0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, 0.850650808352040,
@@ -181,26 +193,26 @@ const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	10, 5, 1,     // pair 1
 	10, 2, 6};
 const float _dodecahedron_points[DODECAHEDRON_POINTS * 3] = {
-	-0.794657,   0.491120, 0.371929,
-	-0.187594,   0.794649, -0.601791,
-	-0.794657,   0.491120, -0.371929,
-	-0.794657, -0.187593, -0.601791,
-	0.187593,  0.303529, -0.973720,
-	0.187594,  0.982242, -0.000000,
-	0.187593,-0.794649, -0.601791,
-	-0.187593, -0.303529, -0.973720,
-	-0.187594, -0.982242, -0.000000,
-	-0.794657, -0.607058, -0.000000,
-	0.794657,-0.491120, -0.371929,
-	0.187593,-0.794649, 0.601791,
-	-0.187593, -0.303529, 0.973720,
-	-0.794657, -0.187593, 0.601791,
-	0.794657,-0.491120, 0.371929,
-	-0.187594,   0.794649, 0.601791,
-	0.187593,  0.303529, 0.973720,
-	0.794657,  0.187593, 0.601791,
-	0.794657,  0.607058, 0.000000,
-	0.794657,  0.187594, -0.601792 };
+	-0.794655, 0.491123, 0.356822,
+	-0.187593, 0.794654, -0.577350,
+	-0.794655, 0.491123, -0.356822,
+	-0.794654, -0.187593, -0.577350,
+	0.187592, 0.303531, -0.934172,
+	0.187592, 0.982247, 0.000000,
+	0.187593, -0.794654, -0.577350,
+	-0.187592, -0.303531, -0.934172,
+	-0.187592, -0.982247, 0.000000,
+	-0.794654, -0.607062, 0.000000,
+	0.794655, -0.491123, -0.356822,
+	0.187593, -0.794654, 0.577350,
+	-0.187592, -0.303531, 0.934172,
+	-0.794654, -0.187593, 0.577350,
+	0.794655, -0.491123, 0.356822,
+	-0.187593, 0.794654, 0.577350,
+	0.187592, 0.303531, 0.934172,
+	0.794654, 0.187593, 0.577350,
+	0.794654, 0.607062, 0.000000,
+	0.794654, 0.187593, -0.577350 };
 const unsigned short _dodecahedron_lines[DODECAHEDRON_LINES * 2] = {
 	19, 18,
 	18, 17,
@@ -271,12 +283,12 @@ const unsigned short _dodecahedron_triangle_faces[DODECAHEDRON_TRIANGLE_FACES * 
 
 	12, 13, 16,
 	13, 0, 16,
-    0,  15, 16,
+	0,  15, 16,
 
 	7, 2, 3,
 	2, 7, 1,
 	1, 7, 4,
 
- 	4, 7,  19,
+	4, 7,  19,
 	19, 7, 10,
 	6, 10, 7 };

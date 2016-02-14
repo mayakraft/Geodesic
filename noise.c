@@ -22,7 +22,7 @@ static void init(void);
 
 #define lerp(t, a, b) ( a + t * (b - a) )
 
-#define setup(i,b0,b1,r0,r1)\
+#define setupNoise(i,b0,b1,r0,r1)\
 t = vec[i] + N;\
 b0 = ((int)t) & BM;\
 b1 = (b0+1) & BM;\
@@ -45,7 +45,7 @@ double noise1(double arg)
 		init();
 	}
     
-	setup(0, bx0,bx1, rx0,rx1);
+	setupNoise(0, bx0,bx1, rx0,rx1);
     
 	sx = s_curve(rx0);
     
@@ -67,8 +67,8 @@ float noise2(float vec[2])
 		init();
 	}
     
-	setup(0, bx0,bx1, rx0,rx1);
-	setup(1, by0,by1, ry0,ry1);
+	setupNoise(0, bx0,bx1, rx0,rx1);
+	setupNoise(1, by0,by1, ry0,ry1);
     
 	i = p[ bx0 ];
 	j = p[ bx1 ];
@@ -106,9 +106,9 @@ float noise3(float vec[3])
 		init();
 	}
     
-	setup(0, bx0,bx1, rx0,rx1);
-	setup(1, by0,by1, ry0,ry1);
-	setup(2, bz0,bz1, rz0,rz1);
+	setupNoise(0, bx0,bx1, rx0,rx1);
+	setupNoise(1, by0,by1, ry0,ry1);
+	setupNoise(2, bz0,bz1, rz0,rz1);
     
 	i = p[ bx0 ];
 	j = p[ bx1 ];

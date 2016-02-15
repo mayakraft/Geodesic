@@ -202,13 +202,15 @@ void display(){
 				break;
 		
 			case POLAR:
-				glTranslatef(0, 0, -ZOOM);
-				glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
-				glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 0, 1);
+				// glTranslatef(0, 0, -ZOOM);
+				// glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+				// glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 0, 1);
 				break;
 
 			case ORTHO:
 				glTranslatef(-mouseDragSumX * (ZOOM/400.0f), mouseDragSumY * (ZOOM/400.0f), 0.0f);
+				break;
+			default:
 				break;
 		}
 		// perspective has been established, draw stuff below

@@ -44,8 +44,8 @@ void mouseMoved(int x, int y);
 #define WALK_INTERVAL .10f  // WALKING SPEED. @ 60 updates/second, walk speed = 6 units/second
 #define MOUSE_SENSITIVITY 0.333f
 // WINDOW size upon boot
-static int WIDTH = 800;  // (readonly) set these values here
-static int HEIGHT = 400; // (readonly) setting during runtime will not re-size window
+static int WIDTH = 700;  // (readonly) set these values here
+static int HEIGHT = 700; // (readonly) setting during runtime will not re-size window
 static unsigned char FULLSCREEN = 0;  // fullscreen:1   window:0
 // INPUT
 static int mouseX = 0;  // get mouse location at any point, units in pixels
@@ -166,7 +166,7 @@ int main(int argc, char **argv){
 	return 0;
 }
 void setupOpenGL(){
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.08f, 0.08f, 0.08f, 1.0f);
 	glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
@@ -181,7 +181,7 @@ void reshape(int w, int h){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if(POV == FPP || POV == POLAR)
-		glFrustum (-.1, .1, -.1/a, .1/a, .1, 100.0);
+		glFrustum (-.02, .02, -.02/a, .02/a, .1, 100.0);
 	else if (POV == ORTHO)
 		glOrtho(-ZOOM, ZOOM, 
 				-ZOOM/a, ZOOM/a, 

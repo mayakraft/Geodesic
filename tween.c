@@ -5,8 +5,8 @@ struct tween {
 	flo_t           *data;  // data in its present state/frame
 	unsigned int    count;  // data count
 
-	flo_t			*dataNaught;  // data at start, 0.0;
-	flo_t			*dataVector;  // change in data from 0.0 to 1.0
+	flo_t           *dataNaught;  // data at start, 0.0;
+	flo_t           *dataVector;  // change in data from 0.0 to 1.0
 };
 
 typedef struct tween tween;

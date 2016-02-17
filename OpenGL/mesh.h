@@ -8,46 +8,28 @@
 #ifndef __geodesic__mesh__
 #define __geodesic__mesh__
 
-// generic draw functions
 
-void drawTriangles(GLfloat *vertices, GLfloat *normals, unsigned short *faces, unsigned int numFaces);
-void drawUniqueTriangles(GLfloat *vertices, GLfloat *normals, unsigned int numTriangles);
-
+/////////////////////////////////
 // geodesic
 
-void geodesicDrawTriangles(geodesicSphere *g);
-void geodesicDrawLines(geodesicSphere *g);
-void geodesicDrawPoints(geodesicSphere *g);
+void drawGeodesicTriangles(geodesicSphere *g);
+void drawGeodesicLines(geodesicSphere *g);
+void drawGeodesicPoints(geodesicSphere *g);
 
+void drawDomeTriangles(geodesicDome *d);
 
+/////////////////////////////////
 // geodesic mesh
-
-struct geodesicMeshNormals {
-    float            *vertexNormalsLines,    *lineNormalsLines,    *faceNormalsLines;
-    unsigned int     numVertexNormals,       numLineNormals,       numFaceNormals;
-}; typedef struct geodesicMeshNormals geodesicMeshNormals;
-
-struct geodesicMeshTriangles{
-    unsigned int    numTriangles;
-    float           *glTriangles,   *glTriangleNormals;
-    float           shrink;  // shrink face
-    // legacy data, get creative!
-    unsigned short *pointReferences;  // length of glTriangles / 3 (not storing X,Y,Z), each pointing to original indices
-}; typedef struct geodesicMeshTriangles geodesicMeshTriangles;
-
-struct geodesicMeshSlicePoints{
-    unsigned int    numPoints;
-    float           *points;
-}; typedef struct geodesicMeshSlicePoints geodesicMeshSlicePoints;
+//
+// the rest of this file has shapes that require generating
+// new geometry outside of what is included in the geodesic class
+typedef struct geodesicMeshNormals geodesicMeshNormals;
+typedef struct geodesicMeshTriangles geodesicMeshTriangles;
+typedef struct geodesicMeshSlicePoints geodesicMeshSlicePoints;
+typedef struct geodesicMeshCropPlanes geodesicMeshCropPlanes;
 
 
-struct geodesicMeshCropPlanes{
-    unsigned int    numPlanes;
-    float           *glTriangles,   *glTriangleNormals;
-}; typedef struct geodesicMeshCropPlanes geodesicMeshCropPlanes;
-
-
-// fill structs, delete structs
+// step 1: initialize the data (delete data after use)
 geodesicMeshNormals makeMeshNormals(geodesicSphere *g);
 geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float scale);
 geodesicMeshSlicePoints makeMeshSlicePoints(geodesicDome *g);
@@ -57,18 +39,18 @@ void deleteMeshTriangles(geodesicMeshTriangles *m);
 void deleteSlicePoints(geodesicMeshSlicePoints *m);
 void deleteCropPlanes(geodesicMeshCropPlanes *m);
 
-// visually expose the geometry normals: (1) vertex, (2) line, (3) face normals
-void geodesicMeshDrawVertexNormalLines(geodesicMeshNormals *m);
-void geodesicMeshDrawLineNormalLines(geodesicMeshNormals *m);
-void geodesicMeshDrawFaceNormalLines(geodesicMeshNormals *m);
+
+// step 2: draw
+
+// draw the geodesic sphere's normal lines: vertex, line, face normals
+void drawGeodesicVertexNormalLines(geodesicMeshNormals *m);
+void drawGeodesicLineNormalLines(geodesicMeshNormals *m);
+void drawGeodesicFaceNormalLines(geodesicMeshNormals *m);
 
 // draw triangle faces, that don't share vertices, able to be manipulated independently
-void geodesicMeshDrawExtrudedTriangles(geodesicMeshTriangles *mesh);
+void drawGeodesicExtrudedTriangles(geodesicMeshTriangles *mesh);
 
 // extra tools
-void geodesicMeshDrawCropPlanes(geodesicMeshCropPlanes *m);
-
-// backend
-void shrinkMeshFaces(geodesicMeshTriangles *m, geodesicSphere *g, float scale);
+void drawGeodesicCropPlanes(geodesicMeshCropPlanes *m);
 
 #endif

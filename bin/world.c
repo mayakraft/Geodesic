@@ -4,22 +4,24 @@
 #include "world.h"
 
 //approx
-#define CLOCKS_PER_SECOND 60000
-
 #define DELTA_TWEEN .05
 
 static unsigned char PAUSE = 0;
-
 
 static GLfloat light_position1[] = { 5.0, 5.0, 5.0, 0.0 };
 static GLfloat light_position2[] = { -5.0, 5.0, -5.0, 0.0 };
 static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
 static GLfloat std_light_pos[] = {0.0, 0.0, 5.0, 0.0};
 
-geodesicSphere geo[3];
-geodesicMeshTriangles m[3];
-tween t[3];
-tween ext;
+geodesicSphere geo;
+geodesicMeshTriangles m;
+tween t;
+geodesicSphere geodesicV2, geodesicV3, geodesicV4;
+geodesicMeshNormals normalsV2;
+
+geodesicDome dome;
+geodesicMeshCropPlanes planes;
+
 
 float noiseRotateX, noiseRotateY;
 
@@ -30,11 +32,9 @@ float noiseRotateX, noiseRotateY;
 void setup(){
 	GRID = 0;
 	GROUND = 0;
-
 	POV = POLAR;
 	ZOOM = 6;
 	glPointSize(64);
-	// glLineWidth(5);
 	GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat mat_shininess[] = { 5.0f };
 	GLfloat red[] = {1.0f, 0.0f, 0.0f, 1.0f};
@@ -56,23 +56,25 @@ void setup(){
 	// glShadeModel(GL_FLAT);
 	glShadeModel(GL_SMOOTH);
 	glEnable( GL_POINT_SMOOTH );
-	glLineWidth(5);
-	glPointSize(10);
-
+	glLineWidth(3);
+	glPointSize(6);
 	glEnable(GL_LIGHTING);
 
-	geo[0] = icosahedronSphere(2);
-	geo[1] = icosahedronSphere(4);
-	geo[2] = icosahedronSphere(12);
-	m[0] = makeMeshTriangles(&geo[0], .8);
-	m[1] = makeMeshTriangles(&geo[1], .8);
-	m[2] = makeMeshTriangles(&geo[2], .8);
-	t[0] = makeTween(geo[0].pointsNotSpherized, geo[0].pointsDeltaSpherized, geo[0].numPoints*3);
-	t[1] = makeTween(geo[1].pointsNotSpherized, geo[1].pointsDeltaSpherized, geo[1].numPoints*3);
-	t[2] = makeTween(geo[2].pointsNotSpherized, geo[2].pointsDeltaSpherized, geo[2].numPoints*3);
-	// ext = makeTween(m.glTriangles, )
- //    unsigned int    numTriangles;
- //    float           *;
+	geo = icosahedronSphere(2);
+
+	geodesicV2 = icosahedronSphere(2);
+	geodesicV3 = icosahedronSphere(3);
+	geodesicV4 = icosahedronSphere(4);
+
+	normalsV2 = makeMeshNormals(&geodesicV2);
+
+	m = makeMeshTriangles(&geo, .8);
+
+	t = makeTween(geo.pointsNotSpherized, geo.pointsDeltaSpherized, geo.numPoints*3);
+
+	dome = icosahedronDome(3, .8);
+
+	planes = makeMeshCropPlanes(&dome);
 
 //	printf("Geodesic (%dv): %d points, %d lines, %d faces\n", g.frequency, g.numPoints, g.numLines, g.numFaces);
 
@@ -86,7 +88,10 @@ void update(){
 	static int count = 0;
 	count++;
 
-	if(count % 120 == 0){
+	// mouseDragSumX = cos(count / 80.0 * M_PI) * 8;
+	// mouseDragSumY = sin(count / 80.0 * M_PI) * 8;
+
+	if(count % 80 == 0){
 		if(tween == 1.0) deltaTween = -DELTA_TWEEN;
 		else if(tween == 0.0) deltaTween = DELTA_TWEEN;
 	}
@@ -109,16 +114,10 @@ void update(){
 			// 		g.pointNormals[i*3+2] = _dodecahedron_points[g.parentFace[i]*3+2];
 			// 	}
 			// }
-			deleteTween(&t[0]);
-			deleteTween(&t[1]);
-			deleteTween(&t[2]);
-			t[0] = makeTween(geo[0].pointsNotSpherized, geo[0].pointsDeltaSpherized, geo[0].numPoints*3);
-			t[1] = makeTween(geo[1].pointsNotSpherized, geo[1].pointsDeltaSpherized, geo[1].numPoints*3);
-			t[2] = makeTween(geo[2].pointsNotSpherized, geo[2].pointsDeltaSpherized, geo[2].numPoints*3);
+			deleteTween(&t);
+			t = makeTween(geo.pointsNotSpherized, geo.pointsDeltaSpherized, geo.numPoints*3);
 		}
-		updateTween(&t[0], tween);
-		updateTween(&t[1], tween);
-		updateTween(&t[2], tween);
+		updateTween(&t, tween);
 	}
 }
 
@@ -130,6 +129,7 @@ void draw(){
 	step4 += .00666;
 	step5 += .0049;
 	step6 += .00821;
+	glTranslatef(0,0,-16);
 
 	glPushMatrix();
 		glTranslatef(0, 0, -ZOOM);
@@ -186,21 +186,89 @@ void draw(){
 		// glPopMatrix();
 
 		glShadeModel(GL_FLAT);
-		for(int i = 0; i < 3; i++){
-			glPushMatrix();
-				glTranslatef((i-1) * 3, 0.0, 0.0);
-				glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
-				glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 0, 1);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glEnableClientState(GL_NORMAL_ARRAY);    
-				glVertexPointer(3, GL_FLOAT, 0, t[i].data);
-				glNormalPointer(GL_FLOAT, 0, geo[i].pointNormals);
-				glDrawElements(GL_TRIANGLES, geo[i].numFaces*3, GL_UNSIGNED_SHORT, geo[i].faces);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
-			glPopMatrix();
-		}
+// TOP ROW
+		glPushMatrix();
+			glTranslatef(-3, 3, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicPoints(&geodesicV3);
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(0, 3, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicLines(&geodesicV3);
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(3, 3, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicTriangles(&geodesicV3);
+		glPopMatrix();
+
+// MIDDLE ROW
+		glPushMatrix();
+			glTranslatef(-3, 0, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicExtrudedTriangles(&m);
+		glPopMatrix();
+
+		glPushMatrix();
+		glScalef(1.618, 1.618, 1.618);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicLines(&geodesicV2);
+
+			glDisable(GL_LIGHTING);
+			glColor3f(1.0, 1.0, 1.0);
+			drawGeodesicVertexNormalLines(&normalsV2);
+			glColor3f(0.0, 1.0, 1.0);
+			drawGeodesicLineNormalLines(&normalsV2);
+			glColor3f(1.0, 0.0, 1.0);
+			drawGeodesicFaceNormalLines(&normalsV2);
+			glEnable(GL_LIGHTING);
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(3, 0, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);    
+			glVertexPointer(3, GL_FLOAT, 0, t.data);
+			glNormalPointer(GL_FLOAT, 0, geo.pointNormals);
+			glDrawElements(GL_TRIANGLES, geo.numFaces*3, GL_UNSIGNED_SHORT, geo.faces);
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+
+		glPopMatrix();
+
+// BOTTOM ROW
+		// glPushMatrix();
+		// 	glTranslatef(-3, -3, 0);
+		// 	glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+		// 	glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+		// 	drawDomeTriangles(&dome);			
+		// glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(3, -3, 0);
+			glRotatef(-mouseDragSumY * MOUSE_SENSITIVITY, 1, 0, 0);
+			glRotatef(-mouseDragSumX * MOUSE_SENSITIVITY, 0, 1, 0);
+			drawGeodesicExtrudedTriangles(&m);
+			
+			glDisable(GL_LIGHTING);
+			glDisable(GL_CULL_FACE);
+			glColor3f(0.5, 0.5, 0.5);
+			drawGeodesicCropPlanes(&planes);
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_LIGHTING);
+		glPopMatrix();
 
 		// geodesicDrawTriangles(&g);
 

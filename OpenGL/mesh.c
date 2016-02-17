@@ -74,22 +74,6 @@ void drawDomeTriangles(geodesicDome *d){
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-// void drawDomeMeshTriangles(geodesicDome *d){
-// 	glPushMatrix();
-// 	glRotatef(-90, 0, 0, 1);
-// 	glScalef(_mesh.shrink, _mesh.shrink, _mesh.shrink);
-// 	glEnableClientState(GL_VERTEX_ARRAY);
-// 	glEnableClientState(GL_NORMAL_ARRAY);
-// 	glVertexPointer(3, GL_FLOAT, 0, _mesh.glTriangles);
-// 	glNormalPointer(GL_FLOAT, 0, _mesh.glTriangleNormals);
-// //    glDrawArrays(GL_TRIANGLES, 0, _geodesicModel.mesh.numTriangles*3);
-// 	glDrawArrays(GL_TRIANGLES, 0, _numVisibleTriangles*3);
-// 	glDisableClientState(GL_NORMAL_ARRAY);
-// 	glDisableClientState(GL_VERTEX_ARRAY);
-// 	glPopMatrix();
-// }
-
-
 // mesh
 
 struct geodesicMeshNormals {
@@ -116,6 +100,22 @@ struct geodesicMeshCropPlanes{
 	float           *glTriangles,   *glTriangleNormals;
 };
 
+
+void drawDomeMeshTriangles(geodesicDome *d, geodesicMeshTriangles *m){
+	glPushMatrix();
+	glScalef(m->shrink, m->shrink, m->shrink);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, m->glTriangles);
+	glNormalPointer(GL_FLOAT, 0, m->glTriangleNormals);
+//    glDrawArrays(GL_TRIANGLES, 0, _geodesicModel.mesh.numTriangles*3);
+	glDrawArrays(GL_TRIANGLES, 0, d->numVisibleTriangles*3);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopMatrix();
+}
+
+ 
 
 
 void drawGeodesicVertexNormalLines(geodesicMeshNormals *m){

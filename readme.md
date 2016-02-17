@@ -6,58 +6,60 @@ R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
 `make` then `./world`
 
+![picture](https://raw.github.com/robbykraft/Geodesic/master/bin/demo.gif)
+
 # files
 
-* `platonic.h + .c` static platonic solids geometry
-* `geodesic.h + .c` process a platonic solid into a geodesic dome or sphere
-* `OpenGL/mesh.h + .c`  make an OpenGL ES mesh of a geodesic object
+* `geodesic.h + .c` data
+* `OpenGL/mesh.h + .c` rendering, and more mesh data for rendering
 
-# data
+# geodesic.h / .c
 
-* points are stored (X, Y, Z) as `float` or `double`
-* lines/faces are pairs/trios of indices in point array `unsigned short`
-* you also get number of points, lines, and faces as an `unsigned int`
-* point, line, and face normals as (X, Y, Z) `float` or `double`
-
-# methods
-
-### undergoing lots of development right now. features being added, functions changing, this will be updated in the end
-
+### types
 ``` c
- // geodesic sphere
+ // sphere
 geodesicSphere icosahedronSphere(int v);
 geodesicSphere octahedronSphere(int v);
 geodesicSphere tetrahedronSphere(int v);
-
- // geodesic dome
+ // dome
 geodesicDome icosahedronDome(int v, float crop);
 geodesicDome octahedronDome(int v, float crop);
 geodesicDome tetrahedronDome(int v, float crop);
 ```
 
-# usage
-
+### usage
 ``` c
- // make
 geodesicSphere icosphere = icosahedron(3)  // 3v icosahedron
 geodesicDome dome = icosahedronDome(3, 5/9);  // 3v 5/9 dome
-// draw
-geodesicDrawTriangles(&icosphere);
-
-// make
-geomeshTriangles mesh = makeMeshTriangles(&icosphere, .75){
-// draw
-geodesicMeshDrawExtrudedTriangles(&mesh);
-
-// make
-geomeshNormals normals = makeMeshNormals(&icosphere);
-// draw
-geodesicMeshDrawVertexNormalLines(&normals);
-geodesicMeshDrawFaceNormalLines(&normals);
 ```
 
+now you have access to points, lines, face, as well as normals data. For domes, there's also more complicated data involved in slicing the sphere into a dome including number of slice meridians, triangle count on each row, relationship of face to row number.
+
+# mesh.h / .c
+
+### initialize
 ``` c
- // remember to delete
+geodesicMeshTriangles mesh = makeMeshTriangles(&icosphere, .75){
+geodesicMeshNormals normals = makeMeshNormals(&icosphere);
+```
+
+### draw
+``` c
+// draw geodesic objects
+drawGeodesicTriangles(&icosphere);
+drawDomeMeshTriangles(&dome, &domeTriangleMesh);
+
+// draw mesh objects
+drawGeodesicExtrudedTriangles(&mesh);
+drawGeodesicVertexNormalLines(&normals);
+drawGeodesicFaceNormalLines(&normals);
+```
+
+# memory
+
+delete geometry when you are done
+
+``` c
 deleteGeodesicSphere(&geodesic);
 deleteGeodesicDome(&dome);
 
@@ -65,4 +67,4 @@ deleteMeshNormals(&normals);
 deleteMeshTriangles(&mesh);
 ```
 
-![picture](https://raw.github.com/robbykraft/Geodesic/master/picture.png)
+![picture](https://raw.github.com/robbykraft/Geodesic/master/bin/picture.png)

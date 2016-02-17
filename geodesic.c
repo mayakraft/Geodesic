@@ -170,6 +170,19 @@ geodesicDome octahedronDome(unsigned int v, float crop) {
 	dome.slicePoints = malloc(sizeof(flo_t)*dome.numMeridians);
 	for(int i = 0; i < dome.numMeridians; i++)
 		dome.slicePoints[i] = sinf( .5 * M_PI * (dome.pointMeridians[i] + dome.pointMeridians[i+1]) * .5);
+//// dome slice, count cumulative triangles at each slice line
+	int counts[dome.numMeridians];
+    for(int i = 0; i < dome.numMeridians; i++){
+        if(i == 0)
+            counts[i] = dome.faceAltitudeCounts[i];
+        else
+            counts[i] = dome.faceAltitudeCounts[i] + counts[i-1];
+    }
+//TODO: better relationship between crop float and numerators and denominators here:
+	int numerator = crop * (dome.numMeridians);
+	if(numerator <= 0) numerator = 1;
+    dome.numVisibleTriangles = counts[numerator - 1];
+
 	return dome;
 }
 geodesicDome icosahedronDome(unsigned int v, float crop) {
@@ -185,8 +198,7 @@ geodesicDome icosahedronDome(unsigned int v, float crop) {
 	dome.slicePoints = malloc(sizeof(flo_t)*dome.numSlicePoints);
 	for(int i = 0; i < dome.numMeridians; i++)
 		dome.slicePoints[i] = sinf( .5 * M_PI * (dome.pointMeridians[i] + dome.pointMeridians[i+1]) * .5);
-////
-
+//// dome slice, count cumulative triangles at each slice line
 	int counts[dome.numMeridians];
     for(int i = 0; i < dome.numMeridians; i++){
         if(i == 0)

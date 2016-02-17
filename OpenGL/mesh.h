@@ -29,6 +29,9 @@ typedef struct geodesicMeshSlicePoints geodesicMeshSlicePoints;
 typedef struct geodesicMeshCropPlanes geodesicMeshCropPlanes;
 
 
+void drawDomeMeshTriangles(geodesicDome *d, geodesicMeshTriangles *m);
+
+
 // step 1: initialize the data (delete data after use)
 geodesicMeshNormals makeMeshNormals(geodesicSphere *g);
 geodesicMeshTriangles makeMeshTriangles(geodesicSphere *g, float scale);

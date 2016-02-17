@@ -22,7 +22,7 @@ geodesicSphere icosahedronSphere(unsigned int v);
 geodesicSphere octahedronSphere(unsigned int v);
 geodesicSphere tetrahedronSphere(unsigned int v);
 
-geodesicDome tetrahedronDome(unsigned int v, float crop);
+// geodesicDome tetrahedronDome(unsigned int v, float crop);
 geodesicDome octahedronDome(unsigned int v, float crop);
 geodesicDome icosahedronDome(unsigned int v, float crop);
 
@@ -69,8 +69,7 @@ struct geodesicDome {
 	unsigned int    *faceAltitudeCounts; // count: numMeridians (number of unique entries in faceAltitudes), how many triangles in each tier
 	// NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 
-	// for rendering triangles
-	unsigned int    numVisibleMeridians;
+	// corresponds to order in mesh array
 	unsigned int    numVisibleTriangles;
 };
 

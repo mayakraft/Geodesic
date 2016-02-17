@@ -4,7 +4,7 @@ R. Buckminster Fuller method 1 spheres and domes from icosahedra or octahedra
 
 # try it out
 
-`make` then `./world`
+`make` then `make run`
 
 ![picture](https://raw.github.com/robbykraft/Geodesic/master/bin/demo.gif)
 

@@ -1,242 +1,113 @@
-#include "platonic.h"
-
 #ifdef __APPLE__
-# if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
-#  import <OpenGLES/ES1/gl.h>
-# elif TARGET_OS_IPHONE
-#  import <OpenGLES/ES1/gl.h>
-# else
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
-# endif
 #else
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #  include <GL/glut.h>
 #endif
 
-#include <stdlib.h>
 
-void tetrahedronMesh(GLfloat **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces){
-    *numPoints = TETRAHEDRON_POINTS;
-    *numLines = TETRAHEDRON_LINES;
-    *numFaces = TETRAHEDRON_FACES;
-    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
-    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
-    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
-    for(int i = 0; i < (*numPoints)*3; i++)
-        points[i] = _tetrahedron_points[i];
-    for(int i = 0; i < (*numLines)*2; i++)
-        lines[i] = _tetrahedron_lines[i];
-    for(int i = 0; i < (*numFaces)*3; i++)
-        faces[i] = _tetrahedron_faces[i];
-    *po = points;
-    *li = lines;
-    *fa = faces;
-}
-
-void octahedronMesh(GLfloat **po, unsigned int *numPoints,
-                 unsigned short **li, unsigned int *numLines,
-                 unsigned short **fa, unsigned int *numFaces){
-    *numPoints = OCTAHEDRON_POINTS;
-    *numLines = OCTAHEDRON_LINES;
-    *numFaces = OCTAHEDRON_FACES;
-    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
-    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
-    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
-    for(int i = 0; i < (*numPoints)*3; i++)
-        points[i] = _octahedron_points[i];
-    for(int i = 0; i < (*numLines)*2; i++)
-        lines[i] = _octahedron_lines[i];
-    for(int i = 0; i < (*numFaces)*3; i++)
-        faces[i] = _octahedron_faces[i];
-    *po = points;
-    *li = lines;
-    *fa = faces;
-}
-
-void hexahedronMesh(GLfloat **po, unsigned int *numPoints,
-                 unsigned short **li, unsigned int *numLines,
-                 unsigned short **fa, unsigned int *numFaces){
-    *numPoints = HEXAHEDRON_POINTS;
-    *numLines = HEXAHEDRON_LINES;
-    *numFaces = HEXAHEDRON_TRIANGLE_FACES;
-    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
-    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
-    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
-    for(int i = 0; i < (*numPoints)*3; i++)
-        points[i] = _hexahedron_points[i];
-    for(int i = 0; i < (*numLines)*2; i++)
-        lines[i] = _hexahedron_lines[i];
-    // hexahedron faces are squares, not triangles
-    for(int i = 0; i < (*numFaces)*4; i++)
-        faces[i] = _hexahedron_triangle_faces[i];
-    *po = points;
-    *li = lines;
-    *fa = faces;
-}
-
-void icosahedronMesh(GLfloat **po, unsigned int *numPoints,
-                  unsigned short **li, unsigned int *numLines,
-                  unsigned short **fa, unsigned int *numFaces){
-    *numPoints = ICOSAHEDRON_POINTS;
-    *numLines = ICOSAHEDRON_LINES;
-    *numFaces = ICOSAHEDRON_FACES;
-    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
-    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
-    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
-    for(int i = 0; i < (*numPoints)*3; i++)
-        points[i] = _icosahedron_points[i];
-    for(int i = 0; i < (*numLines)*2; i++)
-        lines[i] = _icosahedron_lines[i];
-    for(int i = 0; i < (*numFaces)*3; i++)
-        faces[i] = _icosahedron_faces[i];
-    *po = points;
-    *li = lines;
-    *fa = faces;
-}
-
-void _dodecahedron(GLfloat **po, unsigned int *numPoints,
-                   unsigned short **li, unsigned int *numLines,
-                   unsigned short **fa, unsigned int *numFaces){
-    *numPoints = DODECAHEDRON_POINTS;
-    *numLines = DODECAHEDRON_LINES;
-    *numFaces = DODECAHEDRON_TRIANGLE_FACES;
-    GLfloat *points = malloc(sizeof(GLfloat)*(*numPoints)*3);
-    unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
-    unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
-    for(int i = 0; i < (*numPoints)*3; i++)
-        points[i] = _dodecahedron_points[i];
-    for(int i = 0; i < (*numLines)*2; i++)
-        lines[i] = _dodecahedron_lines[i];
-    for(int i = 0; i < (*numFaces)*3; i++)
-        faces[i] = _dodecahedron_triangle_faces[i];
-}
+#include "platonic.h"
 
 ////////////////////////////////////////////////////////
-//    OpenGL ES convenience functions for platonic.h
-//
+//    OpenGL ES functions for platonic.h
+//              rendering points, lines, faces
+
+// index convention for now:
+//   0: tetrahedron
+//   1: octahedron
+//   2: hexahedron
+//   3: icosahedron
+//   4: dodecahedron
+//   5: tetrahedron dual  <- special case (same geometry as 0:tetrahedron, aligned differently)
+
+unsigned int _poly_num_vertices[6] = {
+	TETRAHEDRON_POINT_COUNT, OCTAHEDRON_POINT_COUNT, HEXAHEDRON_POINT_COUNT, ICOSAHEDRON_POINT_COUNT, DODECAHEDRON_POINT_COUNT, TETRAHEDRON_POINT_COUNT
+};
+unsigned int _poly_num_lines[6] = {
+	TETRAHEDRON_LINE_COUNT, OCTAHEDRON_LINE_COUNT, HEXAHEDRON_LINE_COUNT, ICOSAHEDRON_LINE_COUNT, DODECAHEDRON_LINE_COUNT, TETRAHEDRON_LINE_COUNT
+};
+unsigned int _poly_num_faces[6] = {
+	TETRAHEDRON_FACE_COUNT, OCTAHEDRON_FACE_COUNT, HEXAHEDRON_TRIANGLE_FACE_COUNT, ICOSAHEDRON_FACE_COUNT, DODECAHEDRON_TRIANGLE_FACE_COUNT, TETRAHEDRON_FACE_COUNT
+};
+const float* _poly_point_arrays[6] = {
+	_tetrahedron_points, _octahedron_points, _hexahedron_points, _icosahedron_points, _dodecahedron_points, _tetrahedron_dual_points
+};
+const unsigned short* _poly_line_array[6] = {
+	_tetrahedron_lines, _octahedron_lines, _hexahedron_lines, _icosahedron_lines, _dodecahedron_lines, _tetrahedron_dual_lines
+};
+const unsigned short* _poly_face_array[6] = {
+	_tetrahedron_faces, _octahedron_faces, _hexahedron_triangle_faces, _icosahedron_faces, _dodecahedron_triangle_faces, _tetrahedron_dual_faces
+};
+int _poly_dual_index[6] = { 5, 2, 1, 4, 3, 0 };
+
+float platonic_dihedral_angle[6] = {
+	TETRAHEDRON_DIHEDRAL_ANGLE,
+	OCTAHEDRON_DIHEDRAL_ANGLE,
+	HEXAHEDRON_DIHEDRAL_ANGLE,
+	ICOSAHEDRON_DIHEDRAL_ANGLE,
+	DODECAHEDRON_DIHEDRAL_ANGLE,
+	TETRAHEDRON_DIHEDRAL_ANGLE
+};
+float platonic_inradius[6] = {
+	TETRAHEDRON_INRADIUS,
+	OCTAHEDRON_INRADIUS,
+	HEXAHEDRON_INRADIUS,
+	ICOSAHEDRON_INRADIUS,
+	DODECAHEDRON_INRADIUS,
+	TETRAHEDRON_INRADIUS
+};
+float platonic_midradius[6] = {
+	TETRAHEDRON_MIDRADIUS,
+	OCTAHEDRON_MIDRADIUS,
+	HEXAHEDRON_MIDRADIUS,
+	ICOSAHEDRON_MIDRADIUS,
+	DODECAHEDRON_MIDRADIUS,
+	TETRAHEDRON_MIDRADIUS
+};
+float platonic_side_length[6] = {
+	TETRAHEDRON_SIDE_LENGTH,
+	OCTAHEDRON_SIDE_LENGTH,
+	HEXAHEDRON_SIDE_LENGTH,
+	ICOSAHEDRON_SIDE_LENGTH,
+	DODECAHEDRON_SIDE_LENGTH,
+	TETRAHEDRON_SIDE_LENGTH
+};
+float platonic_volume[6] = {
+	TETRAHEDRON_VOLUME,
+	OCTAHEDRON_VOLUME,
+	HEXAHEDRON_VOLUME,
+	ICOSAHEDRON_VOLUME,
+	DODECAHEDRON_VOLUME,
+	TETRAHEDRON_VOLUME
+};
+
 void drawPlatonicSolidFaces(char solidType){
-	const float *vertices;
-	const unsigned short *faces;
-	unsigned int numFaces;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numFaces = TETRAHEDRON_FACES;
-		faces = _tetrahedron_faces;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numFaces = OCTAHEDRON_FACES;
-		faces = _octahedron_faces;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numFaces = HEXAHEDRON_TRIANGLE_FACES;
-		faces = _hexahedron_triangle_faces;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numFaces = ICOSAHEDRON_FACES;
-		faces = _icosahedron_faces;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numFaces = DODECAHEDRON_TRIANGLE_FACES;
-		faces = _dodecahedron_triangle_faces;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numFaces = TETRAHEDRON_FACES;
-		faces = _tetrahedron_faces;
-	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawElements(GL_TRIANGLES, 3*numFaces, GL_UNSIGNED_SHORT, faces);
+	glVertexPointer(3, GL_FLOAT, 0, _poly_point_arrays[solidType]);
+	glNormalPointer(GL_FLOAT, 0, _poly_point_arrays[ solidType ]);
+	glDrawElements(GL_TRIANGLES, 3*_poly_num_faces[solidType], GL_UNSIGNED_SHORT, _poly_face_array[solidType]);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 void drawPlatonicSolidLines(char solidType){
-	const float *vertices;
-	const unsigned short *lines;
-	unsigned int numLines;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numLines = TETRAHEDRON_LINES;
-		lines = _tetrahedron_lines;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numLines = OCTAHEDRON_LINES;
-		lines = _octahedron_lines;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numLines = HEXAHEDRON_LINES;
-		lines = _hexahedron_lines;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numLines = ICOSAHEDRON_LINES;
-		lines = _icosahedron_lines;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numLines = DODECAHEDRON_LINES;
-		lines = _dodecahedron_lines;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numLines = TETRAHEDRON_LINES;
-		lines = _tetrahedron_lines;
-	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawElements(GL_LINES, 2*numLines, GL_UNSIGNED_SHORT, lines);
+	glVertexPointer(3, GL_FLOAT, 0, _poly_point_arrays[solidType]);
+	glNormalPointer(GL_FLOAT, 0, _poly_point_arrays[ solidType ]);
+	glDrawElements(GL_LINES, 2*_poly_num_lines[solidType], GL_UNSIGNED_SHORT, _poly_line_array[solidType]);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 void drawPlatonicSolidPoints(char solidType){
-	const float *vertices;
-	unsigned int numVertices;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numVertices = TETRAHEDRON_POINTS;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numVertices = OCTAHEDRON_POINTS;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numVertices = HEXAHEDRON_POINTS;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numVertices = ICOSAHEDRON_POINTS;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numVertices = DODECAHEDRON_POINTS;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numVertices = TETRAHEDRON_POINTS;
-	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawArrays(GL_POINTS, 0, numVertices);
+	glVertexPointer(3, GL_FLOAT, 0, _poly_point_arrays[solidType]);
+	glNormalPointer(GL_FLOAT, 0, _poly_point_arrays[ solidType ]);
+	glDrawArrays(GL_POINTS, 0, _poly_num_vertices[solidType]);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////

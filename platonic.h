@@ -25,27 +25,27 @@
 
 // for higher precision replace occurrences of "float" with "double" or "long double"
 
-#define TETRAHEDRON_POINTS 4
-#define TETRAHEDRON_LINES 6
-#define TETRAHEDRON_FACES 4
+#define TETRAHEDRON_POINT_COUNT 4
+#define TETRAHEDRON_LINE_COUNT 6
+#define TETRAHEDRON_FACE_COUNT 4
 
-#define OCTAHEDRON_POINTS 6
-#define OCTAHEDRON_LINES 12
-#define OCTAHEDRON_FACES 8
+#define OCTAHEDRON_POINT_COUNT 6
+#define OCTAHEDRON_LINE_COUNT 12
+#define OCTAHEDRON_FACE_COUNT 8
 
-#define HEXAHEDRON_POINTS 8
-#define HEXAHEDRON_LINES 12
-#define HEXAHEDRON_FACES 6
-#define HEXAHEDRON_TRIANGLE_FACES 12  // OpenGL ES can only render triangles
+#define HEXAHEDRON_POINT_COUNT 8
+#define HEXAHEDRON_LINE_COUNT 12
+#define HEXAHEDRON_FACE_COUNT 6
+#define HEXAHEDRON_TRIANGLE_FACE_COUNT 12  // OpenGL ES can only render triangles
 
-#define ICOSAHEDRON_POINTS 12
-#define ICOSAHEDRON_LINES 30
-#define ICOSAHEDRON_FACES 20
+#define ICOSAHEDRON_POINT_COUNT 12
+#define ICOSAHEDRON_LINE_COUNT 30
+#define ICOSAHEDRON_FACE_COUNT 20
 
-#define DODECAHEDRON_POINTS 20
-#define DODECAHEDRON_LINES 30
-#define DODECAHEDRON_FACES 12
-#define DODECAHEDRON_TRIANGLE_FACES 36
+#define DODECAHEDRON_POINT_COUNT 20
+#define DODECAHEDRON_LINE_COUNT 30
+#define DODECAHEDRON_FACE_COUNT 12
+#define DODECAHEDRON_TRIANGLE_FACE_COUNT 36
 
 // dihedral angle is the angle between two adjacent faces,
 //  circling under and running perpendicular to the edge dividing the faces
@@ -80,40 +80,40 @@
 #define ICOSAHEDRON_VOLUME    2.53615071012040952564383822238
 #define DODECAHEDRON_VOLUME   2.78516386312262296729255491273
 
-const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
+const float _tetrahedron_points[TETRAHEDRON_POINT_COUNT*3] = { 
 	1.0,                 0.0,               0.0,               
 	-0.333333333333333, -0.942809041582063, 0.0,               
 	-0.333333333333333,  0.471404520791032, 0.816496580927726, 
 	-0.333333333333333,  0.471404520791032, -0.816496580927726};
-const unsigned short _tetrahedron_lines[TETRAHEDRON_LINES*2] = {
+const unsigned short _tetrahedron_lines[TETRAHEDRON_LINE_COUNT*2] = {
 	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
-const unsigned short _tetrahedron_faces[TETRAHEDRON_FACES*3] = {
+const unsigned short _tetrahedron_faces[TETRAHEDRON_FACE_COUNT*3] = {
 	2, 1, 3,  
 	2, 3, 0,  
 	2, 0, 1,  
 	3, 1, 0};
-const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
+const float _tetrahedron_dual_points[TETRAHEDRON_POINT_COUNT*3] = { 
 	-1.0,               0.0,               0.0,               
 	0.333333333333333,  0.942809041582063, 0.0,               
 	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
 	0.333333333333333,  -0.471404520791032, -0.816496580927726};
-const unsigned short _tetrahedron_dual_lines[TETRAHEDRON_LINES*2] = {
+const unsigned short _tetrahedron_dual_lines[TETRAHEDRON_LINE_COUNT*2] = {
 	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
-const unsigned short _tetrahedron_dual_faces[TETRAHEDRON_FACES*3] = {
+const unsigned short _tetrahedron_dual_faces[TETRAHEDRON_FACE_COUNT*3] = {
 	2, 1, 3,  
 	2, 3, 0,  
 	2, 0, 1,  
 	3, 1, 0};
-const float _octahedron_points[OCTAHEDRON_POINTS*3] = {
+const float _octahedron_points[OCTAHEDRON_POINT_COUNT*3] = {
 	1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0,
 	0.0, 0.0, 1.0,
 	-1.0, 0.0, 0.0,
 	0.0, -1.0, 0.0,
 	0.0, 0.0, -1.0};
-const unsigned short _octahedron_lines[OCTAHEDRON_LINES*2] = {
+const unsigned short _octahedron_lines[OCTAHEDRON_LINE_COUNT*2] = {
 	1, 0, 1, 2, 1, 5, 1, 3, 3, 2, 2, 0, 0, 5, 5, 3, 4, 2, 4, 3, 4, 5, 4, 0};
-const unsigned short _octahedron_faces[OCTAHEDRON_FACES*3] = { 
+const unsigned short _octahedron_faces[OCTAHEDRON_FACE_COUNT*3] = { 
 	1, 0, 2, 
 	1, 5, 0, 
 	4, 0, 5,
@@ -122,7 +122,7 @@ const unsigned short _octahedron_faces[OCTAHEDRON_FACES*3] = {
 	1, 3, 5, 
 	4, 5, 3, 
 	4, 3, 2};
-const float _hexahedron_points[HEXAHEDRON_POINTS*3] = { 
+const float _hexahedron_points[HEXAHEDRON_POINT_COUNT*3] = { 
 	0.57735026918963, 0.57735026918963, 0.57735026918963,
 	0.57735026918963, 0.57735026918963, -0.57735026918963,
 	0.57735026918963, -0.57735026918963, -0.57735026918963,
@@ -131,9 +131,9 @@ const float _hexahedron_points[HEXAHEDRON_POINTS*3] = {
 	-0.57735026918963, 0.57735026918963, -0.57735026918963,
 	-0.57735026918963, -0.57735026918963, -0.57735026918963,
 	-0.57735026918963, -0.57735026918963, 0.57735026918963};
-const unsigned short _hexahedron_lines[HEXAHEDRON_LINES*2] = {
+const unsigned short _hexahedron_lines[HEXAHEDRON_LINE_COUNT*2] = {
 	0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 1, 5, 2, 6, 3, 7, 4, 5, 5, 6, 6, 7, 7, 4};
-const unsigned short _hexahedron_faces[HEXAHEDRON_FACES*4] = {
+const unsigned short _hexahedron_faces[HEXAHEDRON_FACE_COUNT*4] = {
 // these are being stored as squares, not triangles
 	0, 3, 2, 1,
 	4, 0, 1, 5,
@@ -141,7 +141,7 @@ const unsigned short _hexahedron_faces[HEXAHEDRON_FACES*4] = {
 	7, 4, 5, 6,
 	3, 7, 6, 2,
 	1, 5, 6, 2};
-const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACES*3] = {
+const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACE_COUNT*3] = {
 	0, 2, 3,
 	2, 0, 1,
 	4, 1, 0,
@@ -154,7 +154,7 @@ const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACES*3] = {
 	6, 3, 2,
 	1, 5, 6,
 	6, 2, 1};
-const float _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
+const float _icosahedron_points[ICOSAHEDRON_POINT_COUNT*3] = {
 	0.447213595499958, -0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, -0.850650808352040,
@@ -167,11 +167,11 @@ const float _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
 	1.0,                0.0,               0.0,
 	-0.447213595499958, 0.894427190999916, 0.0,
 	-1.0,               0.0,               0.0};
-const unsigned short _icosahedron_lines[ICOSAHEDRON_LINES*2] = {
+const unsigned short _icosahedron_lines[ICOSAHEDRON_LINE_COUNT*2] = {
 	0, 8, 0, 9, 0, 1, 0, 4, 0, 5, 8, 3, 8, 9, 8, 7, 8, 4, 9, 3, 
 	9, 6, 9, 5, 7, 4, 7, 3, 7, 2, 7, 11, 2, 10, 2, 11, 2, 3, 2, 6,
 	10, 11, 10, 5, 10, 6, 10, 1, 11, 1, 11, 4, 4, 1, 5, 1, 5, 6, 6, 3};
-const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = { 
+const unsigned short _icosahedron_faces[ICOSAHEDRON_FACE_COUNT*3] = { 
 	8, 7, 4, 
 	7, 8, 3,    // pair 2 
 	8, 4, 0, 
@@ -192,7 +192,7 @@ const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	10, 6, 5, 
 	10, 5, 1,     // pair 1
 	10, 2, 6};
-const float _dodecahedron_points[DODECAHEDRON_POINTS * 3] = {
+const float _dodecahedron_points[DODECAHEDRON_POINT_COUNT * 3] = {
 	-0.794655, 0.491123, 0.356822,
 	-0.187593, 0.794654, -0.577350,
 	-0.794655, 0.491123, -0.356822,
@@ -213,7 +213,7 @@ const float _dodecahedron_points[DODECAHEDRON_POINTS * 3] = {
 	0.794654, 0.187593, 0.577350,
 	0.794654, 0.607062, 0.000000,
 	0.794654, 0.187593, -0.577350 };
-const unsigned short _dodecahedron_lines[DODECAHEDRON_LINES * 2] = {
+const unsigned short _dodecahedron_lines[DODECAHEDRON_LINE_COUNT * 2] = {
 	19, 18,
 	18, 17,
 	17, 14,
@@ -244,7 +244,7 @@ const unsigned short _dodecahedron_lines[DODECAHEDRON_LINES * 2] = {
 	16, 17,
 	16, 12,
 	4, 7 };
-const unsigned short _dodecahedron_triangle_faces[DODECAHEDRON_TRIANGLE_FACES * 3] = {
+const unsigned short _dodecahedron_triangle_faces[DODECAHEDRON_TRIANGLE_FACE_COUNT * 3] = {
 	5, 2, 1,
 	15, 0, 5,
 	2, 5, 0,

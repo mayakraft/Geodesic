@@ -109,6 +109,63 @@ void _apply_geodesic_sphere_normals(geodesicSphere *g);
 void _make_meridians(geodesicDome *dome, int v);
 void _sort_faces_by_meridian(geodesicDome *dome);
 
+void tetrahedronMesh(flo_t **po, unsigned int *numPoints,
+				  unsigned short **li, unsigned int *numLines,
+				  unsigned short **fa, unsigned int *numFaces){
+	*numPoints = TETRAHEDRON_POINT_COUNT;
+	*numLines = TETRAHEDRON_LINE_COUNT;
+	*numFaces = TETRAHEDRON_FACE_COUNT;
+	flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+	unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+	unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+	for(int i = 0; i < (*numPoints)*3; i++)
+		points[i] = _tetrahedron_points[i];
+	for(int i = 0; i < (*numLines)*2; i++)
+		lines[i] = _tetrahedron_lines[i];
+	for(int i = 0; i < (*numFaces)*3; i++)
+		faces[i] = _tetrahedron_faces[i];
+	*po = points;
+	*li = lines;
+	*fa = faces;
+}
+void octahedronMesh(flo_t **po, unsigned int *numPoints,
+				 unsigned short **li, unsigned int *numLines,
+				 unsigned short **fa, unsigned int *numFaces){
+	*numPoints = OCTAHEDRON_POINT_COUNT;
+	*numLines = OCTAHEDRON_LINE_COUNT;
+	*numFaces = OCTAHEDRON_FACE_COUNT;
+	flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+	unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+	unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+	for(int i = 0; i < (*numPoints)*3; i++)
+		points[i] = _octahedron_points[i];
+	for(int i = 0; i < (*numLines)*2; i++)
+		lines[i] = _octahedron_lines[i];
+	for(int i = 0; i < (*numFaces)*3; i++)
+		faces[i] = _octahedron_faces[i];
+	*po = points;
+	*li = lines;
+	*fa = faces;
+}
+void icosahedronMesh(flo_t **po, unsigned int *numPoints,
+				  unsigned short **li, unsigned int *numLines,
+				  unsigned short **fa, unsigned int *numFaces){
+	*numPoints = ICOSAHEDRON_POINT_COUNT;
+	*numLines = ICOSAHEDRON_LINE_COUNT;
+	*numFaces = ICOSAHEDRON_FACE_COUNT;
+	flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+	unsigned short *lines = malloc(sizeof(unsigned short)*(*numLines)*2);
+	unsigned short *faces = malloc(sizeof(unsigned short)*(*numFaces)*3);
+	for(int i = 0; i < (*numPoints)*3; i++)
+		points[i] = _icosahedron_points[i];
+	for(int i = 0; i < (*numLines)*2; i++)
+		lines[i] = _icosahedron_lines[i];
+	for(int i = 0; i < (*numFaces)*3; i++)
+		faces[i] = _icosahedron_faces[i];
+	*po = points;
+	*li = lines;
+	*fa = faces;
+}
 
 geodesicSphere tetrahedronSphere(unsigned int v){
 	geodesicSphere g;

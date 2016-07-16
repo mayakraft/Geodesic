@@ -42,10 +42,6 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
 			indexLengths++;
 			originalLengths[indexOriginalLengths] = distance;
 			indexOriginalLengths++;
-//            [lineClass addObject:[[NSNumber alloc] initWithInt:i]];
-//            [lengths addObject:[[NSNumber alloc] initWithUnsignedInt:rounded]];
-//            [originalLengths addObject:[[NSNumber alloc] initWithDouble:distance]];
-			//NSLog(@"O:%.21g ->%d",distance,i);
 		}
 		else{
 			found = 0;//false;
@@ -55,8 +51,6 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
 					found = 1;
 					lineClass[indexLineClass] = j;
 					indexLineClass++;
-//                    [lineClass addObject:[[NSNumber alloc] initWithInt:j]];
-					//NSLog(@"O:%.21g ->%d",distance,j);
 				}
 			}
 			if(!found){
@@ -66,14 +60,9 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
 				indexLengths++;
 				originalLengths[indexOriginalLengths] = distance;
 				indexOriginalLengths++;
-//                [lineClass addObject:[[NSNumber alloc] initWithInt:j]];
-//                [lengths addObject:[[NSNumber alloc] initWithUnsignedInt:rounded]];
-//                [originalLengths addObject:[[NSNumber alloc] initWithDouble:distance]];
-				//NSLog(@"O:%.21g ->%d",distance,j);
 			}
 		}
 	}
-	//    NSLog(@"%d, %d", lineClass.count, lines_.count);
 	a.lineLengthValues = malloc(sizeof(double)*indexOriginalLengths);
 	for(int i = 0; i < indexOriginalLengths; i++)
 		a.lineLengthValues[i] = originalLengths[i];
@@ -85,14 +74,7 @@ geodesicAnalysis classifyLines(geodesicSphere *g)
 	for(int i = 0; i < indexLineClass; i++){
 		a.lineTypesQuantities[lineClass[i]]++;
 	}
-//    lineClass_ = [[NSArray alloc] initWithArray:lineClass];
-//    lineClassLengths_ = [[NSArray alloc] initWithArray:originalLengths];
 
-	//for(i=0; i < lineClass_.count; i++) NSLog(@"%d", [lineClass_[i] integerValue]);
-	//NSLog(@"%d, %d, %d", lines_.count, lineClass_.count, lineClassLengths_.count);
-	//NSLog(@"*****************");
-	//for(i=0; i < lineClassLengths_.count; i++) NSLog(@"Strut %d: %f", i, [lineClassLengths_[i] floatValue]);
-	
 	a.numLineLengths = indexOriginalLengths;
 
 	return a;

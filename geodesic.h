@@ -38,15 +38,15 @@ struct geodesicSphere {
 	unsigned int    numLines;
 	unsigned int    numFaces;
 
-	flo_t           *points;  // count: numPoints * 3
-	unsigned short  *lines;   // count: numLines * 2    - indices in *points array
-	unsigned short  *faces;   // count: numFaces * 3    - indices in *points array
+	flo_t           *points;  // count is numPoints * 3
+	unsigned short  *lines;   // count is numLines * 2    - indices in *points array
+	unsigned short  *faces;   // count is numFaces * 3    - indices in *points array
 
-	flo_t           *pointNormals;  // count: numPoints * 3
-	flo_t           *lineNormals;   // count: numLines * 3
-	flo_t           *faceNormals;   // count: numFaces * 3  
+	flo_t           *pointNormals;  // count is numPoints * 3
+	flo_t           *lineNormals;   // count is numLines * 3
+	flo_t           *faceNormals;   // count is numFaces * 3
 
-	unsigned int frequency;  
+	unsigned int frequency;
 
 	// legacy data. get creative!
 	flo_t           *pointsNotSpherized;
@@ -60,13 +60,13 @@ struct geodesicDome {
 
 	flo_t           *slicePoints;
 	flo_t           numSlicePoints;
-	unsigned int    *sliceSizes;  // count: number of slices. contains number of faces within each slice
+	unsigned int    *sliceSizes;  // count is number of slices. contains number of faces within each slice
 	// stuff for cropping a sphere into a dome
 	unsigned int    numMeridians;
-	flo_t           *pointMeridians;   // count: numMeridians + 1, the different major-axis-latitudes of points
-	flo_t           *faceMeridians;    // count: numMeridians, the different major-axis-latitudes of the center of faces
-	unsigned short  *faceAltitudes;    // count: numFaces, each face is paired with its altitude (major-axis-axis) (index to faceMeridians)
-	unsigned int    *faceAltitudeCounts; // count: numMeridians (number of unique entries in faceAltitudes), how many triangles in each tier
+	flo_t           *pointMeridians;   // count is numMeridians + 1, the different major-axis-latitudes of points
+	flo_t           *faceMeridians;    // count is numMeridians, the different major-axis-latitudes of the center of faces
+	unsigned short  *faceAltitudes;    // count is numFaces, each face is paired with its altitude (major-axis-axis) (index to faceMeridians)
+	unsigned int    *faceAltitudeCounts; // count is numMeridians (number of unique entries in faceAltitudes), how many triangles in each tier
 	// NOTE meridians differ by 1, pointMeridians also contain top and bottom, hence +1 count, faceMeridians are everything in between
 
 	// corresponds to order in mesh array
@@ -80,7 +80,7 @@ geodesicAnalysis classifyLines(geodesicSphere *g);
 struct geodesicAnalysis {
 	double          *lineLengthValues;
 	unsigned int    numLineLengths;      // the above array size
-	unsigned int    *lineLengthTypes;    // count: numLines, pointers to indices in lineLengthValues
+	unsigned int    *lineLengthTypes;    // count is numLines, pointers to indices in lineLengthValues
 	unsigned int    *lineTypesQuantities;
 };
 
